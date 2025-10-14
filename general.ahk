@@ -2,6 +2,8 @@
 
 #Include text_replacements.ahk
 
+TraySetIcon("assets\icons8-cog-wheel-32.ico")
+
 Pause:: {
     Send("{Media_Play_Pause}")
 }
@@ -34,3 +36,7 @@ PgDn:: {
 ^Esc::return
 
 !+R::Run("C:\Users\jeral\AppData\Local\RuneLite\RuneLite.exe")
+
+#!S:: {
+    DllCall("PowrProf\SetSuspendState", "Int", 0, "Int", 0, "Int", 1)
+}
