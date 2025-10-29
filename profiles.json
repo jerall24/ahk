@@ -1,0 +1,14 @@
+﻿{
+  "currentProfile": "Herblore",
+  "profiles": {
+    "Construction": {
+      "Numpad0": "ProcessConstruction",
+      "Numpad3": "CaptureConstructionBankSlot",
+      "NumpadDot": "ClickConstructionBank"
+    },
+    "Default": {},
+    "Herblore": {
+      "Numpad0": "ProcessHerblore"
+    }
+  }
+}

@@ -381,19 +381,44 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     ToolTip "Found " clusters.Length " object(s) with " foundPixels.Length " pixels"
     SetTimer () => ToolTip(), -1000
 
-    ; Pick a random cluster
-    randomCluster := clusters[Random(1, clusters.Length)]
+    ; Calculate character center position (always in center of screen)
+    characterCenterX := (searchX1 + searchX2) / 2
+    characterCenterY := (searchY1 + searchY2) / 2
 
-    ; Calculate centroid of the selected cluster
+    ; Find the cluster closest to character center
+    closestCluster := ""
+    closestDistance := 999999
+
+    for cluster in clusters {
+        ; Calculate centroid of this cluster
+        sumX := 0
+        sumY := 0
+        for pixel in cluster {
+            sumX += pixel.x
+            sumY += pixel.y
+        }
+        clusterCentroidX := sumX / cluster.Length
+        clusterCentroidY := sumY / cluster.Length
+
+        ; Calculate distance from character center
+        distance := Sqrt((clusterCentroidX - characterCenterX)**2 + (clusterCentroidY - characterCenterY)**2)
+
+        if (distance < closestDistance) {
+            closestDistance := distance
+            closestCluster := cluster
+        }
+    }
+
+    ; Calculate centroid of the closest cluster
     sumX := 0
     sumY := 0
-    for pixel in randomCluster {
+    for pixel in closestCluster {
         sumX += pixel.x
         sumY += pixel.y
     }
 
-    centroidX := Round(sumX / randomCluster.Length)
-    centroidY := Round(sumY / randomCluster.Length)
+    centroidX := Round(sumX / closestCluster.Length)
+    centroidY := Round(sumY / closestCluster.Length)
 
     ; Apply margins
     targetX := centroidX + marginX

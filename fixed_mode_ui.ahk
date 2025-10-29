@@ -18,7 +18,10 @@ global FixedModeUI := Map(
     "inventory_tab", {x1: 630, y1: 172, x2: 655, y2: 198},
     "equipment_tab", {x1: 663, y1: 173, x2: 687, y2: 200},
     "prayer_tab", {x1: 696, y1: 174, x2: 721, y2: 198},
-    "spellbook_tab", {x1: 728, y1: 172, x2: 755, y2: 198}
+    "spellbook_tab", {x1: 728, y1: 172, x2: 755, y2: 198},
+
+    ; Bank interface elements
+    "bank_deposit_inventory", {x1: 425, y1: 296, x2: 458, y2: 328}
 
 )
 
