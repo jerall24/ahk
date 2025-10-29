@@ -36,7 +36,7 @@ ProcessHerblore() {
 
     ; Click second captured bank slot
     ClickBankSlot(capturedBankSlot2)
-    Sleep(Random(750, 1000))
+    Sleep(Random(500, 800))
 
     Send("{Escape}")
 

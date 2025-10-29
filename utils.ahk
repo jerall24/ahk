@@ -265,7 +265,7 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
         randomIndex := Random(1, foundPixels.Length)
         targetX := foundPixels[randomIndex].x + marginX
         targetY := foundPixels[randomIndex].y + marginY
-        SendEvent "{Click " targetX " " targetY "}"
+        HumanClick(targetX, targetY, "left", 1.0, 1.0)
         return true
     }
 
@@ -278,7 +278,7 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
 ClickRandomPixel(x1, y1, x2, y2) {
     randomX := Random(x1, x2)
     randomY := Random(y1, y2)
-    SendEvent "{Click " randomX " " randomY "}"
+    HumanClick(randomX, randomY, "left", 1.0, 1.0)
 }
 
 ; NEW: Cluster-based centroid clicking function
@@ -424,8 +424,8 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     targetX := centroidX + marginX
     targetY := centroidY + marginY
 
-    ; Click at centroid
-    SendEvent "{Click " targetX " " targetY "}"
+    ; Click at centroid with human-like movement
+    HumanClick(targetX, targetY, "left", 1.0, 1.0)
 
     ToolTip "Clicked cluster centroid at (" targetX ", " targetY ")"
     SetTimer () => ToolTip(), -1000

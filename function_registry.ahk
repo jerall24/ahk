@@ -6,6 +6,7 @@
 ; ======================================
 
 ; Import all core function files from functions/ folder
+#Include functions\mouse_movement.ahk
 #Include functions\pixel_functions.ahk
 #Include functions\inventory_functions.ahk
 #Include functions\bank_functions.ahk
@@ -36,6 +37,7 @@ MergeRegistries() {
 
     ; Core function registries (always included)
     registriesToMerge := [
+        MouseMovementRegistry,
         PixelFunctionsRegistry,
         InventoryFunctionsRegistry,
         BankFunctionsRegistry,
