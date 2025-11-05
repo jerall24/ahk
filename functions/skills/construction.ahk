@@ -24,6 +24,9 @@ CaptureConstructionBankSlot() {
     ; Store the captured slot
     capturedConstructionBankSlot := slot
 
+    ; Save to profile
+    SaveProfiles()
+
     ; Show confirmation
     ToolTip "Construction bank slot captured!`nSlot: " capturedConstructionBankSlot
     SetTimer () => ToolTip(), -3000
@@ -31,10 +34,17 @@ CaptureConstructionBankSlot() {
     return true
 }
 
-; Full construction processing cycle
+; PvP World plank making cycle
 ; Withdraws materials, builds, and returns to bank
-ProcessConstruction() {
+PvPWorldPlankMake() {
     global capturedConstructionBankSlot
+
+    ClickConstructionBank()
+    if (!WaitForPixelColor(420, 96, 0xAC884D, 8000)) {
+        ToolTip "Bank interface did not open - aborting"
+        SetTimer () => ToolTip(), -2000
+        return
+    }
 
     ; Check if bank slot has been captured
     if (capturedConstructionBankSlot = 0) {
@@ -48,14 +58,16 @@ ProcessConstruction() {
     Sleep(Random(100, 200))
 
     ; Step 2: Hit escape
-    Send("{Escape}")
+    Send("{Escape}") 
     Sleep(Random(100, 200))
 
-    ; Step 3: Click in coordinates: 609, 270, 627, 288
+    ; Step 3: Teleport to house
     ClickRandomPixel(609, 270, 627, 288)
 
-    ; Step 4: Wait 500-1000ms
-    Sleep(Random(3500, 5000))
+    ; Step 4: Wait for screen to turn black, then wait for it to NOT be black
+    ; Continue even if timeout is reached
+    WaitForPixelColor(395, 259, 0x000000, 5000)  ; Wait for black screen
+    WaitForPixelColorNot(395, 259, 0x000000, 5000)  ; Wait for screen to load
 
     ; Step 5: Hit F9
     Send("{F9}")
@@ -67,7 +79,7 @@ ProcessConstruction() {
     ; Step 7: Wait 100-200ms and then click anywhere in coordinates: 557, 389, 726, 415
     Sleep(Random(500, 700))
     ClickRandomPixel(557, 389, 726, 415)
-    Sleep(Random(500, 700))
+    Sleep(Random(700, 800))
 
     ; Step 8: Send 1, space, 1, space sequence
     Send("{1}")
@@ -103,10 +115,10 @@ global ConstructionRegistry := Map(
         func: CaptureConstructionBankSlot,
         description: "Capture bank slot for construction materials (right-click on item)"
     },
-    "ProcessConstruction", {
-        name: "ProcessConstruction",
-        func: ProcessConstruction,
-        description: "Full construction cycle: withdraw materials, build items, return to bank"
+    "PvPWorldPlankMake", {
+        name: "PvPWorldPlankMake",
+        func: PvPWorldPlankMake,
+        description: "PvP World plank making: withdraw materials, build planks, return to bank"
     },
     "ClickConstructionBank", {
         name: "ClickConstructionBank",

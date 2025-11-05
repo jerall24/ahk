@@ -1,14 +1,55 @@
 ﻿{
-  "currentProfile": "Herblore",
+  "currentProfile": "Mining",
   "profiles": {
     "Construction": {
-      "Numpad0": "ProcessConstruction",
-      "Numpad3": "CaptureConstructionBankSlot",
-      "NumpadDot": "ClickConstructionBank"
+      "bindings": {
+        "Numpad0": "PvPWorldPlankMake",
+        "Numpad3": "CaptureConstructionBankSlot",
+        "NumpadDot": "ClickConstructionBank"
+      }
     },
-    "Default": {},
+    "Default": {
+      "bindings": {
+        "NumpadDiv": "ResizeToFixedMode"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
+      }
+    },
     "Herblore": {
-      "Numpad0": "ProcessHerblore"
+      "bindings": {
+        "Numpad0": "ProcessHerblore",
+        "Numpad1": "ClickCyanCentroid",
+        "NumpadAdd": "ClickCyanCentroid",
+        "NumpadDot": "CaptureFourBankSlots"
+      }
+    },
+    "Mining": {
+      "bindings": {
+        "Numpad0": "ClickCyanCentroid",
+        "Numpad3": "ClickSpecialAttack",
+        "NumpadDot": "ClickCapturedInventorySlots"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
+        "inventorySlot1": "6",
+        "inventorySlot2": "2"
+      }
+    },
+    "Utility": {
+      "bindings": {
+        "Numpad1": "CapturePixelAndColor"
+      }
     }
   }
 }

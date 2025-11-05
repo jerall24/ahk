@@ -11,6 +11,7 @@
 #Include functions\inventory_functions.ahk
 #Include functions\bank_functions.ahk
 #Include functions\ui_functions.ahk
+#Include functions\utility_functions.ahk
 
 ; ======================================
 ; SKILLS INCLUDES
@@ -41,7 +42,8 @@ MergeRegistries() {
         PixelFunctionsRegistry,
         InventoryFunctionsRegistry,
         BankFunctionsRegistry,
-        UIFunctionsRegistry
+        UIFunctionsRegistry,
+        UtilityFunctionsRegistry
     ]
 
     ; Add your skill registries here (must match the variable names from your skill files)

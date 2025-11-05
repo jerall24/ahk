@@ -5,17 +5,29 @@
 ; Implements Bezier curves with variable speed and jitter
 ; ======================================
 
+; Global flag to prevent recursive calls
+global isMovingMouse := false
+
 ; Main function: Move mouse to target using human-like movement
 ; Parameters:
 ;   targetX, targetY - Destination coordinates
 ;   speed - Movement speed multiplier (0.5 = slower, 2.0 = faster, default 1.0)
 ;   accuracy - How close to get to target (0.5-2.0, lower = more overshoot, default 1.0)
 HumanMouseMove(targetX, targetY, speed := 1.0, accuracy := 1.0) {
+    global isMovingMouse
+
+    ; Prevent recursive calls
+    if (isMovingMouse) {
+        return
+    }
+    isMovingMouse := true
+
     ; Get current mouse position
     MouseGetPos(&startX, &startY)
 
     ; If already at target, don't move
     if (startX = targetX && startY = targetY) {
+        isMovingMouse := false
         return
     }
 
@@ -41,6 +53,9 @@ HumanMouseMove(targetX, targetY, speed := 1.0, accuracy := 1.0) {
 
     ; Move along the path with variable speed
     MoveAlongPath(pathPoints, speed, accuracy, targetX, targetY)
+
+    ; Release the lock
+    isMovingMouse := false
 }
 
 ; Generate random control points for cubic Bezier curve

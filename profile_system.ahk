@@ -8,11 +8,26 @@
 ; Global profile storage
 global CurrentProfile := "Default"
 global Profiles := Map()
+global ProfileSlots := Map()  ; Stores slots per profile
 global ProfilesFilePath := A_ScriptDir "\profiles.json"
 
 ; Save profiles to JSON file
 SaveProfiles() {
-    global Profiles, CurrentProfile, ProfilesFilePath
+    global Profiles, CurrentProfile, ProfilesFilePath, ProfileSlots
+    global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
+    global capturedInventorySlot1, capturedInventorySlot2
+    global capturedConstructionBankSlot
+
+    ; Store current profile's slots before saving
+    ProfileSlots[CurrentProfile] := Map(
+        "bankSlot1", capturedBankSlot1,
+        "bankSlot2", capturedBankSlot2,
+        "bankSlot3", capturedBankSlot3,
+        "bankSlot4", capturedBankSlot4,
+        "inventorySlot1", capturedInventorySlot1,
+        "inventorySlot2", capturedInventorySlot2,
+        "constructionBankSlot", capturedConstructionBankSlot
+    )
 
     ; Convert Profiles Map to JSON-compatible object
     profilesObj := Map()
@@ -20,11 +35,21 @@ SaveProfiles() {
     profilesObj["profiles"] := Map()
 
     for profileName, bindings in Profiles {
+        profileData := Map()
+
+        ; Save bindings
         bindingsObj := Map()
         for keyName, funcName in bindings {
             bindingsObj[keyName] := funcName
         }
-        profilesObj["profiles"][profileName] := bindingsObj
+        profileData["bindings"] := bindingsObj
+
+        ; Save slots for this profile
+        if (ProfileSlots.Has(profileName)) {
+            profileData["slots"] := ProfileSlots[profileName]
+        }
+
+        profilesObj["profiles"][profileName] := profileData
     }
 
     ; Serialize to JSON
@@ -39,7 +64,10 @@ SaveProfiles() {
 
 ; Load profiles from JSON file
 LoadProfiles() {
-    global Profiles, CurrentProfile, ProfilesFilePath
+    global Profiles, CurrentProfile, ProfilesFilePath, ProfileSlots
+    global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
+    global capturedInventorySlot1, capturedInventorySlot2
+    global capturedConstructionBankSlot
 
     if (!FileExist(ProfilesFilePath)) {
         return false
@@ -60,19 +88,68 @@ LoadProfiles() {
         ; Restore profiles
         if (profilesObj.Has("profiles")) {
             Profiles := Map()
-            for profileName, bindingsObj in profilesObj["profiles"] {
-                bindings := Map()
-                for keyName, funcName in bindingsObj {
-                    bindings[keyName] := funcName
+            ProfileSlots := Map()
+
+            for profileName, profileData in profilesObj["profiles"] {
+                ; Handle old format (just bindings) or new format (object with bindings and slots)
+                if (Type(profileData) = "Map" && profileData.Has("bindings")) {
+                    ; New format
+                    bindings := Map()
+                    for keyName, funcName in profileData["bindings"] {
+                        bindings[keyName] := funcName
+                    }
+                    Profiles[profileName] := bindings
+
+                    ; Load slots for this profile
+                    if (profileData.Has("slots")) {
+                        ProfileSlots[profileName] := profileData["slots"]
+                    }
+                } else {
+                    ; Old format - just bindings directly
+                    bindings := Map()
+                    for keyName, funcName in profileData {
+                        bindings[keyName] := funcName
+                    }
+                    Profiles[profileName] := bindings
                 }
-                Profiles[profileName] := bindings
             }
         }
+
+        ; Load slots for current profile into global variables
+        LoadCurrentProfileSlots()
 
         return true
     } catch as err {
         MsgBox("Error loading profiles: " err.Message, "Load Error")
         return false
+    }
+}
+
+; Load the current profile's slots into global variables
+LoadCurrentProfileSlots() {
+    global CurrentProfile, ProfileSlots
+    global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
+    global capturedInventorySlot1, capturedInventorySlot2
+    global capturedConstructionBankSlot
+
+    if (ProfileSlots.Has(CurrentProfile)) {
+        slots := ProfileSlots[CurrentProfile]
+        capturedBankSlot1 := slots.Has("bankSlot1") ? Integer(slots["bankSlot1"]) : 0
+        capturedBankSlot2 := slots.Has("bankSlot2") ? Integer(slots["bankSlot2"]) : 0
+        capturedBankSlot3 := slots.Has("bankSlot3") ? Integer(slots["bankSlot3"]) : 0
+        capturedBankSlot4 := slots.Has("bankSlot4") ? Integer(slots["bankSlot4"]) : 0
+        capturedInventorySlot1 := slots.Has("inventorySlot1") ? Integer(slots["inventorySlot1"]) : 0
+        capturedInventorySlot2 := slots.Has("inventorySlot2") ? Integer(slots["inventorySlot2"]) : 0
+        capturedConstructionBankSlot := slots.Has("constructionBankSlot") ? Integer(slots["constructionBankSlot"]) : 0
+    } else {
+        ; No slots saved for this profile, reset to 0
+        capturedBankSlot1 := 0
+        capturedBankSlot2 := 0
+        capturedBankSlot3 := 0
+        capturedBankSlot4 := 0
+        capturedInventorySlot1 := 0
+        capturedInventorySlot2 := 0
+        capturedConstructionBankSlot := 0
     }
 }
 
@@ -345,8 +422,18 @@ SwitchProfile(profileName) {
         return false
     }
 
+    ; Save current profile's slots before switching
+    SaveProfiles()
+
+    ; Switch profile
     CurrentProfile := profileName
-    SaveProfiles()  ; Auto-save after switching
+
+    ; Load new profile's slots
+    LoadCurrentProfileSlots()
+
+    ; Save again to update current profile
+    SaveProfiles()
+
     ToolTip "Switched to profile: " profileName
     SetTimer () => ToolTip(), -2000
     return true

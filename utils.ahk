@@ -37,6 +37,60 @@ GetPixelColorUnderMouse() {
     return PixelGetColor(mouseX, mouseY)
 }
 
+; Wait until a specific pixel matches the desired color
+; Returns true if color matched, false if timed out
+WaitForPixelColor(x, y, targetColor, timeout := 5000, checkInterval := 50) {
+    startTime := A_TickCount
+
+    Loop {
+        ; Check current pixel color
+        currentColor := PixelGetColor(x, y)
+
+        ; If color matches, return success
+        if (currentColor = targetColor) {
+            return true
+        }
+
+        ; Check if we've exceeded timeout
+        elapsed := A_TickCount - startTime
+        if (elapsed >= timeout) {
+            ToolTip "Timeout waiting for pixel color at (" x ", " y ")"
+            SetTimer () => ToolTip(), -2000
+            return false
+        }
+
+        ; Wait before checking again
+        Sleep(checkInterval)
+    }
+}
+
+; Wait until a specific pixel is NOT a specific color (inverse check)
+; Returns true if color changed from excludeColor, false if timed out
+WaitForPixelColorNot(x, y, excludeColor, timeout := 5000, checkInterval := 50) {
+    startTime := A_TickCount
+
+    Loop {
+        ; Check current pixel color
+        currentColor := PixelGetColor(x, y)
+
+        ; If color is NOT the excluded color, return success
+        if (currentColor != excludeColor) {
+            return true
+        }
+
+        ; Check if we've exceeded timeout
+        elapsed := A_TickCount - startTime
+        if (elapsed >= timeout) {
+            ToolTip "Timeout waiting for pixel to change from " excludeColor " at (" x ", " y ")"
+            SetTimer () => ToolTip(), -2000
+            return false
+        }
+
+        ; Wait before checking again
+        Sleep(checkInterval)
+    }
+}
+
 ; Function to capture coordinates for a rectangular area
 CaptureCoordinates() {
     ; Wait for first right-click
@@ -58,6 +112,28 @@ CaptureCoordinates() {
     ; Show tooltip confirmation
     ToolTip "Coordinates copied: " coordString
     SetTimer () => ToolTip(), -1000  ; Remove tooltip after 1 second
+}
+
+; Capture single pixel coordinates and color on right-click
+CapturePixelAndColor() {
+    ToolTip "Right-click on a pixel to capture coordinates and color..."
+
+    ; Wait for right-click
+    KeyWait("RButton", "D")
+    MouseGetPos(&x, &y)
+
+    ; Get the color at that pixel
+    color := PixelGetColor(x, y)
+
+    ; Format as: x, y, color
+    captureString := x ", " y ", " color
+
+    ; Copy to clipboard
+    A_Clipboard := captureString
+
+    ; Show tooltip confirmation
+    ToolTip "Copied: " captureString
+    SetTimer () => ToolTip(), -2000
 }
 
 ; Helper function to determine which bank slot a coordinate falls within
@@ -85,10 +161,15 @@ GetInventorySlotAtCoordinate(x, y) {
 ; Global variables to store captured bank slots
 global capturedBankSlot1 := 0
 global capturedBankSlot2 := 0
+global capturedBankSlot3 := 0
+global capturedBankSlot4 := 0
 
 ; Global variables to store captured inventory slots
 global capturedInventorySlot1 := 0
 global capturedInventorySlot2 := 0
+
+; Global variable for construction bank slot (will be overridden by LoadProfiles if saved)
+global capturedConstructionBankSlot := 0
 
 ; Function to capture two bank slot positions
 CaptureBankSlots() {
@@ -125,9 +206,87 @@ CaptureBankSlots() {
     capturedBankSlot1 := slot1
     capturedBankSlot2 := slot2
 
+    ; Save to profile
+    SaveProfiles()
+
     ; Show confirmation
     ToolTip "Bank slots captured!`nSlot 1: " capturedBankSlot1 "`nSlot 2: " capturedBankSlot2
     SetTimer () => ToolTip(), -3000
+
+    return true
+}
+
+; Function to capture four bank slot positions
+CaptureFourBankSlots() {
+    global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
+
+    ToolTip "Right-click on first bank item..."
+
+    ; Wait for first right-click
+    KeyWait("RButton", "D")
+    MouseGetPos(&x1, &y1)
+    slot1 := GetBankSlotAtCoordinate(x1, y1)
+
+    if (slot1 = 0) {
+        ToolTip "First click not in a bank slot! Try again."
+        SetTimer () => ToolTip(), -2000
+        return false
+    }
+
+    ToolTip "Slot 1: " slot1 "`nRight-click on second bank item..."
+    Sleep(250)
+
+    ; Wait for second right-click
+    KeyWait("RButton", "D")
+    MouseGetPos(&x2, &y2)
+    slot2 := GetBankSlotAtCoordinate(x2, y2)
+
+    if (slot2 = 0) {
+        ToolTip "Second click not in a bank slot! Try again."
+        SetTimer () => ToolTip(), -2000
+        return false
+    }
+
+    ToolTip "Slots 1,2: " slot1 "," slot2 "`nRight-click on third bank item..."
+    Sleep(250)
+
+    ; Wait for third right-click
+    KeyWait("RButton", "D")
+    MouseGetPos(&x3, &y3)
+    slot3 := GetBankSlotAtCoordinate(x3, y3)
+
+    if (slot3 = 0) {
+        ToolTip "Third click not in a bank slot! Try again."
+        SetTimer () => ToolTip(), -2000
+        return false
+    }
+
+    ToolTip "Slots 1-3: " slot1 "," slot2 "," slot3 "`nRight-click on fourth bank item..."
+    Sleep(250)
+
+    ; Wait for fourth right-click
+    KeyWait("RButton", "D")
+    MouseGetPos(&x4, &y4)
+    slot4 := GetBankSlotAtCoordinate(x4, y4)
+
+    if (slot4 = 0) {
+        ToolTip "Fourth click not in a bank slot! Try again."
+        SetTimer () => ToolTip(), -2000
+        return false
+    }
+
+    ; Store the captured slots
+    capturedBankSlot1 := slot1
+    capturedBankSlot2 := slot2
+    capturedBankSlot3 := slot3
+    capturedBankSlot4 := slot4
+
+    ; Save to profile
+    SaveProfiles()
+
+    ; Show confirmation
+    ToolTip "4 Bank slots captured!`nSlots: " slot1 ", " slot2 ", " slot3 ", " slot4
+    SetTimer () => ToolTip(), -4000
 
     return true
 }
@@ -166,6 +325,9 @@ CaptureInventorySlots() {
     ; Store the captured slots
     capturedInventorySlot1 := slot1
     capturedInventorySlot2 := slot2
+
+    ; Save to profile
+    SaveProfiles()
 
     ; Show confirmation
     ToolTip "Inventory slots captured!`nSlot 1: " capturedInventorySlot1 "`nSlot 2: " capturedInventorySlot2
@@ -409,26 +571,60 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
         }
     }
 
-    ; Calculate centroid of the closest cluster
-    sumX := 0
-    sumY := 0
+    ; Instead of clicking centroid, find bounding box and click inside it
+    ; This clicks inside the outlined area, not on the outline edge
+    minX := 999999
+    maxX := -999999
+    minY := 999999
+    maxY := -999999
+
+    ; Find bounding box of the cluster
     for pixel in closestCluster {
-        sumX += pixel.x
-        sumY += pixel.y
+        if (pixel.x < minX)
+            minX := pixel.x
+        if (pixel.x > maxX)
+            maxX := pixel.x
+        if (pixel.y < minY)
+            minY := pixel.y
+        if (pixel.y > maxY)
+            maxY := pixel.y
     }
 
-    centroidX := Round(sumX / closestCluster.Length)
-    centroidY := Round(sumY / closestCluster.Length)
+    ; Shrink the bounding box inward to ensure we click inside the outline
+    ; Typically shrink by 20-30% to stay well within the bounds
+    width := maxX - minX
+    height := maxY - minY
+    shrinkX := Round(width * 0.25)
+    shrinkY := Round(height * 0.25)
 
-    ; Apply margins
-    targetX := centroidX + marginX
-    targetY := centroidY + marginY
+    innerMinX := minX + shrinkX
+    innerMaxX := maxX - shrinkX
+    innerMinY := minY + shrinkY
+    innerMaxY := maxY - shrinkY
 
-    ; Click at centroid with human-like movement
+    ; Debug: Show bounding box info
+    debugInfo := "BBox: " minX "," minY " to " maxX "," maxY "`n"
+    debugInfo .= "Size: " width "x" height "`n"
+    debugInfo .= "Shrink: " shrinkX "," shrinkY "`n"
+    debugInfo .= "Inner: " innerMinX "," innerMinY " to " innerMaxX "," innerMaxY
+
+    ; Check if shrinking created an invalid box
+    if (innerMinX >= innerMaxX || innerMinY >= innerMaxY) {
+        ; Box too small to shrink, just use center
+        targetX := Round((minX + maxX) / 2) + marginX
+        targetY := Round((minY + maxY) / 2) + marginY
+        ToolTip "Box too small, clicking center: (" targetX ", " targetY ")`n" debugInfo
+    } else {
+        ; Click random point inside the shrunken box
+        targetX := Random(innerMinX, innerMaxX) + marginX
+        targetY := Random(innerMinY, innerMaxY) + marginY
+        ToolTip "Clicking inside at (" targetX ", " targetY ")`n" debugInfo
+    }
+
+    SetTimer () => ToolTip(), -3000
+
+    ; Click inside the outlined area with human-like movement
     HumanClick(targetX, targetY, "left", 1.0, 1.0)
-
-    ToolTip "Clicked cluster centroid at (" targetX ", " targetY ")"
-    SetTimer () => ToolTip(), -1000
 
     return true
 }
