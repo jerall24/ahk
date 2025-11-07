@@ -37,6 +37,9 @@ ShowFunctionSelector(keyToBindCallback) {
     ; Update description when selection changes
     functionList.OnEvent("Change", (*) => UpdateDescription())
 
+    ; Enable double-click or Enter on the list to bind
+    functionList.OnEvent("DoubleClick", (*) => BindSelectedFunction())
+
     UpdateDescription(*) {
         selectedIndex := functionList.Value
         if (selectedIndex > 0 && selectedIndex <= currentMatches.Length) {
@@ -85,6 +88,9 @@ ShowFunctionSelector(keyToBindCallback) {
 
     ; Cancel button handler
     btnCancel.OnEvent("Click", (*) => selectorGui.Destroy())
+
+    ; Escape key handler
+    selectorGui.OnEvent("Escape", (*) => selectorGui.Destroy())
 
     ; Show first description
     if (currentMatches.Length > 0) {

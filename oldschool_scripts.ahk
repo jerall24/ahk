@@ -208,7 +208,7 @@ NumpadEnter:: {
 }
 
 ; NumpadAdd
-NumpadAdd:: {
+$NumpadAdd:: {
     if (HandleBindingKeyPress("NumpadAdd")) {
         return
     }
@@ -220,7 +220,7 @@ NumpadAdd:: {
 }
 
 ; NumpadSub
-NumpadSub:: {
+$NumpadSub:: {
     if (HandleBindingKeyPress("NumpadSub")) {
         return
     }
@@ -232,7 +232,7 @@ NumpadSub:: {
 }
 
 ; NumpadMult
-NumpadMult:: {
+$NumpadMult:: {
     if (HandleBindingKeyPress("NumpadMult")) {
         return
     }
@@ -244,7 +244,7 @@ NumpadMult:: {
 }
 
 ; NumpadDiv
-NumpadDiv:: {
+$NumpadDiv:: {
     if (HandleBindingKeyPress("NumpadDiv")) {
         return
     }

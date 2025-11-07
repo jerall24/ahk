@@ -602,26 +602,24 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     innerMinY := minY + shrinkY
     innerMaxY := maxY - shrinkY
 
-    ; Debug: Show bounding box info
-    debugInfo := "BBox: " minX "," minY " to " maxX "," maxY "`n"
-    debugInfo .= "Size: " width "x" height "`n"
-    debugInfo .= "Shrink: " shrinkX "," shrinkY "`n"
-    debugInfo .= "Inner: " innerMinX "," innerMinY " to " innerMaxX "," innerMaxY
-
     ; Check if shrinking created an invalid box
     if (innerMinX >= innerMaxX || innerMinY >= innerMaxY) {
         ; Box too small to shrink, just use center
         targetX := Round((minX + maxX) / 2) + marginX
         targetY := Round((minY + maxY) / 2) + marginY
+
+        ; Debug: Show bounding box info only when box is too small
+        debugInfo := "BBox: " minX "," minY " to " maxX "," maxY "`n"
+        debugInfo .= "Size: " width "x" height "`n"
+        debugInfo .= "Shrink: " shrinkX "," shrinkY "`n"
+        debugInfo .= "Inner: " innerMinX "," innerMinY " to " innerMaxX "," innerMaxY
         ToolTip "Box too small, clicking center: (" targetX ", " targetY ")`n" debugInfo
+        SetTimer () => ToolTip(), -3000
     } else {
         ; Click random point inside the shrunken box
         targetX := Random(innerMinX, innerMaxX) + marginX
         targetY := Random(innerMinY, innerMaxY) + marginY
-        ToolTip "Clicking inside at (" targetX ", " targetY ")`n" debugInfo
     }
-
-    SetTimer () => ToolTip(), -3000
 
     ; Click inside the outlined area with human-like movement
     HumanClick(targetX, targetY, "left", 1.0, 1.0)

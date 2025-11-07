@@ -1,16 +1,26 @@
 ﻿{
-  "currentProfile": "Mining",
+  "currentProfile": "Construction",
   "profiles": {
     "Construction": {
       "bindings": {
         "Numpad0": "PvPWorldPlankMake",
         "Numpad3": "CaptureConstructionBankSlot",
         "NumpadDot": "ClickConstructionBank"
+      },
+      "slots": {
+        "bankSlot1": "8",
+        "bankSlot2": "8",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "8",
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
       }
     },
     "Default": {
       "bindings": {
-        "NumpadDiv": "ResizeToFixedMode"
+        "NumpadDiv": "ResizeToFixedMode",
+        "NumpadMult": "ResizeToLargeMode"
       },
       "slots": {
         "bankSlot1": "0",
@@ -49,6 +59,15 @@
     "Utility": {
       "bindings": {
         "Numpad1": "CapturePixelAndColor"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
       }
     }
   }

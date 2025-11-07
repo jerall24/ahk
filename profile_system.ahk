@@ -503,7 +503,7 @@ ShowProfileManager() {
     }
 
     ; Buttons
-    btnSwitch := profileGui.Add("Button", "x10 y220 w90", "Switch")
+    btnSwitch := profileGui.Add("Button", "x10 y220 w90 Default", "Switch")
     btnNew := profileGui.Add("Button", "x110 y220 w90", "New")
     btnDelete := profileGui.Add("Button", "x210 y220 w90", "Delete")
     btnClose := profileGui.Add("Button", "x10 y250 w290", "Close")
@@ -513,6 +513,12 @@ ShowProfileManager() {
     btnNew.OnEvent("Click", (*) => CreateNewProfile())
     btnDelete.OnEvent("Click", (*) => DeleteSelectedProfile())
     btnClose.OnEvent("Click", (*) => profileGui.Destroy())
+
+    ; Enable Enter key on the list to switch profiles
+    profileList.OnEvent("DoubleClick", (*) => SwitchSelectedProfile())
+
+    ; Escape key handler
+    profileGui.OnEvent("Escape", (*) => profileGui.Destroy())
 
     SwitchSelectedProfile(*) {
         selectedIndex := profileList.Value

@@ -79,24 +79,34 @@ PvPWorldPlankMake() {
     ; Step 7: Wait 100-200ms and then click anywhere in coordinates: 557, 389, 726, 415
     Sleep(Random(500, 700))
     ClickRandomPixel(557, 389, 726, 415)
-    Sleep(Random(700, 800))
 
     ; Step 8: Send 1, space, 1, space sequence
+    WaitForPixelColorNot(16, 463, 0x4B4A49, 1000)
+    Sleep(Random(200, 300))
     Send("{1}")
-    Sleep(Random(700, 900))
+    WaitForPixelColor(46, 426, 0x4C1004, 1000)
+    Sleep(Random(200, 300))
     Send("{Space}")
-    Sleep(Random(700, 900))
+    WaitForPixelColorNot(46, 426, 0x4C1004, 1000)
+    Sleep(Random(200, 300))
     Send("{1}")
-    Sleep(Random(700, 900))
+    WaitForPixelColor(46, 426, 0x4C1004, 1000)
+    Sleep(Random(200, 300))
     Send("{Space}")
-    Sleep(Random(300, 400))
+    Sleep(Random(200, 300))
 
     ; Step 9: Send an F1 event
     Send("{F1}")
     Sleep(Random(200, 400))
 
     ; Step 10: Click in coordinates: 656, 272, 673, 288
-    ClickRandomPixel(656, 272, 673, 288)
+    ; Only click if the wait succeeds
+    if (WaitForPixelColor(16, 463, 0x4B4A49, 1000)) {
+        ClickRandomPixel(656, 272, 673, 288)
+    } else {
+        ToolTip "Final wait failed - skipping final click"
+        SetTimer () => ToolTip(), -2000
+    }
 }
 
 ; Click centroid of cyan pixel cluster for construction

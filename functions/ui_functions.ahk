@@ -16,7 +16,7 @@ ResizeToFixedMode() {
 
 ; Resize window to larger size (1334x1087)
 ResizeToLargeMode() {
-    SetClientSize(1334, 1087)
+    SetClientSize(1080, 830)
 }
 
 ; Test function to show current time
