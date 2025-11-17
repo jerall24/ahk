@@ -15,8 +15,13 @@ ResizeToFixedMode() {
 }
 
 ; Resize window to larger size (1334x1087)
+ResizeToMediumMode() {
+    SetClientSize(1100, 650)
+}
+
+; Resize window to larger size (1334x1087)
 ResizeToLargeMode() {
-    SetClientSize(1080, 830)
+    SetClientSize(1150, 900)
 }
 
 ; Test function to show current time
@@ -40,10 +45,15 @@ global UIFunctionsRegistry := Map(
         func: ResizeToFixedMode,
         description: "Resize window to 812x542 (fixed mode)"
     },
+    "ResizeToMediumMode", {
+        name: "ResizeToMediumMode",
+        func: ResizeToMediumMode,
+        description: "Resize window to 1334x1087 (larger)"
+    },
     "ResizeToLargeMode", {
         name: "ResizeToLargeMode",
         func: ResizeToLargeMode,
-        description: "Resize window to 1334x1087 (larger)"
+        description: "Resize window to 1150x900 (large mode)"
     },
     "TestFunction", {
         name: "TestFunction",

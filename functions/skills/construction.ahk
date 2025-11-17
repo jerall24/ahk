@@ -73,11 +73,12 @@ PvPWorldPlankMake() {
     Send("{F9}")
     Sleep(Random(100, 200))
 
-    ; Step 6: Click anywhere in coordinates: 644, 381, 681, 417
+    ; Step 6: Click house options
     ClickRandomPixel(644, 381, 681, 417)
 
-    ; Step 7: Wait 100-200ms and then click anywhere in coordinates: 557, 389, 726, 415
+    ; Step 7: Wait for run energy red to go away, then wait and click
     Sleep(Random(500, 700))
+    WaitForPixelColorNot(633, 390, 0x912320, 1000)
     ClickRandomPixel(557, 389, 726, 415)
 
     ; Step 8: Send 1, space, 1, space sequence
@@ -97,11 +98,12 @@ PvPWorldPlankMake() {
 
     ; Step 9: Send an F1 event
     Send("{F1}")
-    Sleep(Random(200, 400))
+    Sleep(Random(600, 800))
 
     ; Step 10: Click in coordinates: 656, 272, 673, 288
     ; Only click if the wait succeeds
     if (WaitForPixelColor(16, 463, 0x4B4A49, 1000)) {
+        ToolTip ""  ; Clear any tooltips before clicking
         ClickRandomPixel(656, 272, 673, 288)
     } else {
         ToolTip "Final wait failed - skipping final click"

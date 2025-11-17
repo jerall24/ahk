@@ -309,7 +309,7 @@ SetClientSize(width := 812, height := 542) { ; 796 503
     - DepositAndWithdrawFromBank
     - ClickSpecialAttack
     - ResizeToFixedMode
-    - ResizeToLargeMode
+    - ResizeToMediumMode
     )"
 
     ToolTip helpText

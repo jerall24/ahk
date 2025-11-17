@@ -1,5 +1,5 @@
 ﻿{
-  "currentProfile": "Construction",
+  "currentProfile": "Mining",
   "profiles": {
     "Construction": {
       "bindings": {
@@ -20,7 +20,8 @@
     "Default": {
       "bindings": {
         "NumpadDiv": "ResizeToFixedMode",
-        "NumpadMult": "ResizeToLargeMode"
+        "NumpadMult": "ResizeToLargeMode",
+        "NumpadSub": "ResizeToLargeMode"
       },
       "slots": {
         "bankSlot1": "0",

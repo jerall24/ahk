@@ -39,7 +39,7 @@ GetPixelColorUnderMouse() {
 
 ; Wait until a specific pixel matches the desired color
 ; Returns true if color matched, false if timed out
-WaitForPixelColor(x, y, targetColor, timeout := 5000, checkInterval := 50) {
+WaitForPixelColor(x, y, targetColor, timeout := 5000, checkInterval := Random(0, 50)) {
     startTime := A_TickCount
 
     Loop {
@@ -66,7 +66,7 @@ WaitForPixelColor(x, y, targetColor, timeout := 5000, checkInterval := 50) {
 
 ; Wait until a specific pixel is NOT a specific color (inverse check)
 ; Returns true if color changed from excludeColor, false if timed out
-WaitForPixelColorNot(x, y, excludeColor, timeout := 5000, checkInterval := 50) {
+WaitForPixelColorNot(x, y, excludeColor, timeout := 5000, checkInterval := Random(0, 50)) {
     startTime := A_TickCount
 
     Loop {
