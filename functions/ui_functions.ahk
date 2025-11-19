@@ -16,7 +16,7 @@ ResizeToFixedMode() {
 
 ; Resize window to larger size (1334x1087)
 ResizeToMediumMode() {
-    SetClientSize(1100, 650)
+    SetClientSize(1050, 725)
 }
 
 ; Resize window to larger size (1334x1087)
@@ -48,7 +48,7 @@ global UIFunctionsRegistry := Map(
     "ResizeToMediumMode", {
         name: "ResizeToMediumMode",
         func: ResizeToMediumMode,
-        description: "Resize window to 1334x1087 (larger)"
+        description: "Resize window to 850x610 (larger)"
     },
     "ResizeToLargeMode", {
         name: "ResizeToLargeMode",

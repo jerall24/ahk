@@ -187,8 +187,17 @@ MoveAlongPath(pathPoints, speedMultiplier, accuracy, finalX, finalY) {
 ; Wrapper function for clicking with human-like movement
 ; Moves to target, then clicks
 HumanClick(targetX, targetY, button := "left", speed := 1.0, accuracy := 1.0) {
+    global currentProfile
+
     ; Move to target with human-like movement
     HumanMouseMove(targetX, targetY, speed, accuracy)
+
+    ; Check for dry run mode (Debug profile)
+    if (currentProfile = "Debug") {
+        ToolTip "DRY RUN: Would click " button " at (" targetX ", " targetY ")"
+        SetTimer () => ToolTip(), -2000
+        return
+    }
 
     ; Brief delay before click
     Sleep(Random(2, 5))

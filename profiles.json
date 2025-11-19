@@ -1,5 +1,5 @@
 ﻿{
-  "currentProfile": "Mining",
+  "currentProfile": "Debug",
   "profiles": {
     "Construction": {
       "bindings": {
@@ -13,6 +13,21 @@
         "bankSlot3": "0",
         "bankSlot4": "0",
         "constructionBankSlot": "8",
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
+      }
+    },
+    "Debug": {
+      "bindings": {
+        "Numpad0": "ClickTracedMagenta",
+        "Numpad3": "ClickSpecialAttack"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
         "inventorySlot1": "0",
         "inventorySlot2": "0"
       }
