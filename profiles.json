@@ -1,11 +1,11 @@
 ﻿{
-  "currentProfile": "Debug",
+  "currentProfile": "Default",
   "profiles": {
     "Construction": {
       "bindings": {
-        "Numpad0": "PvPWorldPlankMake",
+        "Numpad0": "BuildFullInventoryBenches",
         "Numpad3": "CaptureConstructionBankSlot",
-        "NumpadDot": "ClickConstructionBank"
+        "NumpadDot": "LoopBuildBenches"
       },
       "slots": {
         "bankSlot1": "8",
@@ -19,7 +19,7 @@
     },
     "Debug": {
       "bindings": {
-        "Numpad0": "ClickTracedMagenta",
+        "Numpad0": "ClickMagentaBox",
         "Numpad3": "ClickSpecialAttack"
       },
       "slots": {
@@ -35,7 +35,7 @@
     "Default": {
       "bindings": {
         "NumpadDiv": "ResizeToFixedMode",
-        "NumpadMult": "ResizeToLargeMode",
+        "NumpadMult": "ResizeToMediumMode",
         "NumpadSub": "ResizeToLargeMode"
       },
       "slots": {
@@ -74,7 +74,9 @@
     },
     "Utility": {
       "bindings": {
-        "Numpad1": "CapturePixelAndColor"
+        "Numpad1": "CapturePixelAndColor",
+        "Numpad2": "CaptureCoordinates",
+        "Numpad3": "CaptureRectangleColors"
       },
       "slots": {
         "bankSlot1": "0",

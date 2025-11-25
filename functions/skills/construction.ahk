@@ -118,6 +118,142 @@ ClickConstructionBank() {
     }
 }
 
+; Global flag to control the loop
+global stopConstructionLoop := false
+
+; Loop builder - runs BuildFullInventoryBenches until NumLock is pressed
+LoopBuildBenches() {
+    global stopConstructionLoop
+    stopConstructionLoop := false
+
+    Loop {
+        ; Check if stop flag is set
+        if (stopConstructionLoop) {
+            ; PlayCompletionSound()
+            break
+        }
+
+        ; Run one full inventory cycle
+        BuildFullInventoryBenches()
+    }
+}
+
+; Hotkey to stop the loop
+NumLock:: {
+    global stopConstructionLoop
+    stopConstructionLoop := true
+}
+
+; Build full inventory of benches with demon butler
+BuildFullInventoryBenches() {
+    global stopConstructionLoop
+
+    ; Build bench #1
+    if (!WaitForAnyColorInRect(212, 69, 297, 98, [0x141414, 0x1C1C1C, 0x181818, 0x2C2C2C, 0x504D45], 1000)) { ; transparent
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+    ClickRandomPixel(230, 77, 299, 108, true)
+    Sleep(Random(700, 800))
+    Send("1")
+
+    ; Remove bench #1
+    Sleep(Random(1800,1900))
+    if (!WaitForAnyColorInRect(227, 77, 298, 100, [0x403016, 0x413116, 0x3E2F15, 0x3F2F15, 0x3F3015], 1000)) { ; bench brown
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+    ClickRandomPixel(230, 77, 299, 108, true)
+    Sleep(Random(700, 800))
+    Send("1")
+    Sleep(Random(700, 800))
+
+    ; Build bench #2
+    if (!WaitForAnyColorInRect(212, 69, 297, 98, [0x141414, 0x1C1C1C, 0x181818, 0x2C2C2C, 0x504D45], 1000)) { ; transparent
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+    ClickRandomPixel(230, 77, 299, 108, true)
+    Sleep(Random(700, 800))
+    Send("1")
+
+    ; Remove bench #2
+    Sleep(Random(1300,1400))
+    if (!WaitForAnyColorInRect(227, 77, 298, 100, [0x403016, 0x413116, 0x3E2F15, 0x3F2F15, 0x3F3015], 1000)) { ; bench brown
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+    ClickRandomPixel(230, 77, 299, 108, true)
+    Sleep(Random(700, 800))
+    Send("1")
+    Sleep(Random(700, 800))
+
+    ; Click demon butler
+    ToolTip ""  ; Clear any tooltips before clicking
+    ClickAnyRandomPixelOfColor([0x541E14, 0x080707, 0x190501, 0x1A0601, 0x1A0804, 0x1C0702], 0, 0, false)
+    Sleep(Random(700, 800))
+    Send("1")
+    Sleep(Random(600, 700))
+
+    ; Build bench #3
+    if (!WaitForAnyColorInRect(212, 69, 297, 98, [0x141414, 0x1C1C1C, 0x181818, 0x2C2C2C, 0x504D45], 1000)) { ; transparent
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+    ClickRandomPixel(230, 77, 299, 108)
+    Sleep(Random(700, 800))
+    Send("1")
+    ; Remove bench #3
+    Sleep(Random(1300,1400))
+    if (!WaitForAnyColorInRect(227, 77, 298, 100, [0x403016, 0x413116, 0x3E2F15, 0x3F2F15, 0x3F3015], 1000)) { ; bench brown
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+    ClickRandomPixel(230, 77, 299, 108, true)
+    Sleep(Random(700, 800))
+    Send("1")
+    Sleep(Random(700, 800))
+
+    ; Build bench #4
+    if (!WaitForAnyColorInRect(212, 69, 297, 98, [0x141414, 0x1C1C1C, 0x181818, 0x2C2C2C, 0x504D45], 1000)) { ; transparent
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+    ClickRandomPixel(230, 77, 299, 108, true)
+    Sleep(Random(700, 800))
+    Send("1")
+
+    ; Wait for butler to return
+    if (!WaitForAnyColorInRect(48, 391, 80, 424, [0x141414, 0x4C1004, 0x57180C, 0x5B190C, 0x52160C], 6000)) {
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+
+    ; Remove bench #4
+    if (!WaitForAnyColorInRect(227, 77, 298, 100, [0x403016, 0x413116, 0x3E2F15, 0x3F2F15, 0x3F3015], 1000)) { ; bench brown
+        stopConstructionLoop := true
+        PlayErrorSound()
+        return false
+    }
+    Sleep(Random(300, 400))
+    ClickRandomPixel(230, 77, 299, 108, true)
+    Sleep(Random(700, 800))
+    Send("1")
+    Sleep(Random(700, 800))
+
+    ; Completion notification
+    ; PlayCompletionSound()
+    return true
+}
+
 ; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================
@@ -136,5 +272,15 @@ global ConstructionRegistry := Map(
         name: "ClickConstructionBank",
         func: ClickConstructionBank,
         description: "Click centroid of cyan pixel cluster for construction navigation"
+    },
+    "BuildFullInventoryBenches", {
+        name: "BuildFullInventoryBenches",
+        func: BuildFullInventoryBenches,
+        description: "Build full inventory of benches with demon butler assistance"
+    },
+    "LoopBuildBenches", {
+        name: "LoopBuildBenches",
+        func: LoopBuildBenches,
+        description: "Loop bench building until NumLock is pressed"
     }
 )
