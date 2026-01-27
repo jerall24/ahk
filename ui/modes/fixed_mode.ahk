@@ -1,5 +1,4 @@
 #Requires AutoHotkey v2.0
-#Include utils.ahk
 
 ; Fixed Mode UI Coordinate Map
 ; All coordinates are relative to the RuneLite window client area

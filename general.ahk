@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-#Include text_replacements.ahk
+#Include config\text_replacements.ahk
 
 
 TraySetIcon("assets\icons8-cog-wheel-32.ico")

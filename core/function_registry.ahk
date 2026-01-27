@@ -2,35 +2,9 @@
 
 ; ======================================
 ; FUNCTION REGISTRY
-; Dynamically imports all function files and merges their registries
+; Merges all individual registries into a single global registry
+; Note: All function files are included from main.ahk before this file
 ; ======================================
-
-; Import all core function files from functions/ folder
-#Include functions\mouse_movement.ahk
-#Include functions\pixel_functions.ahk
-#Include functions\inventory_functions.ahk
-#Include functions\bank_functions.ahk
-#Include functions\ui_functions.ahk
-#Include functions\utility_functions.ahk
-#Include functions\ui_element_functions.ahk
-
-; ======================================
-; SKILLS INCLUDES
-; To add a new skill file:
-; 1. Create your .ahk file in functions/skills/ (e.g., woodcutting.ahk)
-; 2. In that file, create a global registry: global WoodcuttingRegistry := Map(...)
-; 3. Add #Include line below
-; 4. Add the registry variable name to skillRegistries array below
-; ======================================
-
-; Add your skill files here as you create them:
-#Include functions\skills\herblore.ahk
-#Include functions\skills\construction.ahk
-#Include functions\skills\sailing.ahk
-#Include functions\skills\cooking.ahk
-; #Include functions\skills\woodcutting.ahk
-; #Include functions\skills\mining.ahk
-; #Include functions\skills\fishing.ahk
 
 ; Global function registry - will be populated by merging all individual registries
 global FunctionRegistry := Map()
@@ -38,6 +12,10 @@ global FunctionRegistry := Map()
 ; Merge all registries into the main FunctionRegistry
 MergeRegistries() {
     global FunctionRegistry
+    global MouseMovementRegistry, PixelFunctionsRegistry, InventoryFunctionsRegistry
+    global BankFunctionsRegistry, UIFunctionsRegistry, UtilityFunctionsRegistry
+    global UIElementFunctionsRegistry, BankSlotFunctionsRegistry, InventorySlotFunctionsRegistry
+    global HerbloreRegistry, ConstructionRegistry, SailingRegistry, CookingRegistry
 
     ; Core function registries (always included)
     registriesToMerge := [

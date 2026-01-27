@@ -9,7 +9,7 @@
 global CurrentProfile := "Default"
 global Profiles := Map()
 global ProfileSlots := Map()  ; Stores slots per profile
-global ProfilesFilePath := A_ScriptDir "\profiles.json"
+global ProfilesFilePath := A_ScriptDir "\config\profiles.json"
 
 ; Save profiles to JSON file
 SaveProfiles() {

@@ -39,12 +39,13 @@ global SkillNameRegistry := Map(
 ; ======================================
 ; HOW TO ADD THIS FILE TO THE REGISTRY:
 ; ======================================
-; 1. Save this file with your skill name (e.g., woodcutting.ahk)
-; 2. Open function_registry.ahk
-; 3. Add this line in the SKILLS INCLUDES section:
-;    #Include functions\skills\woodcutting.ahk
-; 4. Add your registry variable to the skillRegistries array:
+; 1. Save this file in the skills/ folder (e.g., skills/woodcutting.ahk)
+; 2. Open main.ahk
+; 3. Add this line in the Skills section:
+;    #Include skills\woodcutting.ahk
+; 4. Open core/function_registry.ahk
+; 5. Add your registry variable to the skillRegistries array:
 ;    skillRegistries := [
 ;        WoodcuttingRegistry,
 ;    ]
-; 5. Reload the script and your functions will be available!
+; 6. Reload the script and your functions will be available!
