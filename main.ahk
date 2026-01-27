@@ -1,10 +1,40 @@
 #Requires AutoHotkey v2.0
-#Include utils.ahk
-#Include fixed_mode_ui.ahk
-#Include medium_mode_ui.ahk
-#Include function_registry.ahk
-#Include profile_system.ahk
-#Include binding_system.ahk
+
+; Core state and configuration
+#Include core\state.ahk
+#Include config\text_replacements.ahk
+
+; UI mode definitions (must come before other modules that use them)
+#Include ui\modes\fixed_mode.ahk
+#Include ui\modes\medium_mode.ahk
+
+; Library modules
+#Include lib\mouse.ahk
+#Include lib\color.ahk
+#Include lib\wait.ahk
+#Include lib\capture.ahk
+#Include lib\sound.ahk
+
+; Game-specific modules
+#Include game\bank.ahk
+#Include game\inventory.ahk
+
+; UI modules
+#Include ui\elements.ahk
+#Include ui\resize.ahk
+
+; Skills
+#Include skills\herblore.ahk
+#Include skills\construction.ahk
+#Include skills\sailing.ahk
+#Include skills\cooking.ahk
+
+; Function registry (merges all registries)
+#Include core\function_registry.ahk
+
+; Profile and binding systems
+#Include core\profile_system.ahk
+#Include core\binding_system.ahk
 
 ; Set initial icon to inactive
 TraySetIcon("assets\icons8-runescape-32-inactive.ico")
