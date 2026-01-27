@@ -17,6 +17,7 @@ SaveProfiles() {
     global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
     global capturedInventorySlot1, capturedInventorySlot2
     global capturedConstructionBankSlot
+    global cookingRect1, cookingRect2
 
     ; Store current profile's slots before saving
     ProfileSlots[CurrentProfile] := Map(
@@ -26,7 +27,9 @@ SaveProfiles() {
         "bankSlot4", capturedBankSlot4,
         "inventorySlot1", capturedInventorySlot1,
         "inventorySlot2", capturedInventorySlot2,
-        "constructionBankSlot", capturedConstructionBankSlot
+        "constructionBankSlot", capturedConstructionBankSlot,
+        "cookingRect1", cookingRect1,
+        "cookingRect2", cookingRect2
     )
 
     ; Convert Profiles Map to JSON-compatible object
@@ -68,6 +71,7 @@ LoadProfiles() {
     global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
     global capturedInventorySlot1, capturedInventorySlot2
     global capturedConstructionBankSlot
+    global cookingRect1, cookingRect2
 
     if (!FileExist(ProfilesFilePath)) {
         return false
@@ -131,6 +135,7 @@ LoadCurrentProfileSlots() {
     global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
     global capturedInventorySlot1, capturedInventorySlot2
     global capturedConstructionBankSlot
+    global cookingRect1, cookingRect2
 
     if (ProfileSlots.Has(CurrentProfile)) {
         slots := ProfileSlots[CurrentProfile]
@@ -141,6 +146,19 @@ LoadCurrentProfileSlots() {
         capturedInventorySlot1 := slots.Has("inventorySlot1") ? Integer(slots["inventorySlot1"]) : 0
         capturedInventorySlot2 := slots.Has("inventorySlot2") ? Integer(slots["inventorySlot2"]) : 0
         capturedConstructionBankSlot := slots.Has("constructionBankSlot") ? Integer(slots["constructionBankSlot"]) : 0
+
+        ; Load cooking rectangles
+        if (slots.Has("cookingRect1") && Type(slots["cookingRect1"]) = "Map") {
+            cookingRect1 := slots["cookingRect1"]
+        } else {
+            cookingRect1 := {x1: 0, y1: 0, x2: 0, y2: 0}
+        }
+
+        if (slots.Has("cookingRect2") && Type(slots["cookingRect2"]) = "Map") {
+            cookingRect2 := slots["cookingRect2"]
+        } else {
+            cookingRect2 := {x1: 0, y1: 0, x2: 0, y2: 0}
+        }
     } else {
         ; No slots saved for this profile, reset to 0
         capturedBankSlot1 := 0
@@ -150,6 +168,8 @@ LoadCurrentProfileSlots() {
         capturedInventorySlot1 := 0
         capturedInventorySlot2 := 0
         capturedConstructionBankSlot := 0
+        cookingRect1 := {x1: 0, y1: 0, x2: 0, y2: 0}
+        cookingRect2 := {x1: 0, y1: 0, x2: 0, y2: 0}
     }
 }
 
@@ -169,6 +189,19 @@ SerializeToJSON(obj, indent := 0) {
         result := "{`n"
         first := true
         for key, value in obj {
+            if (!first) {
+                result .= ",`n"
+            }
+            first := false
+            result .= nextIndent '"' key '": ' SerializeToJSON(value, indent + 1)
+        }
+        result .= "`n" indentStr "}"
+        return result
+    } else if (Type(obj) = "Object") {
+        ; Handle plain objects (like cooking rectangles)
+        result := "{`n"
+        first := true
+        for key, value in obj.OwnProps() {
             if (!first) {
                 result .= ",`n"
             }
@@ -478,6 +511,46 @@ DeleteProfile(profileName) {
     return true
 }
 
+; Show keybinds for current profile
+ShowKeybinds() {
+    global Profiles, CurrentProfile
+
+    keybindsGui := Gui("+AlwaysOnTop", "Keybinds - " CurrentProfile)
+    keybindsGui.SetFont("s10", "Segoe UI")
+
+    ; Header
+    keybindsGui.Add("Text", "x10 y10 w600", "Profile: " CurrentProfile)
+    keybindsGui.Add("Text", "x10 y35 w200 cGray", "Key")
+    keybindsGui.Add("Text", "x220 y35 w400 cGray", "Function")
+
+    ; Get bindings for current profile
+    bindings := Profiles[CurrentProfile]
+
+    if (bindings.Count = 0) {
+        keybindsGui.Add("Text", "x10 y60 w600 cRed", "No keybinds set for this profile")
+    } else {
+        ; Create list of bindings
+        yPos := 60
+        for keyName, funcName in bindings {
+            ; Format key name nicely
+            displayKey := StrReplace(keyName, "Numpad", "NP")
+
+            ; Add key and function
+            keybindsGui.Add("Text", "x10 y" yPos " w200", displayKey)
+            keybindsGui.Add("Text", "x220 y" yPos " w400", funcName)
+            yPos += 25
+        }
+    }
+
+    ; Close button at bottom
+    keybindsGui.Add("Button", "x10 y" (yPos + 10) " w600", "Close").OnEvent("Click", (*) => keybindsGui.Destroy())
+
+    ; Escape key handler
+    keybindsGui.OnEvent("Escape", (*) => keybindsGui.Destroy())
+
+    keybindsGui.Show()
+}
+
 ; Show profile management GUI
 ShowProfileManager() {
     global Profiles, CurrentProfile
@@ -494,6 +567,10 @@ ShowProfileManager() {
     profileNames := GetProfileNames()
     profileList := profileGui.Add("ListBox", "x10 y60 w300 h150", profileNames)
 
+    ; Keybinds display area
+    profileGui.Add("Text", "x320 y40", "Keybinds:")
+    keybindsDisplay := profileGui.Add("Edit", "x320 y60 w350 h150 ReadOnly -Wrap", "")
+
     ; Select current profile in list
     for index, name in profileNames {
         if (name = CurrentProfile) {
@@ -502,11 +579,38 @@ ShowProfileManager() {
         }
     }
 
+    ; Update keybinds display when selection changes
+    UpdateKeybindsDisplay(*) {
+        selectedIndex := profileList.Value
+        if (selectedIndex > 0 && selectedIndex <= profileNames.Length) {
+            selectedProfileName := profileNames[selectedIndex]
+            bindings := Profiles[selectedProfileName]
+
+            if (bindings.Count = 0) {
+                keybindsDisplay.Value := "(No keybinds set)"
+            } else {
+                displayText := ""
+                for keyName, funcName in bindings {
+                    ; Format key name nicely
+                    displayKey := StrReplace(keyName, "Numpad", "NP")
+                    displayText .= displayKey " → " funcName "`n"
+                }
+                keybindsDisplay.Value := displayText
+            }
+        }
+    }
+
+    ; Show keybinds for initially selected profile
+    UpdateKeybindsDisplay()
+
+    ; Update keybinds when selection changes
+    profileList.OnEvent("Change", (*) => UpdateKeybindsDisplay())
+
     ; Buttons
     btnSwitch := profileGui.Add("Button", "x10 y220 w90 Default", "Switch")
     btnNew := profileGui.Add("Button", "x110 y220 w90", "New")
     btnDelete := profileGui.Add("Button", "x210 y220 w90", "Delete")
-    btnClose := profileGui.Add("Button", "x10 y250 w290", "Close")
+    btnClose := profileGui.Add("Button", "x320 y220 w350", "Close")
 
     ; Button handlers
     btnSwitch.OnEvent("Click", (*) => SwitchSelectedProfile())

@@ -1,6 +1,39 @@
 ﻿{
-  "currentProfile": "Default",
+  "currentProfile": "Mining",
   "profiles": {
+    "Bossing": {
+      "bindings": {
+        "Numpad0": "PrepareFullLoadout",
+        "Numpad1": "WithdrawEquipmentFromBank",
+        "Numpad2": "EquipFromInventory",
+        "Numpad3": "WithdrawForInventory",
+        "Numpad4": "ClickRunOrb",
+        "NumpadDiv": "ResizeToFixedMode",
+        "NumpadDot": "BankScrollDown",
+        "NumpadMult": "ResizeToMediumMode"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
+        "cookingRect1": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "cookingRect2": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
+      }
+    },
     "Construction": {
       "bindings": {
         "Numpad0": "BuildFullInventoryBenches",
@@ -13,6 +46,35 @@
         "bankSlot3": "0",
         "bankSlot4": "0",
         "constructionBankSlot": "8",
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
+      }
+    },
+    "Cooking": {
+      "bindings": {
+        "Numpad0": "ProcessCooking",
+        "NumpadDiv": "ResizeToFixedMode",
+        "NumpadDot": "CaptureCookingRectangles",
+        "NumpadMult": "ResizeToMediumMode"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
+        "cookingRect1": {
+          "x1": "366",
+          "x2": "464",
+          "y1": "232",
+          "y2": "328"
+        },
+        "cookingRect2": {
+          "x1": "210",
+          "x2": "323",
+          "y1": "235",
+          "y2": "332"
+        },
         "inventorySlot1": "0",
         "inventorySlot2": "0"
       }
@@ -44,6 +106,18 @@
         "bankSlot3": "0",
         "bankSlot4": "0",
         "constructionBankSlot": "0",
+        "cookingRect1": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "cookingRect2": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
         "inventorySlot1": "0",
         "inventorySlot2": "0"
       }
@@ -51,16 +125,11 @@
     "Herblore": {
       "bindings": {
         "Numpad0": "ProcessHerblore",
-        "Numpad1": "ClickCyanCentroid",
+        "Numpad1": "ClickBankSlot29",
+        "Numpad2": "ClickEachInventorySlot",
+        "Numpad3": "ClickBankDepositInventory",
         "NumpadAdd": "ClickCyanCentroid",
         "NumpadDot": "CaptureFourBankSlots"
-      }
-    },
-    "Mining": {
-      "bindings": {
-        "Numpad0": "ClickCyanCentroid",
-        "Numpad3": "ClickSpecialAttack",
-        "NumpadDot": "ClickCapturedInventorySlots"
       },
       "slots": {
         "bankSlot1": "0",
@@ -68,8 +137,66 @@
         "bankSlot3": "0",
         "bankSlot4": "0",
         "constructionBankSlot": "0",
+        "cookingRect1": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "cookingRect2": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
+      }
+    },
+    "Mining": {
+      "bindings": {
+        "Numpad0": "ClickClosestAmethyst",
+        "Numpad3": "ClickSpecialAttack",
+        "Numpad5": "ClickClosestAmethystDebug",
+        "NumpadDiv": "ResizeToFixedMode",
+        "NumpadDot": "ClickCapturedInventorySlots",
+        "NumpadMult": "ResizeToMediumMode"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
+        "cookingRect1": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "cookingRect2": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
         "inventorySlot1": "6",
         "inventorySlot2": "2"
+      }
+    },
+    "Sailing": {
+      "bindings": {
+        "Numpad0": "DropSalvageInventory",
+        "NumpadDot": "CaptureSailingSalvageSlots"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
       }
     },
     "Utility": {
@@ -84,6 +211,45 @@
         "bankSlot3": "0",
         "bankSlot4": "0",
         "constructionBankSlot": "0",
+        "cookingRect1": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "cookingRect2": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "inventorySlot1": "0",
+        "inventorySlot2": "0"
+      }
+    },
+    "z_testing": {
+      "bindings": {
+        "Numpad1": "ClickBankSlot20",
+        "NumpadMult": "ResizeToFixedMode"
+      },
+      "slots": {
+        "bankSlot1": "0",
+        "bankSlot2": "0",
+        "bankSlot3": "0",
+        "bankSlot4": "0",
+        "constructionBankSlot": "0",
+        "cookingRect1": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
+        "cookingRect2": {
+          "x1": "0",
+          "x2": "0",
+          "y1": "0",
+          "y2": "0"
+        },
         "inventorySlot1": "0",
         "inventorySlot2": "0"
       }

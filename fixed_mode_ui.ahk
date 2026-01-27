@@ -21,7 +21,8 @@ global FixedModeUI := Map(
     "spellbook_tab", {x1: 728, y1: 172, x2: 755, y2: 198},
 
     ; Bank interface elements
-    "bank_deposit_inventory", {x1: 425, y1: 296, x2: 458, y2: 328}
+    "bank_deposit_inventory", {x1: 425, y1: 296, x2: 458, y2: 328},
+    "bank_deposit_equipment", {x1: 459, y1: 296, x2: 492, y2: 328}
 
 )
 

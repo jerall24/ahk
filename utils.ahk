@@ -7,6 +7,77 @@ SetDefaultMouseSpeed 4
 ; Global toggle variable
 global scriptEnabled := false
 
+; ======================================
+; STATE MANAGEMENT
+; ======================================
+global StateFilePath := A_ScriptDir "\state.json"
+global CurrentUIMode := "fixed"  ; Default to fixed mode
+
+; Save state to JSON file
+SaveState() {
+    global StateFilePath, CurrentUIMode
+
+    jsonStr := "{`n  `"uiMode`": `"" CurrentUIMode "`"`n}"
+
+    try {
+        FileDelete(StateFilePath)
+    }
+    FileAppend(jsonStr, StateFilePath, "UTF-8")
+}
+
+; Load state from JSON file
+LoadState() {
+    global StateFilePath, CurrentUIMode
+
+    if (!FileExist(StateFilePath)) {
+        CurrentUIMode := "fixed"
+        return false
+    }
+
+    try {
+        jsonStr := FileRead(StateFilePath, "UTF-8")
+
+        ; Simple parsing for uiMode
+        if (RegExMatch(jsonStr, '"uiMode"\s*:\s*"(\w+)"', &match)) {
+            CurrentUIMode := match[1]
+        }
+        return true
+    } catch {
+        CurrentUIMode := "fixed"
+        return false
+    }
+}
+
+; Set UI mode and save
+SetUIMode(mode) {
+    global CurrentUIMode
+    CurrentUIMode := mode
+    SaveState()
+    ToolTip "UI Mode: " mode
+    SetTimer () => ToolTip(), -1000
+}
+
+; Get current UI mode
+GetUIMode() {
+    global CurrentUIMode
+    return CurrentUIMode
+}
+
+; Check if in fixed mode
+IsFixedMode() {
+    global CurrentUIMode
+    return CurrentUIMode = "fixed"
+}
+
+; Check if in medium mode
+IsMediumMode() {
+    global CurrentUIMode
+    return CurrentUIMode = "medium"
+}
+
+; Load state on script start
+LoadState()
+
 ; Toggle script on/off with F12
 F12:: {
     global scriptEnabled

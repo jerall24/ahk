@@ -2,7 +2,10 @@
 
 #Include text_replacements.ahk
 
+
 TraySetIcon("assets\icons8-cog-wheel-32.ico")
+
+CapsLock::Ctrl
 
 Pause:: {
     Send("{Media_Play_Pause}")
