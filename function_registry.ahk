@@ -12,6 +12,7 @@
 #Include functions\bank_functions.ahk
 #Include functions\ui_functions.ahk
 #Include functions\utility_functions.ahk
+#Include functions\ui_element_functions.ahk
 
 ; ======================================
 ; SKILLS INCLUDES
@@ -25,6 +26,8 @@
 ; Add your skill files here as you create them:
 #Include functions\skills\herblore.ahk
 #Include functions\skills\construction.ahk
+#Include functions\skills\sailing.ahk
+#Include functions\skills\cooking.ahk
 ; #Include functions\skills\woodcutting.ahk
 ; #Include functions\skills\mining.ahk
 ; #Include functions\skills\fishing.ahk
@@ -43,13 +46,18 @@ MergeRegistries() {
         InventoryFunctionsRegistry,
         BankFunctionsRegistry,
         UIFunctionsRegistry,
-        UtilityFunctionsRegistry
+        UtilityFunctionsRegistry,
+        UIElementFunctionsRegistry,
+        BankSlotFunctionsRegistry,
+        InventorySlotFunctionsRegistry
     ]
 
     ; Add your skill registries here (must match the variable names from your skill files)
     skillRegistries := [
         HerbloreRegistry,
         ConstructionRegistry,
+        SailingRegistry,
+        CookingRegistry,
         ; Add more as you create them:
         ; WoodcuttingRegistry,
         ; MiningRegistry,

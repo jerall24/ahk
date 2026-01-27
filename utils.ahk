@@ -7,6 +7,77 @@ SetDefaultMouseSpeed 4
 ; Global toggle variable
 global scriptEnabled := false
 
+; ======================================
+; STATE MANAGEMENT
+; ======================================
+global StateFilePath := A_ScriptDir "\state.json"
+global CurrentUIMode := "fixed"  ; Default to fixed mode
+
+; Save state to JSON file
+SaveState() {
+    global StateFilePath, CurrentUIMode
+
+    jsonStr := "{`n  `"uiMode`": `"" CurrentUIMode "`"`n}"
+
+    try {
+        FileDelete(StateFilePath)
+    }
+    FileAppend(jsonStr, StateFilePath, "UTF-8")
+}
+
+; Load state from JSON file
+LoadState() {
+    global StateFilePath, CurrentUIMode
+
+    if (!FileExist(StateFilePath)) {
+        CurrentUIMode := "fixed"
+        return false
+    }
+
+    try {
+        jsonStr := FileRead(StateFilePath, "UTF-8")
+
+        ; Simple parsing for uiMode
+        if (RegExMatch(jsonStr, '"uiMode"\s*:\s*"(\w+)"', &match)) {
+            CurrentUIMode := match[1]
+        }
+        return true
+    } catch {
+        CurrentUIMode := "fixed"
+        return false
+    }
+}
+
+; Set UI mode and save
+SetUIMode(mode) {
+    global CurrentUIMode
+    CurrentUIMode := mode
+    SaveState()
+    ToolTip "UI Mode: " mode
+    SetTimer () => ToolTip(), -1000
+}
+
+; Get current UI mode
+GetUIMode() {
+    global CurrentUIMode
+    return CurrentUIMode
+}
+
+; Check if in fixed mode
+IsFixedMode() {
+    global CurrentUIMode
+    return CurrentUIMode = "fixed"
+}
+
+; Check if in medium mode
+IsMediumMode() {
+    global CurrentUIMode
+    return CurrentUIMode = "medium"
+}
+
+; Load state on script start
+LoadState()
+
 ; Toggle script on/off with F12
 F12:: {
     global scriptEnabled
@@ -91,6 +162,81 @@ WaitForPixelColorNot(x, y, excludeColor, timeout := 5000, checkInterval := Rando
     }
 }
 
+; Wait until a color appears within a rectangle
+; Returns true if color found, false if timed out
+WaitForColorInRect(x1, y1, x2, y2, targetColor, timeout := 5000, checkInterval := 50, colorVariation := 5) {
+    startTime := A_TickCount
+
+    Loop {
+        ; Check if color exists in rectangle
+        if (ColorExistsInRect(x1, y1, x2, y2, targetColor, colorVariation)) {
+            return true
+        }
+
+        ; Check if we've exceeded timeout
+        elapsed := A_TickCount - startTime
+        if (elapsed >= timeout) {
+            ToolTip "Timeout waiting for color in rect (" x1 ", " y1 ", " x2 ", " y2 ")"
+            SetTimer () => ToolTip(), -2000
+            return false
+        }
+
+        ; Wait before checking again
+        Sleep(checkInterval)
+    }
+}
+
+; Wait until a color is NOT present within a rectangle
+; Returns true if color disappeared, false if timed out
+WaitForColorNotInRect(x1, y1, x2, y2, excludeColor, timeout := 5000, checkInterval := 50, colorVariation := 5) {
+    startTime := A_TickCount
+
+    Loop {
+        ; Check if color does NOT exist in rectangle
+        if (!ColorExistsInRect(x1, y1, x2, y2, excludeColor, colorVariation)) {
+            return true
+        }
+
+        ; Check if we've exceeded timeout
+        elapsed := A_TickCount - startTime
+        if (elapsed >= timeout) {
+            ToolTip "Timeout waiting for color to disappear from rect (" x1 ", " y1 ", " x2 ", " y2 ")"
+            SetTimer () => ToolTip(), -2000
+            return false
+        }
+
+        ; Wait before checking again
+        Sleep(checkInterval)
+    }
+}
+
+; Wait until ANY color from an array appears within a rectangle
+; Returns true if any color found, false if timed out
+; colors parameter should be an array of color values: [0xFF0000, 0x00FF00, 0x0000FF]
+WaitForAnyColorInRect(x1, y1, x2, y2, colors, timeout := 5000, checkInterval := 50, colorVariation := 5) {
+    startTime := A_TickCount
+
+    Loop {
+        ; Check each color in the array
+        for color in colors {
+            if (ColorExistsInRect(x1, y1, x2, y2, color, colorVariation)) {
+                return true
+            }
+        }
+
+        ; Check if we've exceeded timeout
+        elapsed := A_TickCount - startTime
+        if (elapsed >= timeout) {
+            ToolTip "Timeout waiting for any color in rect (" x1 ", " y1 ", " x2 ", " y2 ")"
+            SetTimer () => ToolTip(), -2000
+            return false
+        }
+
+        ; Wait before checking again
+        Sleep(checkInterval)
+    }
+}
+
 ; Function to capture coordinates for a rectangular area
 CaptureCoordinates() {
     ; Wait for first right-click
@@ -134,6 +280,107 @@ CapturePixelAndColor() {
     ; Show tooltip confirmation
     ToolTip "Copied: " captureString
     SetTimer () => ToolTip(), -2000
+}
+
+; Capture rectangle and find most prominent colors
+; Output formatted for WaitForAnyColorInRect function
+CaptureRectangleColors(maxColors := 5, sampleStep := 2) {
+    ToolTip "Right-click on TOP-LEFT corner of rectangle..."
+
+    ; Wait for first right-click
+    KeyWait("RButton", "D")
+    MouseGetPos(&x1, &y1)
+
+    ; Clear tooltip immediately, then show next instruction
+    ToolTip
+    Sleep(50)
+    ToolTip "Top-left captured. Now right-click on BOTTOM-RIGHT corner..."
+    Sleep(200)
+    ToolTip  ; Clear tooltip before second click
+
+    ; Wait for second right-click
+    KeyWait("RButton", "D")
+    MouseGetPos(&x2, &y2)
+
+    ; Ensure x1,y1 is top-left and x2,y2 is bottom-right
+    if (x1 > x2) {
+        temp := x1
+        x1 := x2
+        x2 := temp
+    }
+    if (y1 > y2) {
+        temp := y1
+        y1 := y2
+        y2 := temp
+    }
+
+    ToolTip "Analyzing colors in rectangle..."
+
+    ; Sample colors in the rectangle
+    colorCounts := Map()
+
+    ; Sample every few pixels to speed up analysis
+    x := x1
+    while (x <= x2) {
+        y := y1
+        while (y <= y2) {
+            try {
+                color := PixelGetColor(x, y)
+                if (colorCounts.Has(color)) {
+                    colorCounts[color] := colorCounts[color] + 1
+                } else {
+                    colorCounts[color] := 1
+                }
+            }
+            y += sampleStep
+        }
+        x += sampleStep
+    }
+
+    ; Sort colors by frequency
+    colorArray := []
+    for color, count in colorCounts {
+        colorArray.Push({color: color, count: count})
+    }
+
+    ; Simple bubble sort by count (descending)
+    Loop colorArray.Length {
+        i := A_Index
+        Loop colorArray.Length - i {
+            j := A_Index
+            if (colorArray[j].count < colorArray[j + 1].count) {
+                temp := colorArray[j]
+                colorArray[j] := colorArray[j + 1]
+                colorArray[j + 1] := temp
+            }
+        }
+    }
+
+    ; Get top N colors
+    topColors := []
+    Loop Min(maxColors, colorArray.Length) {
+        topColors.Push(colorArray[A_Index].color)
+    }
+
+    ; Format for WaitForAnyColorInRect
+    ; Result: x1, y1, x2, y2, [0xCOLOR1, 0xCOLOR2, ...]
+    colorList := "["
+    Loop topColors.Length {
+        if (A_Index > 1) {
+            colorList .= ", "
+        }
+        colorList .= topColors[A_Index]
+    }
+    colorList .= "]"
+
+    outputString := x1 ", " y1 ", " x2 ", " y2 ", " colorList
+
+    ; Copy to clipboard
+    A_Clipboard := outputString
+
+    ; Show confirmation briefly then clear
+    ToolTip "Captured rectangle with " topColors.Length " colors (copied to clipboard)"
+    SetTimer () => ToolTip(), -1000
 }
 
 ; Helper function to determine which bank slot a coordinate falls within
@@ -392,9 +639,6 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
     ; Color variation for tolerance (0-255, higher = more tolerance)
     colorVariation := 5
 
-    ToolTip "Searching for color: " color " in area: " searchX1 ", " searchY1 ", " searchX2 ", " searchY2
-    SetTimer () => ToolTip(), -2000  ; Remove tooltip after 2 seconds
-
     foundPixels := []
     currentX := searchX1
     currentY := searchY1
@@ -422,8 +666,6 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
     }
 
     if (foundPixels.Length > 0) {
-        ToolTip "Found " foundPixels.Length " pixels"
-        SetTimer () => ToolTip(), -1000  ; Remove tooltip after 1 second
         randomIndex := Random(1, foundPixels.Length)
         targetX := foundPixels[randomIndex].x + marginX
         targetY := foundPixels[randomIndex].y + marginY
@@ -431,15 +673,56 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
         return true
     }
 
-    ToolTip "No pixels found"
-    SetTimer () => ToolTip(), -1000  ; Remove tooltip after 1 second
+    ; Only show tooltip on failure
+    ToolTip "No pixels found for color: " color
+    SetTimer () => ToolTip(), -2000
+    return false
+}
+
+; Function to try clicking any of multiple colors (tries each color in order until one succeeds)
+ClickAnyRandomPixelOfColor(colors, marginX := 0, marginY := 0, near_character := false) {
+    ; Iterate through the array of colors
+    for color in colors {
+        ; Try to click this color
+        if (ClickRandomPixelOfColor(color, marginX, marginY, near_character)) {
+            return true  ; Success - found and clicked this color
+        }
+    }
+
+    ; None of the colors were found
+    ToolTip "No pixels found for any of the " colors.Length " colors"
+    SetTimer () => ToolTip(), -2000
     return false
 }
 
 ; Function to click a random pixel in a range
-ClickRandomPixel(x1, y1, x2, y2) {
-    randomX := Random(x1, x2)
-    randomY := Random(y1, y2)
+; If nearMouse is true, prioritizes clicking within radius pixels of current mouse position
+ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3) {
+    if (nearMouse) {
+        ; Get current mouse position
+        MouseGetPos(&currentX, &currentY)
+
+        ; Check if current mouse is within the target rectangle
+        if (currentX >= x1 && currentX <= x2 && currentY >= y1 && currentY <= y2) {
+            ; Calculate bounds around current position, clamped to rectangle
+            nearX1 := Max(x1, currentX - radius)
+            nearX2 := Min(x2, currentX + radius)
+            nearY1 := Max(y1, currentY - radius)
+            nearY2 := Min(y2, currentY + radius)
+
+            randomX := Random(nearX1, nearX2)
+            randomY := Random(nearY1, nearY2)
+        } else {
+            ; Mouse not in rectangle, use regular random
+            randomX := Random(x1, x2)
+            randomY := Random(y1, y2)
+        }
+    } else {
+        ; Regular random click anywhere in rectangle
+        randomX := Random(x1, x2)
+        randomY := Random(y1, y2)
+    }
+
     HumanClick(randomX, randomY, "left", 1.0, 1.0)
 }
 
@@ -477,9 +760,6 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     ; Color variation for tolerance (0-255, higher = more tolerance)
     colorVariation := 5
 
-    ToolTip "Searching for color: " color " (centroid mode)"
-    SetTimer () => ToolTip(), -1000
-
     ; Find all matching pixels
     foundPixels := []
     currentX := searchX1
@@ -507,8 +787,8 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     }
 
     if (foundPixels.Length = 0) {
-        ToolTip "No pixels found"
-        SetTimer () => ToolTip(), -1000
+        ToolTip "No pixels found for color: " color
+        SetTimer () => ToolTip(), -2000
         return false
     }
 
@@ -539,9 +819,6 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
             clusters.Push([pixel])
         }
     }
-
-    ToolTip "Found " clusters.Length " object(s) with " foundPixels.Length " pixels"
-    SetTimer () => ToolTip(), -1000
 
     ; Calculate character center position (always in center of screen)
     characterCenterX := (searchX1 + searchX2) / 2
@@ -636,6 +913,24 @@ F11:: {
 F8:: {
     color := GetPixelColorUnderMouse()
     A_Clipboard := color
+}
+
+; Play completion sound - double beep
+PlayCompletionSound() {
+    SoundBeep(1000, 200)  ; First beep: 1000 Hz, 200ms
+    Sleep(100)
+    SoundBeep(1200, 200)  ; Second beep: 1200 Hz, 200ms
+}
+
+; Play error sound - low beep
+PlayErrorSound() {
+    SoundBeep(400, 500)  ; Low frequency, longer duration
+}
+
+; Check if a color exists within a rectangle
+; Returns true if color is found, false otherwise
+ColorExistsInRect(x1, y1, x2, y2, color, colorVariation := 5) {
+    return PixelSearch(&foundX, &foundY, x1, y1, x2, y2, color, colorVariation)
 }
 
 F10:: {

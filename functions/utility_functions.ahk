@@ -20,6 +20,11 @@ CaptureFourBankSlotsWrapper() {
     CaptureFourBankSlots()
 }
 
+; Capture rectangle and find most prominent colors
+CaptureRectangleColorsWrapper() {
+    CaptureRectangleColors()
+}
+
 ; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================
@@ -38,5 +43,10 @@ global UtilityFunctionsRegistry := Map(
         name: "CaptureFourBankSlots",
         func: CaptureFourBankSlotsWrapper,
         description: "Right-click 4 times to capture bank slots 1-4 for 4-ingredient herblore"
+    },
+    "CaptureRectangleColors", {
+        name: "CaptureRectangleColors",
+        func: CaptureRectangleColorsWrapper,
+        description: "Right-click twice to capture rectangle with top 5 most prominent colors"
     }
 )

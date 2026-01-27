@@ -40,6 +40,21 @@ ClickInventorySlot1And5() {
     Send("{Space}")
 }
 
+; Click each inventory slot 1-28 sequentially
+; Uses 10% faster mouse speed for small movements (mode-aware)
+ClickEachInventorySlot() {
+    ; Save current mouse speed and set 10% faster (default 4 -> 3)
+    SetDefaultMouseSpeed 3
+
+    Loop 28 {
+        ClickInventorySlotNumber(A_Index)
+        Sleep(Random(50, 100))
+    }
+
+    ; Restore default mouse speed
+    SetDefaultMouseSpeed 4
+}
+
 ; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================
@@ -53,5 +68,10 @@ global InventoryFunctionsRegistry := Map(
         name: "ClickInventorySlot1And5",
         func: ClickInventorySlot1And5,
         description: "Click inventory slot 1 & 5, then space"
+    },
+    "ClickEachInventorySlot", {
+        name: "ClickEachInventorySlot",
+        func: ClickEachInventorySlot,
+        description: "Click all 28 inventory slots sequentially (10% faster mouse, mode-aware)"
     }
 )
