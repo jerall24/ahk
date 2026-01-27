@@ -12,6 +12,10 @@ global FunctionRegistry := Map()
 ; Merge all registries into the main FunctionRegistry
 MergeRegistries() {
     global FunctionRegistry
+    global MouseMovementRegistry, PixelFunctionsRegistry, InventoryFunctionsRegistry
+    global BankFunctionsRegistry, UIFunctionsRegistry, UtilityFunctionsRegistry
+    global UIElementFunctionsRegistry, BankSlotFunctionsRegistry, InventorySlotFunctionsRegistry
+    global HerbloreRegistry, ConstructionRegistry, SailingRegistry, CookingRegistry
 
     ; Core function registries (always included)
     registriesToMerge := [
