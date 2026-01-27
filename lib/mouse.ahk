@@ -172,12 +172,8 @@ MoveAlongPath(pathPoints, speedMultiplier, accuracy, finalX, finalY) {
         ; Move to point
         MouseMove(point.x, point.y, 0)
 
-        ; Very occasional tiny delay for slight pacing (20% of moves)
-        if (Random(1, 100) <= 20) {
-            Sleep(1)
-        }
-
-        ; No micro-pauses for smooth, continuous movement
+        ; Delay between steps for visible smooth movement
+        Sleep(5)
     }
 
     ; No overshoot for maximum speed - just go straight to target

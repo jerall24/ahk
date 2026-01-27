@@ -10,10 +10,12 @@
 
 ; Library modules
 #Include lib\mouse.ahk
+#Include lib\pixel.ahk
 #Include lib\color.ahk
 #Include lib\wait.ahk
 #Include lib\capture.ahk
 #Include lib\sound.ahk
+#Include lib\utility.ahk
 
 ; Game-specific modules
 #Include game\bank.ahk
