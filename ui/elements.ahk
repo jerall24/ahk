@@ -367,6 +367,11 @@ global UIElementFunctionsRegistry := Map(
         func: (*) => "",
         description: "Opens grid to select a specific inventory slot to bind"
     },
+    "[Select Drop Slot...]", {
+        name: "[Select Drop Slot...]",
+        func: (*) => "",
+        description: "Opens grid to select a specific drop slot to bind"
+    },
     "ClickHealthOrb", {
         name: "ClickHealthOrb",
         func: ClickHealthOrb,
