@@ -15,6 +15,7 @@ MergeRegistries() {
     global MouseMovementRegistry, PixelFunctionsRegistry, InventoryFunctionsRegistry
     global BankFunctionsRegistry, UIFunctionsRegistry, UtilityFunctionsRegistry
     global UIElementFunctionsRegistry, BankSlotFunctionsRegistry, InventorySlotFunctionsRegistry
+    global DropSlotFunctionsRegistry
     global HerbloreRegistry, ConstructionRegistry, SailingRegistry, CookingRegistry
 
     ; Core function registries (always included)
@@ -27,7 +28,8 @@ MergeRegistries() {
         UtilityFunctionsRegistry,
         UIElementFunctionsRegistry,
         BankSlotFunctionsRegistry,
-        InventorySlotFunctionsRegistry
+        InventorySlotFunctionsRegistry,
+        DropSlotFunctionsRegistry
     ]
 
     ; Add your skill registries here (must match the variable names from your skill files)

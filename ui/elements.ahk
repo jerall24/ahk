@@ -166,6 +166,59 @@ ClickInvSlot27() => ClickInventorySlotNumber(27)
 ClickInvSlot28() => ClickInventorySlotNumber(28)
 
 ; ======================================
+; DROP INVENTORY SLOT FUNCTIONS
+; ======================================
+
+; Drop a single inventory slot by shift-clicking (mode-aware)
+; Ensures shift is released even if click fails
+DropInventorySlotNumber(slotNumber) {
+    if (slotNumber < 1 || slotNumber > 28) {
+        return false
+    }
+
+    try {
+        Send("{Shift down}")
+        Sleep(Random(30, 60))
+        ClickInventorySlotNumber(slotNumber)
+        Sleep(Random(30, 60))
+    } finally {
+        Send("{Shift up}")
+    }
+
+    return true
+}
+
+; Generate individual drop slot functions (1-28)
+DropInvSlot1() => DropInventorySlotNumber(1)
+DropInvSlot2() => DropInventorySlotNumber(2)
+DropInvSlot3() => DropInventorySlotNumber(3)
+DropInvSlot4() => DropInventorySlotNumber(4)
+DropInvSlot5() => DropInventorySlotNumber(5)
+DropInvSlot6() => DropInventorySlotNumber(6)
+DropInvSlot7() => DropInventorySlotNumber(7)
+DropInvSlot8() => DropInventorySlotNumber(8)
+DropInvSlot9() => DropInventorySlotNumber(9)
+DropInvSlot10() => DropInventorySlotNumber(10)
+DropInvSlot11() => DropInventorySlotNumber(11)
+DropInvSlot12() => DropInventorySlotNumber(12)
+DropInvSlot13() => DropInventorySlotNumber(13)
+DropInvSlot14() => DropInventorySlotNumber(14)
+DropInvSlot15() => DropInventorySlotNumber(15)
+DropInvSlot16() => DropInventorySlotNumber(16)
+DropInvSlot17() => DropInventorySlotNumber(17)
+DropInvSlot18() => DropInventorySlotNumber(18)
+DropInvSlot19() => DropInventorySlotNumber(19)
+DropInvSlot20() => DropInventorySlotNumber(20)
+DropInvSlot21() => DropInventorySlotNumber(21)
+DropInvSlot22() => DropInventorySlotNumber(22)
+DropInvSlot23() => DropInventorySlotNumber(23)
+DropInvSlot24() => DropInventorySlotNumber(24)
+DropInvSlot25() => DropInventorySlotNumber(25)
+DropInvSlot26() => DropInventorySlotNumber(26)
+DropInvSlot27() => DropInventorySlotNumber(27)
+DropInvSlot28() => DropInventorySlotNumber(28)
+
+; ======================================
 ; ORB AND TAB CLICK FUNCTIONS
 ; ======================================
 
@@ -441,5 +494,30 @@ Loop 28 {
         name: funcName,
         func: InventorySlotFunctions[slotNum],
         description: "Click inventory slot " slotNum " (mode-aware)"
+    }
+}
+
+; Drop slot function references
+global DropSlotFunctions := Map(
+    1, DropInvSlot1, 2, DropInvSlot2, 3, DropInvSlot3, 4, DropInvSlot4,
+    5, DropInvSlot5, 6, DropInvSlot6, 7, DropInvSlot7, 8, DropInvSlot8,
+    9, DropInvSlot9, 10, DropInvSlot10, 11, DropInvSlot11, 12, DropInvSlot12,
+    13, DropInvSlot13, 14, DropInvSlot14, 15, DropInvSlot15, 16, DropInvSlot16,
+    17, DropInvSlot17, 18, DropInvSlot18, 19, DropInvSlot19, 20, DropInvSlot20,
+    21, DropInvSlot21, 22, DropInvSlot22, 23, DropInvSlot23, 24, DropInvSlot24,
+    25, DropInvSlot25, 26, DropInvSlot26, 27, DropInvSlot27, 28, DropInvSlot28
+)
+
+; Drop slot registry
+global DropSlotFunctionsRegistry := Map()
+
+; Populate drop slot registry
+Loop 28 {
+    slotNum := A_Index
+    funcName := "DropInvSlot" slotNum
+    DropSlotFunctionsRegistry[funcName] := {
+        name: funcName,
+        func: DropSlotFunctions[slotNum],
+        description: "Drop inventory slot " slotNum " (shift-click, mode-aware)"
     }
 }
