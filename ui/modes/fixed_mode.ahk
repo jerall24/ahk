@@ -78,10 +78,16 @@ GenerateBankSlots() {
 ; Initialize bank slots
 global BankSlots := GenerateBankSlots()
 
-; Helper function to click a UI element by name (clicks random pixel in range)
+; Helper function to click a UI element by name (clicks random pixel in range) - MODE AWARE
 ClickUIElement(elementName) {
-    if FixedModeUI.Has(elementName) {
-        coords := FixedModeUI[elementName]
+    if (IsFixedMode()) {
+        uiMap := FixedModeUI
+    } else {
+        uiMap := MediumModeUI
+    }
+
+    if uiMap.Has(elementName) {
+        coords := uiMap[elementName]
         ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2)
         return true
     } else {
@@ -91,10 +97,14 @@ ClickUIElement(elementName) {
     }
 }
 
-; Helper function to click an inventory slot by number (1-28)
+; Helper function to click an inventory slot by number (1-28) - MODE AWARE
 ClickInventorySlot(slotNumber) {
     if (slotNumber >= 1 && slotNumber <= 28) {
-        coords := InventorySlots[slotNumber]
+        if (IsFixedMode()) {
+            coords := InventorySlots[slotNumber]
+        } else {
+            coords := MediumInventorySlots[slotNumber]
+        }
         ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2)
         return true
     } else {
@@ -104,23 +114,39 @@ ClickInventorySlot(slotNumber) {
     }
 }
 
-; Helper function to click a bank slot by number (1-48)
+; Helper function to click a bank slot by number - MODE AWARE
+; Fixed mode: 1-48, Medium mode: 1-88
 ClickBankSlot(slotNumber) {
-    if (slotNumber >= 1 && slotNumber <= 48) {
-        coords := BankSlots[slotNumber]
+    if (IsFixedMode()) {
+        maxSlots := 48
+        slots := BankSlots
+    } else {
+        maxSlots := 88
+        slots := MediumBankSlots
+    }
+
+    if (slotNumber >= 1 && slotNumber <= maxSlots) {
+        coords := slots[slotNumber]
         ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2)
         return true
     } else {
-        ToolTip "Invalid bank slot: " slotNumber " (must be 1-48)"
+        ToolTip "Invalid bank slot: " slotNumber " (must be 1-" maxSlots ")"
         SetTimer () => ToolTip(), -1000
         return false
     }
 }
 
 ; Helper function to get coordinates for a UI element
+; Get UI element coordinates - MODE AWARE
 GetUICoords(elementName) {
-    if FixedModeUI.Has(elementName) {
-        return FixedModeUI[elementName]
+    if (IsFixedMode()) {
+        uiMap := FixedModeUI
+    } else {
+        uiMap := MediumModeUI
+    }
+
+    if uiMap.Has(elementName) {
+        return uiMap[elementName]
     }
     return false
 }
