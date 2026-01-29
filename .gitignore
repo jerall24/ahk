@@ -1,1 +1,6 @@
 .claude/*
+
+# User state files (not code)
+config/profiles.json
+config/state.json
+config/drop_debug.log
