@@ -26,6 +26,9 @@ ClickClosestAmethyst() {
 ; Searches in expanding radius from character position (275, 193)
 ; Maximum search boundary is (523, 367)
 ClickNearestColorFromArray(colorArray) {
+    ; Show indicator during search
+    ShowActivityIndicator()
+
     charX := 275
     charY := 193
     maxX := 523
@@ -89,6 +92,7 @@ ClickNearestColorFromArray(colorArray) {
     }
 
     ; No matching color found
+    HideActivityIndicator()
     return false
 }
 

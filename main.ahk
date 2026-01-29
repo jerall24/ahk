@@ -9,6 +9,7 @@
 #Include ui\modes\medium_mode.ahk
 
 ; Library modules
+#Include lib\indicator.ahk
 #Include lib\mouse.ahk
 #Include lib\pixel.ahk
 #Include lib\color.ahk

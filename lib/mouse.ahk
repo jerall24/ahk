@@ -22,6 +22,9 @@ HumanMouseMove(targetX, targetY, speed := 1.0, accuracy := 1.0) {
     }
     isMovingMouse := true
 
+    ; Show activity indicator
+    ShowActivityIndicator()
+
     ; Get current mouse position
     MouseGetPos(&startX, &startY)
 
@@ -53,6 +56,9 @@ HumanMouseMove(targetX, targetY, speed := 1.0, accuracy := 1.0) {
 
     ; Move along the path with variable speed
     MoveAlongPath(pathPoints, speed, accuracy, targetX, targetY)
+
+    ; Hide activity indicator
+    HideActivityIndicator()
 
     ; Release the lock
     isMovingMouse := false

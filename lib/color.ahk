@@ -49,6 +49,9 @@ ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3) {
 
 ; Function to find and click a random pixel of a specific color
 ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := false) {
+    ; Show indicator during search
+    ShowActivityIndicator()
+
     ; Get window position and size
     WinGetPos(&winX, &winY, &winWidth, &winHeight, "ahk_exe RuneLite.exe")
     ; top left corner: -7 3 812 542
@@ -114,6 +117,7 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
     }
 
     ; Only show tooltip on failure
+    HideActivityIndicator()
     ToolTip "No pixels found for color: " color
     SetTimer () => ToolTip(), -2000
     return false
@@ -139,6 +143,9 @@ ClickAnyRandomPixelOfColor(colors, marginX := 0, marginY := 0, near_character :=
 ; Finds pixels, groups them into clusters (separate objects), picks a random cluster,
 ; and clicks at the centroid of that cluster
 ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_character := false) {
+    ; Show indicator during search
+    ShowActivityIndicator()
+
     ; Get window position and size
     WinGetPos(&winX, &winY, &winWidth, &winHeight, "ahk_exe RuneLite.exe")
 
@@ -196,6 +203,7 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     }
 
     if (foundPixels.Length = 0) {
+        HideActivityIndicator()
         ToolTip "No pixels found for color: " color
         SetTimer () => ToolTip(), -2000
         return false
