@@ -1,6 +1,19 @@
 #Requires AutoHotkey v2.0
 
 ; ======================================
+; DEBUG LOGGING
+; ======================================
+global DropLogFile := A_ScriptDir "\config\drop_debug.log"
+
+LogDrop(message) {
+    global DropLogFile
+    timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss.") . A_MSec
+    try {
+        FileAppend(timestamp " - " message "`n", DropLogFile)
+    }
+}
+
+; ======================================
 ; UI ELEMENT CLICK FUNCTIONS
 ; Mode-aware functions that click UI elements based on current UI mode
 ; ======================================
@@ -170,21 +183,58 @@ ClickInvSlot28() => ClickInventorySlotNumber(28)
 ; ======================================
 
 ; Drop a single inventory slot by shift-clicking (mode-aware)
-; Ensures shift is released even if click fails
+; Simple approach: shift down, click, shift up with adequate delays
 DropInventorySlotNumber(slotNumber) {
     if (slotNumber < 1 || slotNumber > 28) {
         return false
     }
 
-    try {
-        Send("{Shift down}")
-        Sleep(Random(30, 60))
-        ClickInventorySlotNumber(slotNumber)
-        Sleep(Random(30, 60))
-    } finally {
-        Send("{Shift up}")
+    ; Get coordinates for the slot
+    if (IsFixedMode()) {
+        coords := InventorySlots[slotNumber]
+    } else {
+        coords := MediumInventorySlots[slotNumber]
     }
 
+    ; Calculate random point within slot
+    targetX := Random(coords.x1, coords.x2)
+    targetY := Random(coords.y1, coords.y2)
+
+    ; Move mouse first
+    HumanMouseMove(targetX, targetY, 1.0, 1.0)
+
+    ; Shift+click with delays
+    SendInput("{Shift down}")
+    Sleep(50)
+    SendInput("{Click}")
+    Sleep(50)
+    SendInput("{Shift up}")
+
+    return true
+}
+
+; Drop all inventory slots from captured slot 1 through slot 28
+; Uses individual drop calls for reliability
+DropAllFromCaptured() {
+    global capturedInventorySlot1
+
+    if (capturedInventorySlot1 < 1 || capturedInventorySlot1 > 28) {
+        ToolTip "No valid captured slot! Use Ctrl+NumpadDot first."
+        SetTimer(() => ToolTip(), -2000)
+        return false
+    }
+
+    LogDrop("=== BULK DROP FROM SLOT " capturedInventorySlot1 " START ===")
+
+    ; Drop each slot using the individual function (shift down/click/up for each)
+    Loop (28 - capturedInventorySlot1 + 1) {
+        slotNumber := capturedInventorySlot1 + A_Index - 1
+        DropInventorySlotNumber(slotNumber)
+        LogDrop("Dropped slot " slotNumber)
+        Sleep(Random(50, 100))
+    }
+
+    LogDrop("=== BULK DROP COMPLETE ===`n")
     return true
 }
 
@@ -525,4 +575,11 @@ Loop 28 {
         func: DropSlotFunctions[slotNum],
         description: "Drop inventory slot " slotNum " (shift-click, mode-aware)"
     }
+}
+
+; Add bulk drop function
+DropSlotFunctionsRegistry["DropAllFromCaptured"] := {
+    name: "DropAllFromCaptured",
+    func: DropAllFromCaptured,
+    description: "Drop all slots from captured slot 1 to slot 28 (bulk shift-click)"
 }
