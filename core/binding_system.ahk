@@ -19,9 +19,10 @@ GetFunctionsByCategory(category) {
         ; Add special selectors first
         functions.Push("[Select Bank Slot...]")
         functions.Push("[Select Inventory Slot...]")
+        functions.Push("[Select Drop Slot...]")
         ; Then add other UI element functions
         for name in UIElementFunctionsRegistry {
-            if (name != "[Select Bank Slot...]" && name != "[Select Inventory Slot...]") {
+            if (name != "[Select Bank Slot...]" && name != "[Select Inventory Slot...]" && name != "[Select Drop Slot...]") {
                 functions.Push(name)
             }
         }
@@ -231,6 +232,8 @@ ShowFunctionSelector(keyToBindCallback) {
                 ShowSlotGridPicker("bank", keyToBindCallback)
             } else if (selectedName = "[Select Inventory Slot...]") {
                 ShowSlotGridPicker("inventory", keyToBindCallback)
+            } else if (selectedName = "[Select Drop Slot...]") {
+                ShowSlotGridPicker("drop", keyToBindCallback)
             } else {
                 keyToBindCallback(selectedName)
             }
@@ -359,12 +362,20 @@ ShowSlotGridPicker(slotType, keyToBindCallback) {
         }
         title := "Select Bank Slot"
         funcPrefix := "ClickBankSlot"
-    } else {
+    } else if (slotType = "inventory") {
         cols := 4
         rows := 7
         maxSlots := 28
         title := "Select Inventory Slot"
         funcPrefix := "ClickInvSlot"
+    } else if (slotType = "drop") {
+        cols := 4
+        rows := 7
+        maxSlots := 28
+        title := "Select Drop Slot"
+        funcPrefix := "DropInvSlot"
+    } else {
+        return  ; Unknown type
     }
 
     ; Current selection

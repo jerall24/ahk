@@ -156,6 +156,7 @@
     "Mining": {
       "bindings": {
         "Numpad0": "ClickClosestAmethyst",
+        "Numpad1": "EquipFromInventory",
         "Numpad3": "ClickSpecialAttack",
         "Numpad5": "ClickClosestAmethystDebug",
         "NumpadDiv": "ResizeToFixedMode",

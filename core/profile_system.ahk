@@ -418,10 +418,6 @@ ExecuteBoundFunction(keyName) {
         return false
     }
 
-    ; Show which function is being executed (debug)
-    ToolTip "Executing: " functionName
-    SetTimer () => ToolTip(), -1000
-
     ; Execute the function
     funcInfo := FunctionRegistry[functionName]
     funcInfo.func.Call()
