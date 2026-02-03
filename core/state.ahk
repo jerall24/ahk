@@ -9,6 +9,19 @@ SetDefaultMouseSpeed 4
 ; Global toggle variable
 global scriptEnabled := false
 
+; Kill switch - stops current action when Ctrl+Esc is pressed
+global stopCurrentAction := false
+
+; Check if action should stop (also resets the flag)
+ShouldStopAction() {
+    global stopCurrentAction
+    if (stopCurrentAction) {
+        stopCurrentAction := false
+        return true
+    }
+    return false
+}
+
 ; State file path and UI mode
 global StateFilePath := A_ScriptDir "\config\state.json"
 global CurrentUIMode := "fixed"  ; Default to fixed mode

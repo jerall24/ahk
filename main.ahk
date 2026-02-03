@@ -57,6 +57,14 @@ areHotkeysEnabled() {
 ; GLOBAL KEYBINDS (Non-rebindable)
 ; ======================================
 
+; Ctrl+Escape - Kill switch to stop current action
+^Escape:: {
+    global stopCurrentAction
+    stopCurrentAction := true
+    ToolTip "Action cancelled"
+    SetTimer () => ToolTip(), -1000
+}
+
 ; Ctrl+Numpad0 - Capture two bank slots (GLOBAL - not rebindable)
 ^Numpad0:: {
     CaptureBankSlots()
@@ -527,6 +535,7 @@ SetClientSize(width := 812, height := 542) { ; 796 503
     === OLDSCHOOL SCRIPTS - DYNAMIC BINDING SYSTEM ===
 
     GLOBAL KEYBINDS (Non-rebindable):
+    Ctrl+Escape      - Kill switch (cancel current action)
     Ctrl+Numpad0     - Capture two bank slots
     Ctrl+NumpadDot   - Capture two inventory slots
 

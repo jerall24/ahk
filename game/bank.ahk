@@ -10,9 +10,12 @@ WithdrawEquipmentFromBank() {
     equipmentSlots := [2, 9, 10, 11, 17, 18, 19, 26, 33, 34, 35]
 
     for slot in equipmentSlots {
+        if (ShouldStopAction())
+            return false
         ClickBankSlotNumber(slot)
         Sleep(Random(100, 200))
     }
+    return true
 }
 
 ; Equip items from inventory
@@ -22,12 +25,17 @@ EquipFromInventory() {
     Sleep(Random(100, 200))
 
     Loop 11 {
+        if (ShouldStopAction()) {
+            Send("{F4}")  ; Close equipment tab before exiting
+            return false
+        }
         ClickInventorySlotNumber(A_Index)
         Sleep(Random(100, 200))
     }
 
     Send("{F4}")
     Sleep(Random(100, 200))
+    return true
 }
 
 ; Withdraw items for inventory from bank
@@ -39,6 +47,8 @@ WithdrawForInventory() {
     inventorySlots := [5, 6, 7, 8, 13, 14, 15, 16, 21, 22, 23, 24, 29, 30, 31, 32, 37, 38, 39, 40, 45, 46, 47, 48]
 
     for slot in inventorySlots {
+        if (ShouldStopAction())
+            return false
         ClickBankSlotNumber(slot)
         Sleep(Random(100, 200))
     }
@@ -52,6 +62,8 @@ WithdrawForInventory() {
         ; After scrolling, slots 53-56 are now in row 6 position (columns 5-8)
         scrolledSlots := [45, 46, 47, 48]
         for slot in scrolledSlots {
+            if (ShouldStopAction())
+                return false
             ClickBankSlotNumber(slot)
             Sleep(Random(100, 200))
         }
@@ -59,21 +71,28 @@ WithdrawForInventory() {
         ; Medium mode: slots 53-56 are directly accessible
         finalSlots := [53, 54, 55, 56]
         for slot in finalSlots {
+            if (ShouldStopAction())
+                return false
             ClickBankSlotNumber(slot)
             Sleep(Random(100, 200))
         }
     }
+    return true
 }
 
 ; Prepare full loadout: withdraw equipment, equip it, then withdraw inventory items
 PrepareFullLoadout() {
-    WithdrawEquipmentFromBank()
+    if (!WithdrawEquipmentFromBank())
+        return false
     Sleep(Random(200, 350))
 
-    EquipFromInventory()
+    if (!EquipFromInventory())
+        return false
     Sleep(Random(200, 350))
 
-    WithdrawForInventory()
+    if (!WithdrawForInventory())
+        return false
+    return true
 }
 
 ; Scroll down one row in the bank interface
