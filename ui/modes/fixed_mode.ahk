@@ -4,6 +4,12 @@
 ; All coordinates are relative to the RuneLite window client area
 ; Each element has a clickable range: {x1, y1, x2, y2}
 global FixedModeUI := Map(
+    ; Game view area (3D world, where you click to interact)
+    "game_view", {x1: 4, y1: 2, x2: 514, y2: 335},
+
+    ; Minimap area
+    "minimap", {x1: 570, y1: 4, x2: 714, y2: 158},
+
     ; Orbs (right side of game view)
     "health_orb", {x1: 522, y1: 56, x2: 560, y2: 68},
     "prayer_orb", {x1: 521, y1: 89, x2: 562, y2: 101},
@@ -105,7 +111,7 @@ ClickInventorySlot(slotNumber) {
         } else {
             coords := MediumInventorySlots[slotNumber]
         }
-        ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2)
+        ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2, false, 3, 1.5)
         return true
     } else {
         ToolTip "Invalid inventory slot: " slotNumber " (must be 1-28)"
@@ -127,7 +133,7 @@ ClickBankSlot(slotNumber) {
 
     if (slotNumber >= 1 && slotNumber <= maxSlots) {
         coords := slots[slotNumber]
-        ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2)
+        ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2, false, 3, 1.5)
         return true
     } else {
         ToolTip "Invalid bank slot: " slotNumber " (must be 1-" maxSlots ")"

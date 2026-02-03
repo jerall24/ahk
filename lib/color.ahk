@@ -18,7 +18,8 @@ ColorExistsInRect(x1, y1, x2, y2, color, colorVariation := 5) {
 
 ; Function to click a random pixel in a range
 ; If nearMouse is true, prioritizes clicking within radius pixels of current mouse position
-ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3) {
+; speed parameter controls mouse movement speed (1.0 = normal, 1.5 = faster)
+ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3, speed := 1.0) {
     if (nearMouse) {
         ; Get current mouse position
         MouseGetPos(&currentX, &currentY)
@@ -44,7 +45,7 @@ ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3) {
         randomY := Random(y1, y2)
     }
 
-    HumanClick(randomX, randomY, "left", 1.0, 1.0)
+    HumanClick(randomX, randomY, "left", speed, 1.0)
 }
 
 ; Function to find and click a random pixel of a specific color
@@ -61,10 +62,10 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
     fixed_mode_x2_end := 514
     fixed_mode_y2_end := 335
 
-    near_character_x1_start := 151
-    near_character_y1_start := 88
-    near_character_x2_end := 359
-    near_character_y2_end := 246
+    near_character_x1_start := 100
+    near_character_y1_start := 35
+    near_character_x2_end := 460
+    near_character_y2_end := 335
 
     ; Calculate search area with margins
     if (near_character) {
@@ -109,9 +110,44 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
     }
 
     if (foundPixels.Length > 0) {
-        randomIndex := Random(1, foundPixels.Length)
-        targetX := foundPixels[randomIndex].x + marginX
-        targetY := foundPixels[randomIndex].y + marginY
+        ; Find bounding box of all found pixels
+        minX := foundPixels[1].x
+        maxX := foundPixels[1].x
+        minY := foundPixels[1].y
+        maxY := foundPixels[1].y
+
+        for pixel in foundPixels {
+            if (pixel.x < minX)
+                minX := pixel.x
+            if (pixel.x > maxX)
+                maxX := pixel.x
+            if (pixel.y < minY)
+                minY := pixel.y
+            if (pixel.y > maxY)
+                maxY := pixel.y
+        }
+
+        ; Shrink bounding box inward by 25% to avoid edges
+        width := maxX - minX
+        height := maxY - minY
+        shrinkX := Round(width * 0.25)
+        shrinkY := Round(height * 0.25)
+
+        innerMinX := minX + shrinkX
+        innerMaxX := maxX - shrinkX
+        innerMinY := minY + shrinkY
+        innerMaxY := maxY - shrinkY
+
+        ; If box is too small after shrinking, just use center
+        if (innerMinX >= innerMaxX || innerMinY >= innerMaxY) {
+            targetX := Round((minX + maxX) / 2) + marginX
+            targetY := Round((minY + maxY) / 2) + marginY
+        } else {
+            ; Click random point inside shrunk box
+            targetX := Random(innerMinX, innerMaxX) + marginX
+            targetY := Random(innerMinY, innerMaxY) + marginY
+        }
+
         HumanClick(targetX, targetY, "left", 1.0, 1.0)
         return true
     }
@@ -155,10 +191,10 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     fixed_mode_x2_end := 514
     fixed_mode_y2_end := 335
 
-    near_character_x1_start := 151
-    near_character_y1_start := 88
-    near_character_x2_end := 359
-    near_character_y2_end := 246
+    near_character_x1_start := 100
+    near_character_y1_start := 35
+    near_character_x2_end := 460
+    near_character_y2_end := 335
 
     ; Calculate search area with margins
     if (near_character) {

@@ -31,6 +31,7 @@
 #Include skills\construction.ahk
 #Include skills\sailing.ahk
 #Include skills\cooking.ahk
+#Include skills\agility.ahk
 
 ; Function registry (merges all registries)
 #Include core\function_registry.ahk
