@@ -44,7 +44,7 @@ HumanMouseMove(targetX, targetY, speed := 1.0, accuracy := 1.0) {
     ; Calculate number of steps based on distance and speed
     ; More steps = smoother movement, fewer steps = faster but choppier
     ; Balanced for fast movement with slight smoothness
-    baseSteps := Max(6, Min(20, Round(distance / 12)))
+    baseSteps := Max(6, Min(12, Round(distance / 12)))
     steps := Round(baseSteps / speed)
 
     ; Generate the Bezier curve path
@@ -179,7 +179,7 @@ MoveAlongPath(pathPoints, speedMultiplier, accuracy, finalX, finalY) {
         MouseMove(point.x, point.y, 0)
 
         ; Delay between steps for visible smooth movement
-        Sleep(5)
+        Sleep(2)
     }
 
     ; No overshoot for maximum speed - just go straight to target

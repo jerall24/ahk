@@ -1,0 +1,264 @@
+2026-02-05 11:22:59 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:22:59 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:22:59 | Window client area: pos=(12,42) size=(1038x503)
+2026-02-05 11:22:59 | Search dimensions: 360x300
+2026-02-05 11:22:59 | Found 313 matching pixels
+2026-02-05 11:22:59 |   Example pixel 1: (450,207)
+2026-02-05 11:22:59 |   Example pixel 2: (450,209)
+2026-02-05 11:22:59 |   Example pixel 3: (452,209)
+2026-02-05 11:22:59 |   Example pixel 4: (454,209)
+2026-02-05 11:22:59 |   Example pixel 5: (456,209)
+2026-02-05 11:22:59 | Bounding box: (438,207)-(470,251)
+2026-02-05 11:22:59 | Shrunk box: (446,218)-(462,240)
+2026-02-05 11:22:59 | CLICKING at: (449,225) with margin (0,0)
+2026-02-05 11:23:00 | Mouse actual position after click: (449,225)
+2026-02-05 11:23:00 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:24:23 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:24:23 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:24:23 | Window position: pos=(4,11) size=(1054x542)
+2026-02-05 11:24:23 | Search dimensions: 360x300
+2026-02-05 11:24:23 | Found 343 matching pixels
+2026-02-05 11:24:23 |   Example pixel 1: (262,154)
+2026-02-05 11:24:23 |   Example pixel 2: (264,154)
+2026-02-05 11:24:23 |   Example pixel 3: (266,154)
+2026-02-05 11:24:23 |   Example pixel 4: (268,154)
+2026-02-05 11:24:23 |   Example pixel 5: (270,154)
+2026-02-05 11:24:23 | Bounding box: (262,154)-(296,192)
+2026-02-05 11:24:23 | Shrunk box: (271,164)-(287,182)
+2026-02-05 11:24:23 | CLICKING at: (283,171) with margin (0,0)
+2026-02-05 11:24:23 | Mouse actual position after click: (283,171)
+2026-02-05 11:24:23 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:24:29 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:24:29 | Target color: 0xF1FF00 | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:24:29 | Window position: pos=(4,11) size=(1054x542)
+2026-02-05 11:24:29 | Search dimensions: 360x300
+2026-02-05 11:24:30 | ERROR: No pixels found for color
+2026-02-05 11:24:44 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:24:44 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:24:44 | Window position: pos=(4,11) size=(1054x542)
+2026-02-05 11:24:44 | Search dimensions: 360x300
+2026-02-05 11:24:44 | Found 408 matching pixels
+2026-02-05 11:24:44 |   Example pixel 1: (294,144)
+2026-02-05 11:24:44 |   Example pixel 2: (296,144)
+2026-02-05 11:24:44 |   Example pixel 3: (298,144)
+2026-02-05 11:24:44 |   Example pixel 4: (300,144)
+2026-02-05 11:24:44 |   Example pixel 5: (302,144)
+2026-02-05 11:24:44 | Bounding box: (294,144)-(332,186)
+2026-02-05 11:24:44 | Shrunk box: (304,155)-(322,175)
+2026-02-05 11:24:44 | CLICKING at: (322,162) with margin (0,0)
+2026-02-05 11:24:44 | Mouse actual position after click: (322,162)
+2026-02-05 11:24:44 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:30:50 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:30:50 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:30:50 | Client area: pos=(12,42) size=(1038x503)
+2026-02-05 11:30:50 | Screen search region: (112,77) to (472,377)
+2026-02-05 11:30:50 | Search dimensions: 360x300
+2026-02-05 11:30:50 | Found 573 matching pixels
+2026-02-05 11:30:50 |   Example pixel 1: (210,161)
+2026-02-05 11:30:51 |   Example pixel 2: (212,161)
+2026-02-05 11:30:51 |   Example pixel 3: (214,161)
+2026-02-05 11:30:51 |   Example pixel 4: (216,161)
+2026-02-05 11:30:51 |   Example pixel 5: (218,161)
+2026-02-05 11:30:51 | Bounding box: (208,161)-(256,211)
+2026-02-05 11:30:51 | Shrunk box: (220,174)-(244,198)
+2026-02-05 11:30:51 | CLICKING at: (220,185) with margin (0,0)
+2026-02-05 11:30:51 | Mouse actual position after click: (220,185)
+2026-02-05 11:30:51 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:30:57 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:30:57 | Target color: 0xF1FF00 | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:30:57 | Client area: pos=(12,42) size=(1038x503)
+2026-02-05 11:30:57 | Screen search region: (112,77) to (472,377)
+2026-02-05 11:30:57 | Search dimensions: 360x300
+2026-02-05 11:30:57 | ERROR: No pixels found for color
+2026-02-05 11:31:09 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:31:09 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:31:09 | Client area: pos=(12,42) size=(1038x503)
+2026-02-05 11:31:09 | Screen search region: (112,77) to (472,377)
+2026-02-05 11:31:09 | Search dimensions: 360x300
+2026-02-05 11:31:09 | Found 615 matching pixels
+2026-02-05 11:31:09 |   Example pixel 1: (246,163)
+2026-02-05 11:31:09 |   Example pixel 2: (248,163)
+2026-02-05 11:31:09 |   Example pixel 3: (250,163)
+2026-02-05 11:31:09 |   Example pixel 4: (252,163)
+2026-02-05 11:31:09 |   Example pixel 5: (254,163)
+2026-02-05 11:31:09 | Bounding box: (244,163)-(292,213)
+2026-02-05 11:31:09 | Shrunk box: (256,176)-(280,200)
+2026-02-05 11:31:09 | CLICKING at: (278,185) with margin (0,0)
+2026-02-05 11:31:10 | Mouse actual position after click: (278,185)
+2026-02-05 11:31:10 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:33:55 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:33:55 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:33:55 | Client area: pos=(12,42) size=(1038x503)
+2026-02-05 11:33:55 | Screen search region: (112,77) to (472,377)
+2026-02-05 11:33:55 | Search dimensions: 360x300
+2026-02-05 11:33:55 | Found 615 matching pixels
+2026-02-05 11:33:55 |   Example pixel 1: (246,163)
+2026-02-05 11:33:55 |   Example pixel 2: (248,163)
+2026-02-05 11:33:55 |   Example pixel 3: (250,163)
+2026-02-05 11:33:55 |   Example pixel 4: (252,163)
+2026-02-05 11:33:55 |   Example pixel 5: (254,163)
+2026-02-05 11:33:55 | Bounding box: (244,163)-(292,213)
+2026-02-05 11:33:55 | Shrunk box: (256,176)-(280,200)
+2026-02-05 11:33:55 | CLICKING at: (267,177) with margin (0,0)
+2026-02-05 11:33:56 | Mouse actual position after click: (267,177)
+2026-02-05 11:33:56 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:34:02 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:34:02 | Target color: 0xF1FF00 | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:34:02 | Client area: pos=(12,42) size=(1038x503)
+2026-02-05 11:34:02 | Screen search region: (112,77) to (472,377)
+2026-02-05 11:34:02 | Search dimensions: 360x300
+2026-02-05 11:34:02 | ERROR: No pixels found for color
+2026-02-05 11:34:06 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:34:06 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:34:07 | Client area: pos=(12,42) size=(1038x503)
+2026-02-05 11:34:07 | Screen search region: (112,77) to (472,377)
+2026-02-05 11:34:07 | Search dimensions: 360x300
+2026-02-05 11:34:07 | Found 615 matching pixels
+2026-02-05 11:34:07 |   Example pixel 1: (246,163)
+2026-02-05 11:34:07 |   Example pixel 2: (248,163)
+2026-02-05 11:34:07 |   Example pixel 3: (250,163)
+2026-02-05 11:34:07 |   Example pixel 4: (252,163)
+2026-02-05 11:34:07 |   Example pixel 5: (254,163)
+2026-02-05 11:34:07 | Bounding box: (244,163)-(292,213)
+2026-02-05 11:34:07 | Shrunk box: (256,176)-(280,200)
+2026-02-05 11:34:07 | CLICKING at: (274,184) with margin (0,0)
+2026-02-05 11:34:07 | Mouse actual position after click: (274,184)
+2026-02-05 11:34:07 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:43:10 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:43:10 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:43:10 | Search region (screen coords): (100,35) to (460,335)
+2026-02-05 11:43:10 | Search dimensions: 360x300
+2026-02-05 11:43:10 | Found 517 matching pixels
+2026-02-05 11:43:10 |   Example pixel 1: (298,139)
+2026-02-05 11:43:10 |   Example pixel 2: (300,139)
+2026-02-05 11:43:10 |   Example pixel 3: (298,141)
+2026-02-05 11:43:10 |   Example pixel 4: (300,141)
+2026-02-05 11:43:10 |   Example pixel 5: (302,141)
+2026-02-05 11:43:10 | Bounding box: (294,139)-(340,185)
+2026-02-05 11:43:10 | Shrunk box: (306,151)-(328,173)
+2026-02-05 11:43:10 | CLICKING at: (318,167) with margin (0,0)
+2026-02-05 11:43:10 | Mouse actual position after click: (318,167)
+2026-02-05 11:43:10 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:43:17 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:43:17 | Target color: 0xF1FF00 | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:43:17 | Search region (screen coords): (100,35) to (460,335)
+2026-02-05 11:43:17 | Search dimensions: 360x300
+2026-02-05 11:43:17 | ERROR: No pixels found for color
+2026-02-05 11:43:21 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:43:21 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:43:21 | Search region (screen coords): (100,35) to (460,335)
+2026-02-05 11:43:21 | Search dimensions: 360x300
+2026-02-05 11:43:21 | Found 680 matching pixels
+2026-02-05 11:43:21 |   Example pixel 1: (246,157)
+2026-02-05 11:43:21 |   Example pixel 2: (248,157)
+2026-02-05 11:43:21 |   Example pixel 3: (250,157)
+2026-02-05 11:43:21 |   Example pixel 4: (252,157)
+2026-02-05 11:43:21 |   Example pixel 5: (254,157)
+2026-02-05 11:43:21 | Bounding box: (244,157)-(296,209)
+2026-02-05 11:43:21 | Shrunk box: (257,170)-(283,196)
+2026-02-05 11:43:21 | CLICKING at: (273,181) with margin (0,0)
+2026-02-05 11:43:21 | Mouse actual position after click: (273,181)
+2026-02-05 11:43:21 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:43:25 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:43:25 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:43:25 | Search region (screen coords): (100,35) to (460,335)
+2026-02-05 11:43:25 | Search dimensions: 360x300
+2026-02-05 11:43:25 | Found 680 matching pixels
+2026-02-05 11:43:25 |   Example pixel 1: (246,157)
+2026-02-05 11:43:25 |   Example pixel 2: (248,157)
+2026-02-05 11:43:25 |   Example pixel 3: (250,157)
+2026-02-05 11:43:25 |   Example pixel 4: (252,157)
+2026-02-05 11:43:25 |   Example pixel 5: (254,157)
+2026-02-05 11:43:25 | Bounding box: (244,157)-(296,209)
+2026-02-05 11:43:25 | Shrunk box: (257,170)-(283,196)
+2026-02-05 11:43:25 | CLICKING at: (260,184) with margin (0,0)
+2026-02-05 11:43:25 | Mouse actual position after click: (260,184)
+2026-02-05 11:43:25 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:48:08 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:48:08 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:48:08 | Window position: (4,11) size: 1054x542
+2026-02-05 11:48:08 | Screen search: (100,35)-(460,335) -> Window search: (96,24)-(456,324)
+2026-02-05 11:48:08 | Bitmap dimensions: 1054x542 | Search area: 360x300
+2026-02-05 11:48:08 | Found 680 matching pixels
+2026-02-05 11:48:08 |   Example pixel 1: (246,157)
+2026-02-05 11:48:09 |   Example pixel 2: (248,157)
+2026-02-05 11:48:09 |   Example pixel 3: (250,157)
+2026-02-05 11:48:09 |   Example pixel 4: (252,157)
+2026-02-05 11:48:09 |   Example pixel 5: (254,157)
+2026-02-05 11:48:09 | Bounding box: (244,157)-(296,209)
+2026-02-05 11:48:09 | Shrunk box: (257,170)-(283,196)
+2026-02-05 11:48:09 | CLICKING at: (281,195) with margin (0,0)
+2026-02-05 11:48:09 | Mouse actual position after click: (281,195)
+2026-02-05 11:48:09 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:48:15 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:48:15 | Target color: 0xF1FF00 | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:48:15 | Window position: (4,11) size: 1054x542
+2026-02-05 11:48:15 | Screen search: (100,35)-(460,335) -> Window search: (96,24)-(456,324)
+2026-02-05 11:48:15 | Bitmap dimensions: 1054x542 | Search area: 360x300
+2026-02-05 11:48:15 | ERROR: No pixels found for color
+2026-02-05 11:48:31 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:48:31 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:48:31 | Window position: (524,168) size: 1054x542
+2026-02-05 11:48:31 | Screen search: (100,35)-(460,335) -> Window search: (-424,-133)-(-64,167)
+2026-02-05 11:48:31 | Bitmap dimensions: 1054x542 | Search area: 360x300
+2026-02-05 11:48:31 | ERROR: No pixels found for color
+2026-02-05 11:48:35 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:48:35 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:48:35 | Window position: (524,168) size: 1054x542
+2026-02-05 11:48:35 | Screen search: (100,35)-(460,335) -> Window search: (-424,-133)-(-64,167)
+2026-02-05 11:48:35 | Bitmap dimensions: 1054x542 | Search area: 360x300
+2026-02-05 11:48:35 | ERROR: No pixels found for color
+2026-02-05 11:49:15 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:49:15 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:49:15 | Window position: (2,0) size: 1054x542
+2026-02-05 11:49:15 | Screen search: (100,35)-(460,335) -> Window search: (98,35)-(458,335)
+2026-02-05 11:49:15 | Bitmap dimensions: 1054x542 | Search area: 360x300
+2026-02-05 11:49:15 | Found 728 matching pixels
+2026-02-05 11:49:15 |   Example pixel 1: (242,145)
+2026-02-05 11:49:15 |   Example pixel 2: (244,145)
+2026-02-05 11:49:15 |   Example pixel 3: (246,145)
+2026-02-05 11:49:15 |   Example pixel 4: (248,145)
+2026-02-05 11:49:15 |   Example pixel 5: (250,145)
+2026-02-05 11:49:15 | Bounding box: (242,145)-(292,199)
+2026-02-05 11:49:15 | Shrunk box: (255,159)-(279,185)
+2026-02-05 11:49:15 | CLICKING at: (277,174) with margin (0,0)
+2026-02-05 11:49:16 | Mouse actual position after click: (277,174)
+2026-02-05 11:49:16 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:49:26 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:49:26 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:49:26 | Window position: (2,0) size: 1054x542
+2026-02-05 11:49:26 | Screen search: (100,35)-(460,335) -> Window search: (98,35)-(458,335)
+2026-02-05 11:49:26 | Bitmap dimensions: 1054x542 | Search area: 360x300
+2026-02-05 11:49:27 | Found 728 matching pixels
+2026-02-05 11:49:27 |   Example pixel 1: (242,145)
+2026-02-05 11:49:27 |   Example pixel 2: (244,145)
+2026-02-05 11:49:27 |   Example pixel 3: (246,145)
+2026-02-05 11:49:27 |   Example pixel 4: (248,145)
+2026-02-05 11:49:27 |   Example pixel 5: (250,145)
+2026-02-05 11:49:27 | Bounding box: (242,145)-(292,199)
+2026-02-05 11:49:27 | Shrunk box: (255,159)-(279,185)
+2026-02-05 11:49:27 | CLICKING at: (269,161) with margin (0,0)
+2026-02-05 11:49:27 | Mouse actual position after click: (269,161)
+2026-02-05 11:49:27 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:49:33 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:49:33 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:49:33 | Window position: (2,0) size: 1054x542
+2026-02-05 11:49:33 | Screen search: (100,35)-(460,335) -> Window search: (98,35)-(458,335)
+2026-02-05 11:49:33 | Bitmap dimensions: 1054x542 | Search area: 360x300
+2026-02-05 11:49:33 | Found 531 matching pixels
+2026-02-05 11:49:33 |   Example pixel 1: (208,115)
+2026-02-05 11:49:34 |   Example pixel 2: (210,115)
+2026-02-05 11:49:34 |   Example pixel 3: (212,115)
+2026-02-05 11:49:34 |   Example pixel 4: (214,115)
+2026-02-05 11:49:34 |   Example pixel 5: (216,115)
+2026-02-05 11:49:34 | Bounding box: (206,115)-(250,161)
+2026-02-05 11:49:34 | Shrunk box: (217,127)-(239,149)
+2026-02-05 11:49:34 | CLICKING at: (218,143) with margin (0,0)
+2026-02-05 11:49:34 | Mouse actual position after click: (218,143)
+2026-02-05 11:49:34 | --- GdipClickRandomPixelOfColor END ---
+2026-02-05 11:49:41 | --- GdipClickRandomPixelOfColor START ---
+2026-02-05 11:49:41 | Target color: 0x001DFF | Search region: (100,35)-(460,335) | Variation: 5
+2026-02-05 11:49:41 | Window position: (779,134) size: 1054x542
+2026-02-05 11:49:41 | Screen search: (100,35)-(460,335) -> Window search: (-679,-99)-(-319,201)
+2026-02-05 11:49:41 | Bitmap dimensions: 1054x542 | Search area: 360x300
+2026-02-05 11:49:41 | ERROR: No pixels found for color

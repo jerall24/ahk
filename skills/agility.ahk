@@ -33,20 +33,19 @@ global isCapturingTiming := false
 global capturedTimestamps := []
 global timingCaptureHook := 0
 
-; Click any blue obstacle pixel near character
-; marginY of 5 offsets down since pixel search starts from top-left
+; Click any blue obstacle pixel near character (using Gdip for better accuracy)
 ClickBlueObstacle() {
-    return ClickRandomPixelOfColor(AGILITY_COLOR_BLUE, 0, 5, true)
+    return GdipClickColorNearCharacter(AGILITY_COLOR_BLUE, 5, 0, 0)
 }
 
 ; Click any yellow obstacle pixel near character
 ClickYellowObstacle() {
-    return ClickRandomPixelOfColor(AGILITY_COLOR_YELLOW, 0, 5, true)
+    return GdipClickColorNearCharacter(AGILITY_COLOR_YELLOW, 5, 0, 0)
 }
 
 ; Click any orange obstacle pixel near character
 ClickOrangeObstacle() {
-    return ClickRandomPixelOfColor(AGILITY_COLOR_ORANGE, 0, 5, true)
+    return GdipClickColorNearCharacter(AGILITY_COLOR_ORANGE, 5, 0, 0)
 }
 
 ; Click south on minimap (within configured rectangle)

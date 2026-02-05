@@ -17,6 +17,7 @@
 #Include lib\capture.ahk
 #Include lib\sound.ahk
 #Include lib\utility.ahk
+#Include lib\gdip_pixel.ahk
 
 ; Game-specific modules
 #Include game\bank.ahk
