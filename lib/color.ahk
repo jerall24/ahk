@@ -17,32 +17,52 @@ ColorExistsInRect(x1, y1, x2, y2, color, colorVariation := 5) {
 }
 
 ; Function to click a random pixel in a range
+; NOTE: Coordinates are CLIENT-RELATIVE and will be converted to screen coordinates
 ; If nearMouse is true, prioritizes clicking within radius pixels of current mouse position
 ; speed parameter controls mouse movement speed (1.0 = normal, 1.5 = faster)
 ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3, speed := 1.0) {
+    ; Get client position to convert to screen coordinates
+    hwnd := WinExist("ahk_exe RuneLite.exe")
+    if (hwnd) {
+        clientX := 0, clientY := 0, clientW := 0, clientH := 0
+        WinGetClientPos(&clientX, &clientY, &clientW, &clientH, hwnd)
+
+        ; Convert client-relative coords to screen coords
+        screenX1 := clientX + x1
+        screenY1 := clientY + y1
+        screenX2 := clientX + x2
+        screenY2 := clientY + y2
+    } else {
+        ; Fallback to treating as screen coords if window not found
+        screenX1 := x1
+        screenY1 := y1
+        screenX2 := x2
+        screenY2 := y2
+    }
+
     if (nearMouse) {
         ; Get current mouse position
         MouseGetPos(&currentX, &currentY)
 
         ; Check if current mouse is within the target rectangle
-        if (currentX >= x1 && currentX <= x2 && currentY >= y1 && currentY <= y2) {
+        if (currentX >= screenX1 && currentX <= screenX2 && currentY >= screenY1 && currentY <= screenY2) {
             ; Calculate bounds around current position, clamped to rectangle
-            nearX1 := Max(x1, currentX - radius)
-            nearX2 := Min(x2, currentX + radius)
-            nearY1 := Max(y1, currentY - radius)
-            nearY2 := Min(y2, currentY + radius)
+            nearX1 := Max(screenX1, currentX - radius)
+            nearX2 := Min(screenX2, currentX + radius)
+            nearY1 := Max(screenY1, currentY - radius)
+            nearY2 := Min(screenY2, currentY + radius)
 
             randomX := Random(nearX1, nearX2)
             randomY := Random(nearY1, nearY2)
         } else {
             ; Mouse not in rectangle, use regular random
-            randomX := Random(x1, x2)
-            randomY := Random(y1, y2)
+            randomX := Random(screenX1, screenX2)
+            randomY := Random(screenY1, screenY2)
         }
     } else {
         ; Regular random click anywhere in rectangle
-        randomX := Random(x1, x2)
-        randomY := Random(y1, y2)
+        randomX := Random(screenX1, screenX2)
+        randomY := Random(screenY1, screenY2)
     }
 
     HumanClick(randomX, randomY, "left", speed, 1.0)

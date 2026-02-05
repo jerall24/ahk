@@ -1,5 +1,8 @@
 #Requires AutoHotkey v2.0
 
+; Set mouse coordinates to Screen mode (not Window-relative)
+CoordMode "Mouse", "Screen"
+
 ; ======================================
 ; HUMAN-LIKE MOUSE MOVEMENT
 ; Implements Bezier curves with variable speed and jitter
@@ -218,9 +221,29 @@ HumanClick(targetX, targetY, button := "left", speed := 1.0, accuracy := 1.0) {
 }
 
 ; Click in a random position within a rectangle using human-like movement
+; NOTE: Coordinates are CLIENT-RELATIVE and will be converted to screen coordinates
 HumanClickRandomPixel(x1, y1, x2, y2, button := "left", speed := 1.0) {
-    randomX := Random(x1, x2)
-    randomY := Random(y1, y2)
+    ; Get client position to convert to screen coordinates
+    hwnd := WinExist("ahk_exe RuneLite.exe")
+    if (hwnd) {
+        clientX := 0, clientY := 0, clientW := 0, clientH := 0
+        WinGetClientPos(&clientX, &clientY, &clientW, &clientH, hwnd)
+
+        ; Convert client-relative coords to screen coords
+        screenX1 := clientX + x1
+        screenY1 := clientY + y1
+        screenX2 := clientX + x2
+        screenY2 := clientY + y2
+    } else {
+        ; Fallback to treating as screen coords if window not found
+        screenX1 := x1
+        screenY1 := y1
+        screenX2 := x2
+        screenY2 := y2
+    }
+
+    randomX := Random(screenX1, screenX2)
+    randomY := Random(screenY1, screenY2)
     HumanClick(randomX, randomY, button, speed, 1.0)
 }
 

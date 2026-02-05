@@ -196,9 +196,24 @@ DropInventorySlotNumber(slotNumber) {
         coords := MediumInventorySlots[slotNumber]
     }
 
-    ; Calculate random point within slot
-    targetX := Random(coords.x1, coords.x2)
-    targetY := Random(coords.y1, coords.y2)
+    ; Convert client-relative coords to screen coords
+    hwnd := WinExist("ahk_exe RuneLite.exe")
+    if (hwnd) {
+        clientX := 0, clientY := 0, clientW := 0, clientH := 0
+        WinGetClientPos(&clientX, &clientY, &clientW, &clientH, hwnd)
+
+        ; Calculate random point within slot (client-relative)
+        clientTargetX := Random(coords.x1, coords.x2)
+        clientTargetY := Random(coords.y1, coords.y2)
+
+        ; Convert to screen coordinates
+        targetX := clientX + clientTargetX
+        targetY := clientY + clientTargetY
+    } else {
+        ; Fallback if window not found
+        targetX := Random(coords.x1, coords.x2)
+        targetY := Random(coords.y1, coords.y2)
+    }
 
     ; Move mouse first
     HumanMouseMove(targetX, targetY, 1.0, 1.0)

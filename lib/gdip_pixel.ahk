@@ -119,31 +119,57 @@ GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX 
     GdipLog("Window: (" winX "," winY ") | Client: (" clientX "," clientY ") | Title bar: " titleBarHeight " | Border: " borderWidth)
 
     ; The search coordinates (x1, y1, x2, y2) are CLIENT-RELATIVE
-    ; Convert to window-relative by adding title bar and border offsets
-    winSearchX1 := x1 + borderWidth
-    winSearchY1 := y1 + titleBarHeight
-    winSearchX2 := x2 + borderWidth
-    winSearchY2 := y2 + titleBarHeight
+    ; Convert to absolute screen coordinates for capture
+    screenSearchX1 := clientX + x1
+    screenSearchY1 := clientY + y1
+    screenSearchX2 := clientX + x2
+    screenSearchY2 := clientY + y2
     w := x2 - x1
     h := y2 - y1
-    GdipLog("Client search: (" x1 "," y1 ")-(" x2 "," y2 ") -> Window search: (" winSearchX1 "," winSearchY1 ")-(" winSearchX2 "," winSearchY2 ")")
+    GdipLog("Client search: (" x1 "," y1 ")-(" x2 "," y2 ") -> Screen: (" screenSearchX1 "," screenSearchY1 ")-(" screenSearchX2 "," screenSearchY2 ")")
 
-    ; Capture the entire window
-    pBitmap := Gdip_BitmapFromHWND(hwnd)
+    ; Capture ONLY the search region from screen
+    pBitmap := Gdip_BitmapFromScreen(screenSearchX1 "|" screenSearchY1 "|" w "|" h)
     if (pBitmap = -1 || pBitmap = 0) {
         HideActivityIndicator()
-        GdipLog("ERROR: Failed to capture window")
-        ToolTip "Failed to capture window"
+        GdipLog("ERROR: Failed to capture screen region")
+        ToolTip "Failed to capture screen"
         SetTimer () => ToolTip(), -2000
         return false
     }
 
-    ; Get actual bitmap dimensions
+    ; Get actual bitmap dimensions (should match w x h)
     bitmapW := Gdip_GetImageWidth(pBitmap)
     bitmapH := Gdip_GetImageHeight(pBitmap)
-    GdipLog("Bitmap dimensions: " bitmapW "x" bitmapH " | Search area: " w "x" h)
+    GdipLog("Bitmap captured: " bitmapW "x" bitmapH " (expected " w "x" h ")")
 
-    ; Lock the entire bitmap (we'll search within the window-relative region)
+    ; Verify bitmap coordinates match screen coordinates
+    testX := Min(10, bitmapW - 1)
+    testY := Min(10, bitmapH - 1)
+    if (testX >= 0 && testY >= 0) {
+        testStride := ""
+        testScan0 := ""
+        testBitmapData := ""
+        if (Gdip_LockBits(pBitmap, testX, testY, 1, 1, &testStride, &testScan0, &testBitmapData) = 0) {
+            testArgb := Gdip_GetLockBitPixel(testScan0, 0, 0, testStride)
+            testColor := Format("0x{:06X}", testArgb & 0xFFFFFF)
+            Gdip_UnlockBits(pBitmap, &testBitmapData)
+
+            ; Bitmap (testX, testY) should correspond to screen (screenSearchX1 + testX, screenSearchY1 + testY)
+            actualScreenX := screenSearchX1 + testX
+            actualScreenY := screenSearchY1 + testY
+            actualScreenColor := PixelGetColor(actualScreenX, actualScreenY)
+
+            GdipLog("VERIFY: Bitmap(" testX "," testY ")=" testColor " vs Screen(" actualScreenX "," actualScreenY ")=" actualScreenColor)
+            if (testColor = actualScreenColor) {
+                GdipLog("✓ Coordinate system verified!")
+            } else {
+                GdipLog("✗ WARNING: Coordinates don't match!")
+            }
+        }
+    }
+
+    ; Lock the entire bitmap
     Stride := ""
     Scan0 := ""
     BitmapData := ""
@@ -165,19 +191,13 @@ GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX 
     ; Collect all matching pixels
     matchingPixels := []
 
-    ; Scan within the window-relative search region
+    ; Scan the entire bitmap (it's already just our search region)
     stepSize := 2  ; Check every 2nd pixel for speed
 
-    ; Clamp search region to bitmap bounds
-    searchStartX := Max(0, winSearchX1)
-    searchStartY := Max(0, winSearchY1)
-    searchEndX := Min(bitmapW, winSearchX2)
-    searchEndY := Min(bitmapH, winSearchY2)
-
-    y := searchStartY
-    while (y < searchEndY) {
-        x := searchStartX
-        while (x < searchEndX) {
+    y := 0
+    while (y < bitmapH) {
+        x := 0
+        while (x < bitmapW) {
             ; Get pixel color (ARGB format)
             argb := Gdip_GetLockBitPixel(Scan0, x, y, Stride)
 
@@ -190,9 +210,15 @@ GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX 
             if (Abs(pixelR - targetR) <= colorVariation
                 && Abs(pixelG - targetG) <= colorVariation
                 && Abs(pixelB - targetB) <= colorVariation) {
-                ; Convert window coords back to screen coords
-                screenX := winX + x
-                screenY := winY + y
+                ; Convert bitmap coords to screen coords
+                ; Bitmap (0,0) = screen (screenSearchX1, screenSearchY1)
+                screenX := screenSearchX1 + x
+                screenY := screenSearchY1 + y
+
+                ; Log first pixel found for debugging
+                if (matchingPixels.Length = 0) {
+                    GdipLog("FIRST pixel: bitmap(" x "," y ") + searchStart(" screenSearchX1 "," screenSearchY1 ") = screen(" screenX "," screenY ")")
+                }
                 matchingPixels.Push({x: screenX, y: screenY})
             }
             x += stepSize
@@ -269,15 +295,23 @@ GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX 
         targetY := Random(innerMinY, innerMaxY) + marginY
     }
 
-    GdipLog("CLICKING at: (" targetX "," targetY ") with margin (" marginX "," marginY ")")
+    ; Log mouse position before click
+    MouseGetPos(&beforeX, &beforeY)
+    GdipLog("========================================")
+    GdipLog("ABSOLUTE SCREEN COORDINATES:")
+    GdipLog("  Mouse BEFORE: (" beforeX "," beforeY ")")
+    GdipLog("  Click TARGET: (" targetX "," targetY ") [margin: " marginX "," marginY "]")
+    GdipLog("  Window at: (" winX "," winY ")")
+    GdipLog("  Client at: (" clientX "," clientY ")")
 
-    ; Get actual mouse position after click for verification
     ; Perform the click
     HumanClick(targetX, targetY, "left", 1.0, 1.0)
 
     ; Log where mouse ended up
     MouseGetPos(&actualX, &actualY)
-    GdipLog("Mouse actual position after click: (" actualX "," actualY ")")
+    GdipLog("  Mouse ACTUAL: (" actualX "," actualY ")")
+    GdipLog("  Offset from target: (" (actualX - targetX) "," (actualY - targetY) ")")
+    GdipLog("========================================")
     GdipLog("--- GdipClickRandomPixelOfColor END ---")
 
     return true
