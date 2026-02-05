@@ -23,10 +23,10 @@ InterruptibleSleep(duration) {
 }
 
 ; Map click area (south on minimap)
-global agilityMapClickX1 := 652
-global agilityMapClickY1 := 108
-global agilityMapClickX2 := 677
-global agilityMapClickY2 := 130
+global agilityMapClickX1 := 644
+global agilityMapClickY1 := 113
+global agilityMapClickX2 := 662
+global agilityMapClickY2 := 133
 
 ; Timing capture state
 global isCapturingTiming := false
@@ -72,48 +72,48 @@ SetAgilityMapArea(x1, y1, x2, y2) {
 
 ; Run a single lap of the agility course
 ; Sequence: blue, yellow, blue, yellow, orange, map south, yellow, blue
-; Wait times based on captured timing + 300ms padding, with +/- 300ms randomness
+; Wait times based on captured timing - 200ms, with +/- 300ms randomness
 RunAgilityLap() {
-    ; Step 1: Click blue, wait ~5957ms
+    ; Step 1: Click blue, wait ~5457ms
     if (!ClickBlueObstacle())
         return false
-    if (!InterruptibleSleep(Random(5657, 6257)))
+    if (!InterruptibleSleep(Random(5157, 5757)))
         return false
 
-    ; Step 2: Click yellow, wait ~8722ms
+    ; Step 2: Click yellow, wait ~8222ms
     if (!ClickYellowObstacle())
         return false
-    if (!InterruptibleSleep(Random(8422, 9022)))
+    if (!InterruptibleSleep(Random(7922, 8522)))
         return false
 
-    ; Step 3: Click blue, wait ~7175ms
+    ; Step 3: Click blue, wait ~6675ms
     if (!ClickBlueObstacle())
         return false
-    if (!InterruptibleSleep(Random(6875, 7475)))
+    if (!InterruptibleSleep(Random(6375, 6975)))
         return false
 
-    ; Step 4: Click yellow, wait ~5206ms
+    ; Step 4: Click yellow, wait ~3706ms
     if (!ClickYellowObstacle())
         return false
-    if (!InterruptibleSleep(Random(4906, 5506)))
+    if (!InterruptibleSleep(Random(3406, 4006)))
         return false
 
-    ; Step 5: Click orange, wait ~4831ms
+    ; Step 5: Click orange, wait ~4331ms
     if (!ClickOrangeObstacle())
         return false
-    if (!InterruptibleSleep(Random(4531, 5131)))
+    if (!InterruptibleSleep(Random(4031, 4631)))
         return false
 
-    ; Step 6: Click south on map, wait ~3675ms
+    ; Step 6: Click south on map, wait ~3175ms
     if (!ClickSouthOnMap())
         return false
-    if (!InterruptibleSleep(Random(3375, 3975)))
+    if (!InterruptibleSleep(Random(2875, 3475)))
         return false
 
-    ; Step 7: Click yellow, wait ~4175ms
+    ; Step 7: Click yellow, wait ~3675ms
     if (!ClickYellowObstacle())
         return false
-    if (!InterruptibleSleep(Random(3875, 4475)))
+    if (!InterruptibleSleep(Random(3375, 3975)))
         return false
 
     ; Step 8: Click blue, finished
@@ -125,7 +125,7 @@ RunAgilityLap() {
     return true
 }
 
-; Loop agility laps until stopped with Ctrl+Esc
+; Loop agility laps until stopped with Ctrl+Esc or color not found
 LoopAgilityLaps() {
     lapCount := 0
 
@@ -139,19 +139,14 @@ LoopAgilityLaps() {
         if (RunAgilityLap()) {
             lapCount++
             ToolTip "Completed lap " lapCount ", starting next..."
-            ; Wait between last click and first click of next lap (~10969ms + 300ms padding, ±300ms randomness)
-            if (!InterruptibleSleep(Random(10969, 11569)))
+            ; Wait between last click and first click of next lap (~10469ms, ±300ms randomness)
+            if (!InterruptibleSleep(Random(10469, 11069)))
                 return
         } else {
-            ; Lap failed or interrupted
-            if (ShouldStopAction()) {
-                ToolTip "Agility stopped after " lapCount " laps"
-                SetTimer () => ToolTip(), -3000
-                return
-            }
-            ; Wait before retry
-            if (!InterruptibleSleep(1000))
-                return
+            ; Lap failed - either interrupted or color not found, stop loop
+            ToolTip "Agility stopped after " lapCount " laps (color not found or cancelled)"
+            SetTimer () => ToolTip(), -3000
+            return
         }
     }
 }
