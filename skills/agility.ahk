@@ -22,11 +22,12 @@ InterruptibleSleep(duration) {
     return true
 }
 
-; Map click area (south on minimap)
-global agilityMapClickX1 := 644
-global agilityMapClickY1 := 113
-global agilityMapClickX2 := 662
-global agilityMapClickY2 := 133
+; Map click area (south on minimap) - CLIENT-RELATIVE coordinates
+; Captured at screen (647, 137, 654, 144) with client at ~(0, 31)
+global agilityMapClickX1 := 647
+global agilityMapClickY1 := 106
+global agilityMapClickX2 := 654
+global agilityMapClickY2 := 113
 
 ; Timing capture state
 global isCapturingTiming := false
@@ -103,10 +104,10 @@ RunAgilityLap() {
     if (!InterruptibleSleep(Random(4031, 4631)))
         return false
 
-    ; Step 6: Click south on map, wait ~3175ms
+    ; Step 6: Click south on map, wait ~4075ms (added 900ms total before yellow)
     if (!ClickSouthOnMap())
         return false
-    if (!InterruptibleSleep(Random(2875, 3475)))
+    if (!InterruptibleSleep(Random(3775, 4375)))
         return false
 
     ; Step 7: Click yellow, wait ~3675ms

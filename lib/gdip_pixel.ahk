@@ -88,7 +88,27 @@ GetRuneLiteWindow(&winX, &winY, &winW, &winH) {
 ; x1, y1, x2, y2: Search region in SCREEN coordinates (same as PixelSearch default)
 ; colorVariation: Tolerance for color matching (0-255 per channel)
 ; marginX, marginY: Offset to apply to final click position
-GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX := 0, marginY := 0) {
+; maxRetries: Maximum number of retries if verification fails (default 2)
+GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX := 0, marginY := 0, maxRetries := 2) {
+    ; Retry loop for verification
+    retryCount := 0
+    Loop {
+        result := GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation, marginX, marginY)
+
+        ; If successful or max retries reached, return
+        if (result || retryCount >= maxRetries) {
+            return result
+        }
+
+        ; Increment retry counter and try again
+        retryCount++
+        GdipLog("Verification failed, retrying (" retryCount "/" maxRetries ")...")
+        Sleep(100)  ; Brief delay before retry
+    }
+}
+
+; Internal function that does the actual work
+GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5, marginX := 0, marginY := 0) {
     ; Show activity indicator
     ShowActivityIndicator()
 
@@ -294,6 +314,19 @@ GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX 
         targetX := Random(innerMinX, innerMaxX) + marginX
         targetY := Random(innerMinY, innerMaxY) + marginY
     }
+
+    ; PRE-CLICK VERIFICATION: Instead of checking live screen (which changes),
+    ; verify by clicking one of the actual detected blue pixels
+    ; Pick a random pixel from the middle third of the matchingPixels array
+    verifyIndex := Round(matchingPixels.Length / 3) + Random(0, Round(matchingPixels.Length / 3))
+    verifyPixel := matchingPixels[verifyIndex]
+
+    ; Use the verified pixel position instead of the shrunk bounding box
+    targetX := verifyPixel.x + marginX
+    targetY := verifyPixel.y + marginY
+
+    GdipLog("✓ Using verified pixel from detection (index " verifyIndex "/" matchingPixels.Length ")")
+    GdipLog("  Original target was: (" targetX - marginX "," targetY - marginY "), now using detected pixel")
 
     ; Log mouse position before click
     MouseGetPos(&beforeX, &beforeY)
