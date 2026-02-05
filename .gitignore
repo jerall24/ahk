@@ -4,3 +4,4 @@
 config/profiles.json
 config/state.json
 config/drop_debug.log
+config/gdip_debug.log
