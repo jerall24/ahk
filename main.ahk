@@ -49,8 +49,6 @@ areHotkeysEnabled() {
     if (WinActive("ahk_exe RuneLite.exe") && scriptEnabled) {
         return true
     } else {
-        ToolTip "Script Disabled"
-        SetTimer () => ToolTip(), -1000  ; Remove tooltip after 1 second
         return false
     }
 }
