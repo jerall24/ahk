@@ -189,6 +189,13 @@ MoveAlongPath(pathPoints, speedMultiplier, accuracy, finalX, finalY) {
     MouseMove(finalX, finalY, 0)
 }
 
+; Alt+tab back to the previous window after a background click
+; Only call this when you've already confirmed RuneLite was NOT active before the click
+ReturnToPreviousWindow() {
+    Sleep(Random(80, 150))
+    Send("!{Tab}")
+}
+
 ; Wrapper function for clicking with human-like movement
 ; Moves to target, then clicks
 HumanClick(targetX, targetY, button := "left", speed := 1.0, accuracy := 1.0) {

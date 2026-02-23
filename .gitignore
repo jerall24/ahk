@@ -1,4 +1,5 @@
 .claude/*
+MEMORY.md
 
 # User state files (not code)
 config/profiles.json

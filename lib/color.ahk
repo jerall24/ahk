@@ -65,7 +65,15 @@ ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3, speed := 1.0) 
         randomY := Random(screenY1, screenY2)
     }
 
+    ; Check if RuneLite is in the background before clicking
+    wasBackground := !WinActive("ahk_exe RuneLite.exe")
+
     HumanClick(randomX, randomY, "left", speed, 1.0)
+
+    ; If RuneLite wasn't the active window, alt+tab back to previous window
+    if (wasBackground) {
+        ReturnToPreviousWindow()
+    }
 }
 
 ; Function to find and click a random pixel of a specific color

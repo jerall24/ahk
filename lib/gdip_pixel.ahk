@@ -291,42 +291,33 @@ GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5,
 
     GdipLog("Bounding box: (" minX "," minY ")-(" maxX "," maxY ")")
 
-    ; Shrink bounding box inward by 25% to avoid edges
-    width := maxX - minX
-    height := maxY - minY
-    shrinkX := Round(width * 0.25)
-    shrinkY := Round(height * 0.25)
-
-    innerMinX := minX + shrinkX
-    innerMaxX := maxX - shrinkX
-    innerMinY := minY + shrinkY
-    innerMaxY := maxY - shrinkY
-
-    GdipLog("Shrunk box: (" innerMinX "," innerMinY ")-(" innerMaxX "," innerMaxY ")")
-
-    ; If box is too small after shrinking, use center
-    if (innerMinX >= innerMaxX || innerMinY >= innerMaxY) {
-        targetX := Round((minX + maxX) / 2) + marginX
-        targetY := Round((minY + maxY) / 2) + marginY
-        GdipLog("Box too small, using center")
-    } else {
-        ; Click random point inside shrunk box
-        targetX := Random(innerMinX, innerMaxX) + marginX
-        targetY := Random(innerMinY, innerMaxY) + marginY
+    ; Filter to only pixels at least 10px inward from the bounding box edges
+    ; This ensures we never click near the edge of a clickbox
+    edgeMargin := 10
+    innerPixels := []
+    for pixel in matchingPixels {
+        if (pixel.x >= minX + edgeMargin && pixel.x <= maxX - edgeMargin
+            && pixel.y >= minY + edgeMargin && pixel.y <= maxY - edgeMargin) {
+            innerPixels.Push(pixel)
+        }
     }
 
-    ; PRE-CLICK VERIFICATION: Instead of checking live screen (which changes),
-    ; verify by clicking one of the actual detected blue pixels
-    ; Pick a random pixel from the middle third of the matchingPixels array
-    verifyIndex := Round(matchingPixels.Length / 3) + Random(0, Round(matchingPixels.Length / 3))
-    verifyPixel := matchingPixels[verifyIndex]
+    ; Fall back to all pixels if the shape is too small for a 10px margin
+    if (innerPixels.Length = 0) {
+        innerPixels := matchingPixels
+        GdipLog("Shape too small for 10px margin, using all " matchingPixels.Length " pixels")
+    } else {
+        GdipLog("Filtered to " innerPixels.Length " inner pixels (10px margin from edges)")
+    }
 
-    ; Use the verified pixel position instead of the shrunk bounding box
-    targetX := verifyPixel.x + marginX
-    targetY := verifyPixel.y + marginY
+    ; Pick a random pixel from the inner set
+    pickIndex := Random(1, innerPixels.Length)
+    chosenPixel := innerPixels[pickIndex]
+    targetX := chosenPixel.x + marginX
+    targetY := chosenPixel.y + marginY
 
-    GdipLog("✓ Using verified pixel from detection (index " verifyIndex "/" matchingPixels.Length ")")
-    GdipLog("  Original target was: (" targetX - marginX "," targetY - marginY "), now using detected pixel")
+    GdipLog("✓ Using inner pixel (index " pickIndex "/" innerPixels.Length ")")
+    GdipLog("  Chosen pixel at: (" chosenPixel.x "," chosenPixel.y "), with margin: (" targetX "," targetY ")")
 
     ; Log mouse position before click
     MouseGetPos(&beforeX, &beforeY)
@@ -337,6 +328,9 @@ GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5,
     GdipLog("  Window at: (" winX "," winY ")")
     GdipLog("  Client at: (" clientX "," clientY ")")
 
+    ; Check if RuneLite is in the background before clicking
+    wasBackground := !WinActive("ahk_exe RuneLite.exe")
+
     ; Perform the click
     HumanClick(targetX, targetY, "left", 1.0, 1.0)
 
@@ -344,8 +338,14 @@ GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5,
     MouseGetPos(&actualX, &actualY)
     GdipLog("  Mouse ACTUAL: (" actualX "," actualY ")")
     GdipLog("  Offset from target: (" (actualX - targetX) "," (actualY - targetY) ")")
+    GdipLog("  Background click: " (wasBackground ? "yes" : "no"))
     GdipLog("========================================")
     GdipLog("--- GdipClickRandomPixelOfColor END ---")
+
+    ; If RuneLite wasn't the active window, alt+tab back to previous window
+    if (wasBackground) {
+        ReturnToPreviousWindow()
+    }
 
     return true
 }
@@ -494,7 +494,16 @@ GdipClickAnyColor(colors, x1, y1, x2, y2, colorVariation := 5, marginX := 0, mar
         targetY := Random(innerMinY, innerMaxY) + marginY
     }
 
+    ; Check if RuneLite is in the background before clicking
+    wasBackground := !WinActive("ahk_exe RuneLite.exe")
+
     HumanClick(targetX, targetY, "left", 1.0, 1.0)
+
+    ; If RuneLite wasn't the active window, alt+tab back to previous window
+    if (wasBackground) {
+        ReturnToPreviousWindow()
+    }
+
     return true
 }
 
