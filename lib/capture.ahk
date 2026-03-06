@@ -37,8 +37,10 @@ CaptureCoordinates() {
     hwnd := WinExist("ahk_exe RuneLite.exe")
     if (hwnd) {
         WinGetClientPos(&clientX, &clientY, , , hwnd)
-        x1 -= clientX, y1 -= clientY
-        x2 -= clientX, y2 -= clientY
+        x1 -= clientX
+        y1 -= clientY
+        x2 -= clientX
+        y2 -= clientY
     }
 
     coordString := x1 ", " y1 ", " x2 ", " y2
@@ -156,10 +158,15 @@ CaptureRectangleColors(maxColors := 5, sampleStep := 2) {
     hwnd := WinExist("ahk_exe RuneLite.exe")
     if (hwnd) {
         WinGetClientPos(&clientX, &clientY, , , hwnd)
-        outX1 := x1 - clientX, outY1 := y1 - clientY
-        outX2 := x2 - clientX, outY2 := y2 - clientY
+        outX1 := x1 - clientX
+        outY1 := y1 - clientY
+        outX2 := x2 - clientX
+        outY2 := y2 - clientY
     } else {
-        outX1 := x1, outY1 := y1, outX2 := x2, outY2 := y2
+        outX1 := x1
+        outY1 := y1
+        outX2 := x2
+        outY2 := y2
     }
 
     ; Format for WaitForAnyColorInRect / ClickRandomPixel

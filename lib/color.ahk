@@ -85,9 +85,15 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
     ShowActivityIndicator()
 
     if (near_character) {
-        searchX1 := 100, searchY1 := 35, searchX2 := 460, searchY2 := 335
+        searchX1 := 100
+        searchY1 := 35
+        searchX2 := 460
+        searchY2 := 335
     } else {
-        searchX1 := 4, searchY1 := 2, searchX2 := 514, searchY2 := 335
+        searchX1 := 4
+        searchY1 := 2
+        searchX2 := 514
+        searchY2 := 335
     }
 
     colorVariation := 5
@@ -111,20 +117,30 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
     }
 
     if (foundPixels.Length > 0) {
-        minX := foundPixels[1].x, maxX := foundPixels[1].x
-        minY := foundPixels[1].y, maxY := foundPixels[1].y
+        minX := foundPixels[1].x
+        maxX := foundPixels[1].x
+        minY := foundPixels[1].y
+        maxY := foundPixels[1].y
 
         for pixel in foundPixels {
-            if (pixel.x < minX) minX := pixel.x
-            if (pixel.x > maxX) maxX := pixel.x
-            if (pixel.y < minY) minY := pixel.y
-            if (pixel.y > maxY) maxY := pixel.y
+            if (pixel.x < minX)
+                minX := pixel.x
+            if (pixel.x > maxX)
+                maxX := pixel.x
+            if (pixel.y < minY)
+                minY := pixel.y
+            if (pixel.y > maxY)
+                maxY := pixel.y
         }
 
-        width := maxX - minX, height := maxY - minY
-        shrinkX := Round(width * 0.25), shrinkY := Round(height * 0.25)
-        innerMinX := minX + shrinkX, innerMaxX := maxX - shrinkX
-        innerMinY := minY + shrinkY, innerMaxY := maxY - shrinkY
+        width := maxX - minX
+        height := maxY - minY
+        shrinkX := Round(width * 0.25)
+        shrinkY := Round(height * 0.25)
+        innerMinX := minX + shrinkX
+        innerMaxX := maxX - shrinkX
+        innerMinY := minY + shrinkY
+        innerMaxY := maxY - shrinkY
 
         if (innerMinX >= innerMaxX || innerMinY >= innerMaxY) {
             targetX := Round((minX + maxX) / 2) + marginX
@@ -177,9 +193,15 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     ShowActivityIndicator()
 
     if (near_character) {
-        searchX1 := 100, searchY1 := 35, searchX2 := 460, searchY2 := 335
+        searchX1 := 100
+        searchY1 := 35
+        searchX2 := 460
+        searchY2 := 335
     } else {
-        searchX1 := 4, searchY1 := 2, searchX2 := 514, searchY2 := 335
+        searchX1 := 4
+        searchY1 := 2
+        searchX2 := 514
+        searchY2 := 335
     }
 
     ; Color variation for tolerance (0-255, higher = more tolerance)
