@@ -35,7 +35,6 @@ global agilityMapClickY2 := 113
 ; Timing capture state
 global isCapturingTiming := false
 global capturedTimestamps := []
-global timingCaptureHook := 0
 
 ; Click an obstacle with click result verification and yellow X retry
 ; color: The obstacle color to search for

@@ -23,10 +23,10 @@ ClickClosestAmethyst() {
 }
 
 ; Click nearest pixel matching any color in the provided array
-; Searches in expanding radius from character position (275, 193)
-; Maximum search boundary is (523, 367)
+; Searches in expanding radius from character position (275, 193) - CLIENT-RELATIVE
+; Maximum search boundary is (523, 367) - CLIENT-RELATIVE
 ClickNearestColorFromArray(colorArray) {
-    ; Show indicator during search
+    CoordMode "Pixel", "Client"
     ShowActivityIndicator()
 
     charX := 275

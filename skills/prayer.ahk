@@ -4,7 +4,7 @@
 ; PRAYER FUNCTIONS
 ; ======================================
 
-; Altar click area (SCREEN coordinates)
+; Altar click area (CLIENT-RELATIVE — recapture with F11 if altar clicks are off)
 global prayerAltarX1 := 596
 global prayerAltarY1 := 544
 global prayerAltarX2 := 706
@@ -38,10 +38,8 @@ BonesOnAltarTick() {
         ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2, false, 3, BONES_ALTAR_SPEED)
         bonesOnAltarStep := 1
     } else {
-        ; Click altar with fast mouse speed (screen coordinates, no conversion needed)
-        altarX := Random(prayerAltarX1, prayerAltarX2)
-        altarY := Random(prayerAltarY1, prayerAltarY2)
-        HumanClick(altarX, altarY, "left", BONES_ALTAR_SPEED)
+        ; Click altar with fast mouse speed
+        ClickRandomPixel(prayerAltarX1, prayerAltarY1, prayerAltarX2, prayerAltarY2, false, 3, BONES_ALTAR_SPEED)
         bonesOnAltarStep := 0
     }
 

@@ -8,12 +8,17 @@
 
 Client-relative means relative to the RuneLite game client area — top-left of the game window (excluding title bar and borders) is `(0, 0)`.
 
-### CoordMode Settings (set globally in mouse.ahk / wait.ahk)
+### CoordMode
+
+In AHK v2, `CoordMode` is **thread-level** — each hotkey fires in a new thread with default settings (Screen for everything). Setting it at script load time does not affect hotkey threads.
+
+To make AHK's built-in pixel functions respect client-relative coordinates, every function that calls `PixelSearch` or `PixelGetColor` sets this at the top:
 
 ```ahk
-CoordMode "Mouse", "Screen"  ; MouseMove/Click use screen coords
-CoordMode "Pixel", "Client"  ; PixelSearch/PixelGetColor use client-relative
+CoordMode "Pixel", "Client"
 ```
+
+Mouse movement stays in Screen mode (the AHK default), so `HumanClick` and `MouseMove` always take screen coordinates.
 
 This means:
 - You pass client-relative coords into everything

@@ -159,29 +159,7 @@ MoveAlongPath(pathPoints, speedMultiplier, accuracy, finalX, finalY) {
     totalPoints := pathPoints.Length
 
     for point in pathPoints {
-        index := A_Index
-
-        ; Calculate speed variation based on position in path
-        ; Follows an ease-in-ease-out pattern
-        progress := index / totalPoints
-
-        ; Speed curve: slow start, fast middle, slow end
-        if (progress < 0.3) {
-            ; Acceleration phase (0-30%)
-            speedFactor := 0.5 + (progress / 0.3) * 0.5  ; 0.5 to 1.0
-        } else if (progress > 0.7) {
-            ; Deceleration phase (70-100%)
-            remainingProgress := (1.0 - progress) / 0.3
-            speedFactor := 0.3 + remainingProgress * 0.7  ; 1.0 to 0.3
-        } else {
-            ; Cruise phase (30-70%)
-            speedFactor := 1.0
-        }
-
-        ; Move to point
         MouseMove(point.x, point.y, 0)
-
-        ; Delay between steps for visible smooth movement
         Sleep(2)
     }
 

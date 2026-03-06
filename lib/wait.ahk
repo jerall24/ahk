@@ -7,6 +7,7 @@
 ; Wait until a specific pixel matches the desired color
 ; Returns true if color matched, false if timed out
 WaitForPixelColor(x, y, targetColor, timeout := 5000, checkInterval := Random(0, 50)) {
+    CoordMode "Pixel", "Client"
     startTime := A_TickCount
 
     Loop {
@@ -34,6 +35,7 @@ WaitForPixelColor(x, y, targetColor, timeout := 5000, checkInterval := Random(0,
 ; Wait until a specific pixel is NOT a specific color (inverse check)
 ; Returns true if color changed from excludeColor, false if timed out
 WaitForPixelColorNot(x, y, excludeColor, timeout := 5000, checkInterval := Random(0, 50)) {
+    CoordMode "Pixel", "Client"
     startTime := A_TickCount
 
     Loop {
@@ -61,6 +63,7 @@ WaitForPixelColorNot(x, y, excludeColor, timeout := 5000, checkInterval := Rando
 ; Wait until a color appears within a rectangle
 ; Returns true if color found, false if timed out
 WaitForColorInRect(x1, y1, x2, y2, targetColor, timeout := 5000, checkInterval := 50, colorVariation := 5) {
+    CoordMode "Pixel", "Client"
     startTime := A_TickCount
 
     Loop {
@@ -85,6 +88,7 @@ WaitForColorInRect(x1, y1, x2, y2, targetColor, timeout := 5000, checkInterval :
 ; Wait until a color is NOT present within a rectangle
 ; Returns true if color disappeared, false if timed out
 WaitForColorNotInRect(x1, y1, x2, y2, excludeColor, timeout := 5000, checkInterval := 50, colorVariation := 5) {
+    CoordMode "Pixel", "Client"
     startTime := A_TickCount
 
     Loop {
@@ -110,6 +114,7 @@ WaitForColorNotInRect(x1, y1, x2, y2, excludeColor, timeout := 5000, checkInterv
 ; Returns true if any color found, false if timed out
 ; colors parameter should be an array of color values: [0xFF0000, 0x00FF00, 0x0000FF]
 WaitForAnyColorInRect(x1, y1, x2, y2, colors, timeout := 5000, checkInterval := 50, colorVariation := 5) {
+    CoordMode "Pixel", "Client"
     startTime := A_TickCount
 
     Loop {
