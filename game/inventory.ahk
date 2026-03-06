@@ -4,6 +4,10 @@
 ; INVENTORY FUNCTIONS
 ; ======================================
 
+; Cycle click state
+global isCyclingInventory1And5 := false
+global cycleInventoryStep := 0
+
 ; Click captured inventory slot 1, then slot 2, then press space
 ; Uses globally captured slots from Ctrl+NumpadDot
 ClickCapturedInventorySlots() {
@@ -55,6 +59,52 @@ ClickEachInventorySlot() {
     SetDefaultMouseSpeed 4
 }
 
+; Timer callback for cycle click inventory 1 and 5
+CycleInventory1And5Tick() {
+    global isCyclingInventory1And5, cycleInventoryStep
+
+    if (!isCyclingInventory1And5) {
+        SetTimer(CycleInventory1And5Tick, 0)
+        ToolTip "CycleClickInventory1And5 OFF"
+        SetTimer () => ToolTip(), -2000
+        return
+    }
+
+    if (cycleInventoryStep = 0) {
+        ; Click inventory slot 1
+        ClickInventorySlotNumber(1)
+        cycleInventoryStep := 1
+        ; Schedule next tick quickly for slot 5
+        SetTimer(CycleInventory1And5Tick, -Random(235, 330))
+    } else {
+        ; Click inventory slot 5, wait, then press space
+        ClickInventorySlotNumber(5)
+        Sleep(Random(750, 1000))
+        Send("{Space}")
+        cycleInventoryStep := 0
+        ; Schedule next tick after processing wait
+        SetTimer(CycleInventory1And5Tick, -Random(12734, 14140))
+    }
+}
+
+; Toggle cycling inventory click on/off
+CycleClickInventory1And5() {
+    global isCyclingInventory1And5, cycleInventoryStep
+
+    if (isCyclingInventory1And5) {
+        isCyclingInventory1And5 := false
+        return
+    }
+
+    isCyclingInventory1And5 := true
+    cycleInventoryStep := 0
+    ToolTip "CycleClickInventory1And5 ON"
+    SetTimer () => ToolTip(), -1500
+
+    ; Start the timer-based loop
+    SetTimer(CycleInventory1And5Tick, -1)
+}
+
 ; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================
@@ -73,5 +123,10 @@ global InventoryFunctionsRegistry := Map(
         name: "ClickEachInventorySlot",
         func: ClickEachInventorySlot,
         description: "Click all 28 inventory slots sequentially (10% faster mouse, mode-aware)"
+    },
+    "CycleClickInventory1And5", {
+        name: "CycleClickInventory1And5",
+        func: CycleClickInventory1And5,
+        description: "Cycle: click slot 1, slot 5, space, wait for processing, repeat (toggle on/off)"
     }
 )

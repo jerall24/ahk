@@ -11,6 +11,12 @@ global Profiles := Map()
 global ProfileSlots := Map()  ; Stores slots per profile
 global ProfilesFilePath := A_ScriptDir "\config\profiles.json"
 
+; Default bindings available in ALL profiles (no need to add per-profile)
+global DefaultBindings := Map(
+    "NumpadDiv", "ResizeToFixedMode",
+    "NumpadMult", "ResizeToMediumMode"
+)
+
 ; Save profiles to JSON file
 SaveProfiles() {
     global Profiles, CurrentProfile, ProfilesFilePath, ProfileSlots
@@ -391,14 +397,15 @@ BindFunctionToKey(keyName, functionName) {
     return true
 }
 
-; Get function bound to a key in current profile
+; Get function bound to a key in current profile (falls back to DefaultBindings)
 GetBoundFunction(keyName) {
-    global Profiles, CurrentProfile
+    global Profiles, CurrentProfile, DefaultBindings
     bindings := Profiles[CurrentProfile]
 
-    if (bindings.Has(keyName)) {
+    if (bindings.Has(keyName))
         return bindings[keyName]
-    }
+    if (DefaultBindings.Has(keyName))
+        return DefaultBindings[keyName]
     return ""
 }
 

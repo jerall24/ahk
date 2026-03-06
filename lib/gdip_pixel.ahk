@@ -78,6 +78,43 @@ GetRuneLiteWindow(&winX, &winY, &winW, &winH) {
 }
 
 ; ======================================
+; NEIGHBOR PIXEL VALIDATION
+; ======================================
+
+; Check if a pixel is solidly surrounded by the target color within a radius
+; This ensures we only select pixels well inside a colored region, not on edges
+; Returns true if all sampled pixels in the square radius match the target color
+IsPixelSurrounded(Scan0, Stride, x, y, bitmapW, bitmapH, targetR, targetG, targetB, colorVariation, radius := 3) {
+    checkY := y - radius
+    while (checkY <= y + radius) {
+        checkX := x - radius
+        while (checkX <= x + radius) {
+            ; Skip out-of-bounds pixels
+            if (checkX < 0 || checkX >= bitmapW || checkY < 0 || checkY >= bitmapH) {
+                return false  ; Edge of bitmap = not surrounded
+            }
+
+            ; Get neighbor pixel color
+            argb := Gdip_GetLockBitPixel(Scan0, checkX, checkY, Stride)
+            nR := (argb >> 16) & 0xFF
+            nG := (argb >> 8) & 0xFF
+            nB := argb & 0xFF
+
+            ; Check if neighbor matches target color
+            if (Abs(nR - targetR) > colorVariation
+                || Abs(nG - targetG) > colorVariation
+                || Abs(nB - targetB) > colorVariation) {
+                return false
+            }
+
+            checkX++
+        }
+        checkY++
+    }
+    return true
+}
+
+; ======================================
 ; MAIN PIXEL SEARCH FUNCTION
 ; ======================================
 
@@ -230,6 +267,12 @@ GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5,
             if (Abs(pixelR - targetR) <= colorVariation
                 && Abs(pixelG - targetG) <= colorVariation
                 && Abs(pixelB - targetB) <= colorVariation) {
+                ; Verify pixel is solidly surrounded by target color (not on an edge)
+                if (!IsPixelSurrounded(Scan0, Stride, x, y, bitmapW, bitmapH, targetR, targetG, targetB, colorVariation, 3)) {
+                    x += stepSize
+                    continue
+                }
+
                 ; Convert bitmap coords to screen coords
                 ; Bitmap (0,0) = screen (screenSearchX1, screenSearchY1)
                 screenX := screenSearchX1 + x
@@ -505,6 +548,152 @@ GdipClickAnyColor(colors, x1, y1, x2, y2, colorVariation := 5, marginX := 0, mar
     }
 
     return true
+}
+
+; ======================================
+; CLICK RESULT DETECTION (Red X / Yellow X)
+; ======================================
+
+; Configurable delay before capturing the X indicator (ms)
+; The X appears small, expands, then disappears - tune this to catch it at peak
+global CLICK_RESULT_CAPTURE_DELAY := 80
+
+; Scan radius around the click point to look for the X
+global CLICK_RESULT_SCAN_RADIUS := 15
+
+; Check what type of X appeared after a click
+; Returns "red" (successful interaction), "yellow" (non-interactable), or "none"
+; clickX, clickY: screen coordinates where the click happened
+; captureDelay: ms to wait before scanning (overrides global if provided)
+CheckClickResult(clickX, clickY, captureDelay := -1) {
+    if (captureDelay < 0) {
+        captureDelay := CLICK_RESULT_CAPTURE_DELAY
+    }
+
+    ; Wait for the X to render
+    Sleep(captureDelay)
+
+    ; Define scan region around click point
+    scanX1 := clickX - CLICK_RESULT_SCAN_RADIUS
+    scanY1 := clickY - CLICK_RESULT_SCAN_RADIUS
+    scanW := CLICK_RESULT_SCAN_RADIUS * 2
+    scanH := CLICK_RESULT_SCAN_RADIUS * 2
+
+    ; Capture the region from screen
+    pBitmap := Gdip_BitmapFromScreen(scanX1 "|" scanY1 "|" scanW "|" scanH)
+    if (pBitmap = -1 || pBitmap = 0) {
+        return "none"
+    }
+
+    bitmapW := Gdip_GetImageWidth(pBitmap)
+    bitmapH := Gdip_GetImageHeight(pBitmap)
+
+    ; Lock bits for fast pixel access
+    Stride := ""
+    Scan0 := ""
+    BitmapData := ""
+    if (Gdip_LockBits(pBitmap, 0, 0, bitmapW, bitmapH, &Stride, &Scan0, &BitmapData) != 0) {
+        Gdip_DisposeImage(pBitmap)
+        return "none"
+    }
+
+    ; Count red and yellow X pixels
+    redCount := 0
+    yellowCount := 0
+
+    y := 0
+    while (y < bitmapH) {
+        x := 0
+        while (x < bitmapW) {
+            argb := Gdip_GetLockBitPixel(Scan0, x, y, Stride)
+            r := (argb >> 16) & 0xFF
+            g := (argb >> 8) & 0xFF
+            b := argb & 0xFF
+
+            ; Red X detection: high R, low G, low B
+            ; Based on samples: EF0702, f90100, ea0509, f20109, ea0404
+            if (r > 200 && g < 30 && b < 30) {
+                redCount++
+            }
+            ; Yellow X detection: high R, high G, low B
+            ; Based on samples: fafc00, ffff0f, fbfc14, fffe11, fafb05
+            else if (r > 230 && g > 230 && b < 40) {
+                yellowCount++
+            }
+
+            x += 1
+        }
+        y += 1
+    }
+
+    Gdip_UnlockBits(pBitmap, &BitmapData)
+    Gdip_DisposeImage(pBitmap)
+
+    ; Need a minimum pixel count to be confident (avoid noise)
+    minPixels := 5
+
+    if (redCount >= minPixels && redCount > yellowCount) {
+        return "red"
+    } else if (yellowCount >= minPixels && yellowCount > redCount) {
+        return "yellow"
+    }
+
+    return "none"
+}
+
+; ======================================
+; CLICK RESULT TESTING TOGGLE
+; ======================================
+
+global isTestingClickResult := false
+
+; Toggle click result testing on/off
+; When on, every left click will report whether a red X, yellow X, or neither appeared
+ToggleClickResultTest() {
+    global isTestingClickResult
+
+    if (isTestingClickResult) {
+        isTestingClickResult := false
+        Hotkey("~LButton", TestClickResultOnClick, "Off")
+        ToolTip "Click result testing OFF"
+        SetTimer () => ToolTip(), -2000
+    } else {
+        isTestingClickResult := true
+        Hotkey("~LButton", TestClickResultOnClick, "On")
+        ToolTip "Click result testing ON (delay: " CLICK_RESULT_CAPTURE_DELAY "ms)"
+        SetTimer () => ToolTip(), -2000
+    }
+}
+
+; Callback for click result testing
+TestClickResultOnClick(ThisHotkey) {
+    global isTestingClickResult
+    if (!isTestingClickResult) {
+        return
+    }
+
+    ; Get where the click landed
+    MouseGetPos(&clickX, &clickY)
+
+    ; Check what X appeared
+    result := CheckClickResult(clickX, clickY)
+
+    ; Display result
+    if (result = "red") {
+        ToolTip "RED X (interaction)"
+    } else if (result = "yellow") {
+        ToolTip "YELLOW X (non-interactable)"
+    } else {
+        ToolTip "NO X detected"
+    }
+    SetTimer () => ToolTip(), -1500
+}
+
+; Set the capture delay for testing purposes
+SetClickResultDelay(delayMs) {
+    global CLICK_RESULT_CAPTURE_DELAY := delayMs
+    ToolTip "Click result capture delay: " delayMs "ms"
+    SetTimer () => ToolTip(), -2000
 }
 
 ; ======================================

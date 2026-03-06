@@ -6,8 +6,11 @@
 
 ; Agility course obstacle colors
 global AGILITY_COLOR_BLUE := 0x001DFF
-global AGILITY_COLOR_YELLOW := 0xF1FF00
+global AGILITY_COLOR_YELLOW := 0x00A237
 global AGILITY_COLOR_ORANGE := 0xFF8700
+
+; AFK logout safety net
+global logOutIfAfk := false
 
 ; Interruptible sleep - checks kill switch every 100ms
 ; Returns false if interrupted, true if completed
@@ -34,19 +37,52 @@ global isCapturingTiming := false
 global capturedTimestamps := []
 global timingCaptureHook := 0
 
+; Click an obstacle with click result verification and yellow X retry
+; color: The obstacle color to search for
+; maxRetries: Maximum number of retries on yellow X (default 2)
+; Returns true if click succeeded, false if color not found
+ClickObstacleWithVerification(color, maxRetries := 2) {
+    retryCount := 0
+    Loop {
+        ; Try to find and click the obstacle color
+        if (!GdipClickColorNearCharacter(color, 5, 0, 0)) {
+            return false
+        }
+
+        ; Get where the mouse ended up (cursor is still at click target)
+        MouseGetPos(&clickX, &clickY)
+
+        ; Check if we got a red X (success) or yellow X (edge click)
+        result := CheckClickResult(clickX, clickY)
+
+        if (result = "yellow" && retryCount < maxRetries) {
+            retryCount++
+            GdipLog("AGILITY: Yellow X detected, retrying click (" retryCount "/" maxRetries ")")
+            Sleep(150)  ; Brief delay before retry
+            continue
+        }
+
+        ; Red X, none, or max retries reached — proceed
+        if (retryCount > 0) {
+            GdipLog("AGILITY: Click accepted after " retryCount " retries (result: " result ")")
+        }
+        return true
+    }
+}
+
 ; Click any blue obstacle pixel near character (using Gdip for better accuracy)
 ClickBlueObstacle() {
-    return GdipClickColorNearCharacter(AGILITY_COLOR_BLUE, 5, 0, 0)
+    return ClickObstacleWithVerification(AGILITY_COLOR_BLUE)
 }
 
 ; Click any yellow obstacle pixel near character
 ClickYellowObstacle() {
-    return GdipClickColorNearCharacter(AGILITY_COLOR_YELLOW, 5, 0, 0)
+    return ClickObstacleWithVerification(AGILITY_COLOR_YELLOW)
 }
 
 ; Click any orange obstacle pixel near character
 ClickOrangeObstacle() {
-    return GdipClickColorNearCharacter(AGILITY_COLOR_ORANGE, 5, 0, 0)
+    return ClickObstacleWithVerification(AGILITY_COLOR_ORANGE)
 }
 
 ; Click south on minimap (within configured rectangle)
@@ -67,6 +103,14 @@ SetAgilityMapArea(x1, y1, x2, y2) {
     agilityMapClickX2 := x2
     agilityMapClickY2 := y2
     ToolTip "Agility map area set: " x1 "," y1 " to " x2 "," y2
+    SetTimer () => ToolTip(), -2000
+}
+
+; Toggle AFK logout safety net
+ToggleLogOutIfAfk() {
+    global logOutIfAfk
+    logOutIfAfk := !logOutIfAfk
+    ToolTip "LogOutIfAfk: " (logOutIfAfk ? "ON" : "OFF")
     SetTimer () => ToolTip(), -2000
 }
 
@@ -143,9 +187,17 @@ LoopAgilityLaps() {
             if (!InterruptibleSleep(Random(10469, 11069)))
                 return
         } else {
-            ; Lap failed - either interrupted or color not found, stop loop
-            ToolTip "Agility stopped after " lapCount " laps (color not found or cancelled)"
-            SetTimer () => ToolTip(), -3000
+            ; Lap failed - either interrupted or color not found
+            if (logOutIfAfk) {
+                Send("+{F12}")
+                Sleep(Random(800, 1200))
+                ClickRandomPixel(586, 462, 717, 482)
+                ToolTip "Logged out due to AFK detection after " lapCount " laps"
+                SetTimer () => ToolTip(), -5000
+            } else {
+                ToolTip "Agility stopped after " lapCount " laps (color not found or cancelled)"
+                SetTimer () => ToolTip(), -3000
+            }
             return
         }
     }
@@ -301,5 +353,15 @@ global AgilityRegistry := Map(
         name: "ToggleTimingCapture",
         func: ToggleTimingCapture,
         description: "Start/stop capturing click timing intervals"
+    },
+    "ToggleClickResultTest", {
+        name: "ToggleClickResultTest",
+        func: ToggleClickResultTest,
+        description: "Toggle click result testing (shows red X / yellow X / none after each click)"
+    },
+    "ToggleLogOutIfAfk", {
+        name: "ToggleLogOutIfAfk",
+        func: ToggleLogOutIfAfk,
+        description: "Toggle AFK logout safety net for agility loops"
     }
 )

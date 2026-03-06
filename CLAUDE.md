@@ -108,6 +108,10 @@ Repository is configured with GitHub MCP server for easy commits and PR manageme
 3. Commit via Claude Code
 4. Push to GitHub
 
+## Development Practices
+
+See `docs/practices.md` for the coordinate system contract, function layers, and coding standards. This is the authoritative reference — follow it for any code involving coordinates, clicks, or pixel detection. If deviating from these practices seems necessary, ask for explicit permission first.
+
 ## Memory
 
 See `MEMORY.md` for agent-maintained project learnings and patterns.
