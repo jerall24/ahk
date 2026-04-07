@@ -13,28 +13,20 @@ global cookingRect2 := {x1: 0, y1: 0, x2: 0, y2: 0}
 CaptureCookingRectangles() {
     global cookingRect1, cookingRect2
 
-    ; Capture first rectangle (e.g., cooking fire/range)
-    MsgBox("Move mouse to TOP-LEFT corner of first rectangle (bank), then press OK")
-    MouseGetPos(&x1_1, &y1_1)
+    ; Capture first rectangle (bank)
+    pt1 := CapturePoint("Move mouse to TOP-LEFT corner of first rectangle (bank), then press OK")
+    pt2 := CapturePoint("Move mouse to BOTTOM-RIGHT corner of first rectangle (bank), then press OK")
+    cookingRect1 := {x1: pt1.x, y1: pt1.y, x2: pt2.x, y2: pt2.y}
 
-    MsgBox("Move mouse to BOTTOM-RIGHT corner of first rectangle (bank), then press OK")
-    MouseGetPos(&x2_1, &y2_1)
-
-    cookingRect1 := {x1: x1_1, y1: y1_1, x2: x2_1, y2: y2_1}
-
-    ; Capture second rectangle (e.g., cooking interface button)
-    MsgBox("Move mouse to TOP-LEFT corner of second rectangle (fire/range), then press OK")
-    MouseGetPos(&x1_2, &y1_2)
-
-    MsgBox("Move mouse to BOTTOM-RIGHT corner of second rectangle (fire/range), then press OK")
-    MouseGetPos(&x2_2, &y2_2)
-
-    cookingRect2 := {x1: x1_2, y1: y1_2, x2: x2_2, y2: y2_2}
+    ; Capture second rectangle (fire/range)
+    pt3 := CapturePoint("Move mouse to TOP-LEFT corner of second rectangle (fire/range), then press OK")
+    pt4 := CapturePoint("Move mouse to BOTTOM-RIGHT corner of second rectangle (fire/range), then press OK")
+    cookingRect2 := {x1: pt3.x, y1: pt3.y, x2: pt4.x, y2: pt4.y}
 
     ; Save to profile
     SaveProfiles()
 
-    ToolTip "Cooking rectangles captured and saved!`nRect1 (Bank): (" x1_1 "," y1_1 ") to (" x2_1 "," y2_1 ")`nRect2 (Fire/Range): (" x1_2 "," y1_2 ") to (" x2_2 "," y2_2 ")"
+    ToolTip "Cooking rectangles captured and saved!`nRect1 (Bank): (" cookingRect1.x1 "," cookingRect1.y1 ") to (" cookingRect1.x2 "," cookingRect1.y2 ")`nRect2 (Fire/Range): (" cookingRect2.x1 "," cookingRect2.y1 ") to (" cookingRect2.x2 "," cookingRect2.y2 ")"
     SetTimer () => ToolTip(), -4000
 }
 

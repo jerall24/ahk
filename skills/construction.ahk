@@ -8,12 +8,8 @@
 CaptureConstructionBankSlot() {
     global capturedConstructionBankSlot
 
-    ToolTip "Right-click on the bank item for construction..."
-
-    ; Wait for right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x1, &y1)
-    slot := GetBankSlotAtCoordinate(x1, y1)
+    pt := CapturePoint("Move mouse to bank item for construction, then press OK")
+    slot := GetBankSlotAtCoordinate(pt.x, pt.y)
 
     if (slot = 0) {
         ToolTip "Click not in a bank slot! Try again."

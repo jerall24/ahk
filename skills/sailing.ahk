@@ -12,12 +12,8 @@ global capturedSailingSalvageSlot2 := 0
 CaptureSailingSalvageSlots() {
     global capturedSailingSalvageSlot1, capturedSailingSalvageSlot2
 
-    ToolTip "Click on first salvage inventory item..."
-
-    ; Wait for first right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x1, &y1)
-    slot1 := GetInventorySlotAtCoordinate(x1, y1)
+    pt1 := CapturePoint("Move mouse to first salvage inventory item, then press OK")
+    slot1 := GetInventorySlotAtCoordinate(pt1.x, pt1.y)
 
     if (slot1 = 0) {
         ToolTip "First click not in an inventory slot! Try again."
@@ -25,13 +21,8 @@ CaptureSailingSalvageSlots() {
         return false
     }
 
-    ToolTip "First slot captured: " slot1 "`nClick on second salvage inventory item..."
-    Sleep(250)
-
-    ; Wait for second right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x2, &y2)
-    slot2 := GetInventorySlotAtCoordinate(x2, y2)
+    pt2 := CapturePoint("Slot " slot1 " captured.`nMove mouse to second salvage inventory item, then press OK")
+    slot2 := GetInventorySlotAtCoordinate(pt2.x, pt2.y)
 
     if (slot2 = 0) {
         ToolTip "Second click not in an inventory slot! Try again."

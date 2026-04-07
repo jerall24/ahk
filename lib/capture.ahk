@@ -4,6 +4,15 @@
 ; CAPTURE FUNCTIONS
 ; ======================================
 
+; Pause until user confirms, then return mouse position in screen coords
+; Usage: pt := CapturePoint("Move mouse to TOP-LEFT corner, then press OK")
+;        use pt.x, pt.y
+CapturePoint(prompt) {
+    MsgBox(prompt)
+    MouseGetPos(&x, &y)
+    return {x: x, y: y}
+}
+
 ; Global variables to store captured bank slots
 global capturedBankSlot1 := 0
 global capturedBankSlot2 := 0
@@ -20,18 +29,12 @@ global capturedConstructionBankSlot := 0
 ; Function to capture coordinates for a rectangular area
 ; Outputs CLIENT-RELATIVE coordinates
 CaptureCoordinates() {
-    ToolTip "Right-click TOP-LEFT corner..."
-    KeyWait("RButton", "D")
-    MouseGetPos(&x1, &y1)
-
-    ToolTip
-    Sleep(50)
-    ToolTip "Top-left captured. Right-click BOTTOM-RIGHT corner..."
-    Sleep(200)
-    ToolTip
-
-    KeyWait("RButton", "D")
-    MouseGetPos(&x2, &y2)
+    pt1 := CapturePoint("Move mouse to TOP-LEFT corner, then press OK")
+    pt2 := CapturePoint("Move mouse to BOTTOM-RIGHT corner, then press OK")
+    x1 := pt1.x
+    y1 := pt1.y
+    x2 := pt2.x
+    y2 := pt2.y
 
     ; Convert screen coords to client-relative
     hwnd := WinExist("ahk_exe RuneLite.exe")
@@ -49,13 +52,12 @@ CaptureCoordinates() {
     SetTimer () => ToolTip(), -2000
 }
 
-; Capture single pixel coordinates and color on right-click
+; Capture single pixel coordinates and color
 ; Outputs CLIENT-RELATIVE coordinates
 CapturePixelAndColor() {
-    ToolTip "Right-click on a pixel to capture coordinates and color..."
-
-    KeyWait("RButton", "D")
-    MouseGetPos(&x, &y)
+    pt := CapturePoint("Move mouse to pixel to capture, then press OK")
+    x := pt.x
+    y := pt.y
 
     ; Get color using screen coords before converting
     color := PixelGetColor(x, y)
@@ -77,22 +79,12 @@ CapturePixelAndColor() {
 ; Capture rectangle and find most prominent colors
 ; Output formatted for WaitForAnyColorInRect function
 CaptureRectangleColors(maxColors := 5, sampleStep := 2) {
-    ToolTip "Right-click on TOP-LEFT corner of rectangle..."
-
-    ; Wait for first right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x1, &y1)
-
-    ; Clear tooltip immediately, then show next instruction
-    ToolTip
-    Sleep(50)
-    ToolTip "Top-left captured. Now right-click on BOTTOM-RIGHT corner..."
-    Sleep(200)
-    ToolTip  ; Clear tooltip before second click
-
-    ; Wait for second right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x2, &y2)
+    pt1 := CapturePoint("Move mouse to TOP-LEFT corner of rectangle, then press OK")
+    pt2 := CapturePoint("Move mouse to BOTTOM-RIGHT corner of rectangle, then press OK")
+    x1 := pt1.x
+    y1 := pt1.y
+    x2 := pt2.x
+    y2 := pt2.y
 
     ; Ensure x1,y1 is top-left and x2,y2 is bottom-right
     if (x1 > x2) {
@@ -211,12 +203,8 @@ GetInventorySlotAtCoordinate(x, y) {
 CaptureBankSlots() {
     global capturedBankSlot1, capturedBankSlot2
 
-    ToolTip "Click on first bank item..."
-
-    ; Wait for first right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x1, &y1)
-    slot1 := GetBankSlotAtCoordinate(x1, y1)
+    pt1 := CapturePoint("Move mouse to first bank item, then press OK")
+    slot1 := GetBankSlotAtCoordinate(pt1.x, pt1.y)
 
     if (slot1 = 0) {
         ToolTip "First click not in a bank slot! Try again."
@@ -224,13 +212,8 @@ CaptureBankSlots() {
         return false
     }
 
-    ToolTip "First slot captured: " slot1 "`nClick on second bank item..."
-    Sleep(250)
-
-    ; Wait for second right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x2, &y2)
-    slot2 := GetBankSlotAtCoordinate(x2, y2)
+    pt2 := CapturePoint("Slot " slot1 " captured.`nMove mouse to second bank item, then press OK")
+    slot2 := GetBankSlotAtCoordinate(pt2.x, pt2.y)
 
     if (slot2 = 0) {
         ToolTip "Second click not in a bank slot! Try again."
@@ -256,12 +239,8 @@ CaptureBankSlots() {
 CaptureFourBankSlots() {
     global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
 
-    ToolTip "Right-click on first bank item..."
-
-    ; Wait for first right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x1, &y1)
-    slot1 := GetBankSlotAtCoordinate(x1, y1)
+    pt1 := CapturePoint("Move mouse to first bank item, then press OK")
+    slot1 := GetBankSlotAtCoordinate(pt1.x, pt1.y)
 
     if (slot1 = 0) {
         ToolTip "First click not in a bank slot! Try again."
@@ -269,13 +248,8 @@ CaptureFourBankSlots() {
         return false
     }
 
-    ToolTip "Slot 1: " slot1 "`nRight-click on second bank item..."
-    Sleep(250)
-
-    ; Wait for second right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x2, &y2)
-    slot2 := GetBankSlotAtCoordinate(x2, y2)
+    pt2 := CapturePoint("Slot 1: " slot1 "`nMove mouse to second bank item, then press OK")
+    slot2 := GetBankSlotAtCoordinate(pt2.x, pt2.y)
 
     if (slot2 = 0) {
         ToolTip "Second click not in a bank slot! Try again."
@@ -283,13 +257,8 @@ CaptureFourBankSlots() {
         return false
     }
 
-    ToolTip "Slots 1,2: " slot1 "," slot2 "`nRight-click on third bank item..."
-    Sleep(250)
-
-    ; Wait for third right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x3, &y3)
-    slot3 := GetBankSlotAtCoordinate(x3, y3)
+    pt3 := CapturePoint("Slots 1,2: " slot1 "," slot2 "`nMove mouse to third bank item, then press OK")
+    slot3 := GetBankSlotAtCoordinate(pt3.x, pt3.y)
 
     if (slot3 = 0) {
         ToolTip "Third click not in a bank slot! Try again."
@@ -297,13 +266,8 @@ CaptureFourBankSlots() {
         return false
     }
 
-    ToolTip "Slots 1-3: " slot1 "," slot2 "," slot3 "`nRight-click on fourth bank item..."
-    Sleep(250)
-
-    ; Wait for fourth right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x4, &y4)
-    slot4 := GetBankSlotAtCoordinate(x4, y4)
+    pt4 := CapturePoint("Slots 1-3: " slot1 "," slot2 "," slot3 "`nMove mouse to fourth bank item, then press OK")
+    slot4 := GetBankSlotAtCoordinate(pt4.x, pt4.y)
 
     if (slot4 = 0) {
         ToolTip "Fourth click not in a bank slot! Try again."
@@ -331,12 +295,8 @@ CaptureFourBankSlots() {
 CaptureInventorySlots() {
     global capturedInventorySlot1, capturedInventorySlot2
 
-    ToolTip "Click on first inventory item..."
-
-    ; Wait for first right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x1, &y1)
-    slot1 := GetInventorySlotAtCoordinate(x1, y1)
+    pt1 := CapturePoint("Move mouse to first inventory item, then press OK")
+    slot1 := GetInventorySlotAtCoordinate(pt1.x, pt1.y)
 
     if (slot1 = 0) {
         ToolTip "First click not in an inventory slot! Try again."
@@ -344,13 +304,8 @@ CaptureInventorySlots() {
         return false
     }
 
-    ToolTip "First slot captured: " slot1 "`nClick on second inventory item..."
-    Sleep(250)
-
-    ; Wait for second right-click
-    KeyWait("RButton", "D")
-    MouseGetPos(&x2, &y2)
-    slot2 := GetInventorySlotAtCoordinate(x2, y2)
+    pt2 := CapturePoint("Slot " slot1 " captured.`nMove mouse to second inventory item, then press OK")
+    slot2 := GetInventorySlotAtCoordinate(pt2.x, pt2.y)
 
     if (slot2 = 0) {
         ToolTip "Second click not in an inventory slot! Try again."
