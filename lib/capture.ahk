@@ -13,6 +13,16 @@ CapturePoint(prompt) {
     return {x: x, y: y}
 }
 
+; Convert screen coords to client-relative in-place
+ScreenToClient(&x, &y) {
+    hwnd := WinExist("ahk_exe RuneLite.exe")
+    if (hwnd) {
+        WinGetClientPos(&clientX, &clientY, , , hwnd)
+        x -= clientX
+        y -= clientY
+    }
+}
+
 ; Global variables to store captured bank slots
 global capturedBankSlot1 := 0
 global capturedBankSlot2 := 0
@@ -35,16 +45,8 @@ CaptureCoordinates() {
     y1 := pt1.y
     x2 := pt2.x
     y2 := pt2.y
-
-    ; Convert screen coords to client-relative
-    hwnd := WinExist("ahk_exe RuneLite.exe")
-    if (hwnd) {
-        WinGetClientPos(&clientX, &clientY, , , hwnd)
-        x1 -= clientX
-        y1 -= clientY
-        x2 -= clientX
-        y2 -= clientY
-    }
+    ScreenToClient(&x1, &y1)
+    ScreenToClient(&x2, &y2)
 
     coordString := x1 ", " y1 ", " x2 ", " y2
     A_Clipboard := coordString
@@ -58,17 +60,9 @@ CapturePixelAndColor() {
     pt := CapturePoint("Move mouse to pixel to capture, then press OK")
     x := pt.x
     y := pt.y
-
-    ; Get color using screen coords before converting
+    CoordMode "Pixel", "Screen"
     color := PixelGetColor(x, y)
-
-    ; Convert screen coords to client-relative
-    hwnd := WinExist("ahk_exe RuneLite.exe")
-    if (hwnd) {
-        WinGetClientPos(&clientX, &clientY, , , hwnd)
-        x -= clientX
-        y -= clientY
-    }
+    ScreenToClient(&x, &y)
 
     captureString := x ", " y ", " color
     A_Clipboard := captureString
@@ -100,7 +94,8 @@ CaptureRectangleColors(maxColors := 5, sampleStep := 2) {
 
     ToolTip "Analyzing colors in rectangle..."
 
-    ; Sample colors in the rectangle
+    ; Sample colors in the rectangle (screen coords)
+    CoordMode "Pixel", "Screen"
     colorCounts := Map()
 
     ; Sample every few pixels to speed up analysis
@@ -146,20 +141,8 @@ CaptureRectangleColors(maxColors := 5, sampleStep := 2) {
         topColors.Push(colorArray[A_Index].color)
     }
 
-    ; Convert screen coords to client-relative for output
-    hwnd := WinExist("ahk_exe RuneLite.exe")
-    if (hwnd) {
-        WinGetClientPos(&clientX, &clientY, , , hwnd)
-        outX1 := x1 - clientX
-        outY1 := y1 - clientY
-        outX2 := x2 - clientX
-        outY2 := y2 - clientY
-    } else {
-        outX1 := x1
-        outY1 := y1
-        outX2 := x2
-        outY2 := y2
-    }
+    ScreenToClient(&x1, &y1)
+    ScreenToClient(&x2, &y2)
 
     ; Format for WaitForAnyColorInRect / ClickRandomPixel
     ; Result: x1, y1, x2, y2, [0xCOLOR1, 0xCOLOR2, ...] (all client-relative)
@@ -167,13 +150,14 @@ CaptureRectangleColors(maxColors := 5, sampleStep := 2) {
     Loop topColors.Length {
         if (A_Index > 1)
             colorList .= ", "
-        colorList .= topColors[A_Index]
+        colorList .= Format("0x{:06X}", topColors[A_Index])
     }
     colorList .= "]"
 
-    outputString := outX1 ", " outY1 ", " outX2 ", " outY2 ", " colorList
+    outputString := x1 ", " y1 ", " x2 ", " y2 ", " colorList
+    ToolTip "Captured (client-relative) with " topColors.Length " colors:`n" outputString
+    Sleep(100)
     A_Clipboard := outputString
-    ToolTip "Captured (client-relative) with " topColors.Length " colors (copied to clipboard)"
     SetTimer () => ToolTip(), -1000
 }
 

@@ -18,7 +18,7 @@ ClickRandomCyan() {
 
 ; Click closest amethyst using predefined colors
 ClickClosestAmethyst() {
-    amethystColors := [0x976F81, 0x846170, 0x987082, 0xB18197, 0xB885A1]
+    amethystColors := [0x987082, 0x8E6879, 0x976F81, 0xB18197]
     return ClickNearestColorFromArray(amethystColors)
 }
 
