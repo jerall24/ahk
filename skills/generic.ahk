@@ -13,7 +13,13 @@ CaptureFullInv1ItemRect() {
 
     pt1 := CapturePoint("Move mouse to TOP-LEFT corner of bank rectangle, then press OK")
     pt2 := CapturePoint("Move mouse to BOTTOM-RIGHT corner of bank rectangle, then press OK")
-    fullInv1ItemBankRect := {x1: pt1.x, y1: pt1.y, x2: pt2.x, y2: pt2.y}
+    x1 := pt1.x
+    y1 := pt1.y
+    x2 := pt2.x
+    y2 := pt2.y
+    ScreenToClient(&x1, &y1)
+    ScreenToClient(&x2, &y2)
+    fullInv1ItemBankRect := {x1: x1, y1: y1, x2: x2, y2: y2}
 
     SaveProfiles()
 

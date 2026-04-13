@@ -16,12 +16,24 @@ CaptureCookingRectangles() {
     ; Capture first rectangle (bank)
     pt1 := CapturePoint("Move mouse to TOP-LEFT corner of first rectangle (bank), then press OK")
     pt2 := CapturePoint("Move mouse to BOTTOM-RIGHT corner of first rectangle (bank), then press OK")
-    cookingRect1 := {x1: pt1.x, y1: pt1.y, x2: pt2.x, y2: pt2.y}
+    x1 := pt1.x
+    y1 := pt1.y
+    x2 := pt2.x
+    y2 := pt2.y
+    ScreenToClient(&x1, &y1)
+    ScreenToClient(&x2, &y2)
+    cookingRect1 := {x1: x1, y1: y1, x2: x2, y2: y2}
 
     ; Capture second rectangle (fire/range)
     pt3 := CapturePoint("Move mouse to TOP-LEFT corner of second rectangle (fire/range), then press OK")
     pt4 := CapturePoint("Move mouse to BOTTOM-RIGHT corner of second rectangle (fire/range), then press OK")
-    cookingRect2 := {x1: pt3.x, y1: pt3.y, x2: pt4.x, y2: pt4.y}
+    x3 := pt3.x
+    y3 := pt3.y
+    x4 := pt4.x
+    y4 := pt4.y
+    ScreenToClient(&x3, &y3)
+    ScreenToClient(&x4, &y4)
+    cookingRect2 := {x1: x3, y1: y3, x2: x4, y2: y4}
 
     ; Save to profile
     SaveProfiles()

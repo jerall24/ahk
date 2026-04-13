@@ -697,6 +697,131 @@ SetClickResultDelay(delayMs) {
 }
 
 ; ======================================
+; INVENTORY SLOT OCCUPANCY DETECTION
+; ======================================
+
+; Scan inventory slots in range to find the last one containing an item.
+; Uses a single GDI+ bitmap capture for efficiency (~10-30ms total).
+;
+; bgColors      - Array of 0xRRGGBB color values representing the empty slot background
+; colorVariation - Per-channel RGB tolerance for background matching (default 10)
+;
+; Returns the slot number of the last occupied slot in [startSlot, endSlot],
+; or startSlot - 1 if every slot in the range is empty (nothing to drop).
+; On capture failure, returns endSlot (safe fallback: drop everything).
+FindLastOccupiedSlotInRange(startSlot, endSlot, bgColors, colorVariation := 10) {
+    hwnd := WinExist("ahk_exe RuneLite.exe")
+    if (!hwnd) {
+        return endSlot
+    }
+
+    ; Client origin for converting slot coords to screen coords
+    clientX := 0, clientY := 0
+    WinGetClientPos(&clientX, &clientY, , , hwnd)
+
+    ; Mode-aware slot map (client-relative bounding boxes)
+    slotMap := IsFixedMode() ? InventorySlots : MediumInventorySlots
+
+    ; Pre-extract background RGB components for fast comparison
+    bgRGB := []
+    for c in bgColors {
+        bgRGB.Push({r: (c >> 16) & 0xFF, g: (c >> 8) & 0xFF, b: c & 0xFF})
+    }
+
+    ; Compute bounding box covering all slots in range (one capture for all)
+    rangeX1 := 99999, rangeY1 := 99999, rangeX2 := 0, rangeY2 := 0
+    Loop endSlot - startSlot + 1 {
+        s := slotMap[startSlot + A_Index - 1]
+        rangeX1 := Min(rangeX1, s.x1)
+        rangeY1 := Min(rangeY1, s.y1)
+        rangeX2 := Max(rangeX2, s.x2)
+        rangeY2 := Max(rangeY2, s.y2)
+    }
+
+    ; Capture the region in one shot
+    screenX1 := clientX + rangeX1
+    screenY1 := clientY + rangeY1
+    w := rangeX2 - rangeX1
+    h := rangeY2 - rangeY1
+
+    pBitmap := Gdip_BitmapFromScreen(screenX1 "|" screenY1 "|" w "|" h)
+    if (pBitmap = -1 || pBitmap = 0) {
+        return endSlot
+    }
+
+    bitmapW := Gdip_GetImageWidth(pBitmap)
+    bitmapH := Gdip_GetImageHeight(pBitmap)
+
+    Stride := "", Scan0 := "", BitmapData := ""
+    if (Gdip_LockBits(pBitmap, 0, 0, bitmapW, bitmapH, &Stride, &Scan0, &BitmapData) != 0) {
+        Gdip_DisposeImage(pBitmap)
+        return endSlot
+    }
+
+    lastOccupied := startSlot - 1
+
+    Loop endSlot - startSlot + 1 {
+        slotNum := startSlot + A_Index - 1
+        s := slotMap[slotNum]
+
+        ; Inner region — avoid the 4px/3px edges to skip slot border pixels
+        innerX1 := s.x1 + 4
+        innerY1 := s.y1 + 3
+        innerX2 := s.x2 - 4
+        innerY2 := s.y2 - 3
+        if (innerX1 >= innerX2 || innerY1 >= innerY2) {
+            innerX1 := s.x1, innerY1 := s.y1, innerX2 := s.x2, innerY2 := s.y2
+        }
+
+        ; Sample a 4×3 grid (12 points) across the inner region
+        xStep := (innerX2 - innerX1) / 3.0
+        yStep := (innerY2 - innerY1) / 2.0
+        occupied := false
+
+        yIdx := 0
+        while (yIdx <= 2 && !occupied) {
+            xIdx := 0
+            while (xIdx <= 3 && !occupied) {
+                ; Bitmap-relative coordinates
+                px := Max(0, Min(bitmapW - 1, Round(innerX1 + xIdx * xStep) - rangeX1))
+                py := Max(0, Min(bitmapH - 1, Round(innerY1 + yIdx * yStep) - rangeY1))
+
+                argb := Gdip_GetLockBitPixel(Scan0, px, py, Stride)
+                pR := (argb >> 16) & 0xFF
+                pG := (argb >> 8) & 0xFF
+                pB := argb & 0xFF
+
+                ; A pixel is "background" if it matches any supplied background color
+                matchesBg := false
+                for bg in bgRGB {
+                    if (Abs(pR - bg.r) <= colorVariation
+                        && Abs(pG - bg.g) <= colorVariation
+                        && Abs(pB - bg.b) <= colorVariation) {
+                        matchesBg := true
+                        break
+                    }
+                }
+
+                if (!matchesBg) {
+                    occupied := true
+                }
+                xIdx++
+            }
+            yIdx++
+        }
+
+        if (occupied) {
+            lastOccupied := slotNum
+        }
+    }
+
+    Gdip_UnlockBits(pBitmap, &BitmapData)
+    Gdip_DisposeImage(pBitmap)
+
+    return lastOccupied
+}
+
+; ======================================
 ; CONVENIENCE WRAPPERS
 ; ======================================
 

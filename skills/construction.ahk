@@ -9,7 +9,10 @@ CaptureConstructionBankSlot() {
     global capturedConstructionBankSlot
 
     pt := CapturePoint("Move mouse to bank item for construction, then press OK")
-    slot := GetBankSlotAtCoordinate(pt.x, pt.y)
+    x := pt.x
+    y := pt.y
+    ScreenToClient(&x, &y)
+    slot := GetBankSlotAtCoordinate(x, y)
 
     if (slot = 0) {
         ToolTip "Click not in a bank slot! Try again."
