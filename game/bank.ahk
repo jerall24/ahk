@@ -12,7 +12,7 @@ WithdrawEquipmentFromBank() {
     for slot in equipmentSlots {
         if (ShouldStopAction())
             return false
-        ClickBankSlotNumber(slot)
+        ClickBankSlotNumber(slot, RAPID_INV_SPEED)
         Sleep(Random(100, 200))
     }
     return true
@@ -29,7 +29,7 @@ EquipFromInventory() {
             Send("{F4}")  ; Close equipment tab before exiting
             return false
         }
-        ClickInventorySlotNumber(A_Index)
+        ClickInventorySlotNumber(A_Index, RAPID_INV_SPEED)
         Sleep(Random(100, 200))
     }
 
@@ -49,7 +49,7 @@ WithdrawForInventory() {
     for slot in inventorySlots {
         if (ShouldStopAction())
             return false
-        ClickBankSlotNumber(slot)
+        ClickBankSlotNumber(slot, RAPID_INV_SPEED)
         Sleep(Random(100, 200))
     }
 
@@ -64,7 +64,7 @@ WithdrawForInventory() {
         for slot in scrolledSlots {
             if (ShouldStopAction())
                 return false
-            ClickBankSlotNumber(slot)
+            ClickBankSlotNumber(slot, RAPID_INV_SPEED)
             Sleep(Random(100, 200))
         }
     } else {
@@ -73,7 +73,7 @@ WithdrawForInventory() {
         for slot in finalSlots {
             if (ShouldStopAction())
                 return false
-            ClickBankSlotNumber(slot)
+            ClickBankSlotNumber(slot, RAPID_INV_SPEED)
             Sleep(Random(100, 200))
         }
     }

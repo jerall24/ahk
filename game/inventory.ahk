@@ -8,6 +8,13 @@
 global isCyclingInventory1And5 := false
 global cycleInventoryStep := 0
 
+; Fast altar-style click state (slots 1 and 5)
+global isRapidClickingInventory1And5 := false
+global rapidClickInventoryStep := 0
+
+; Mouse speed for altar-style inventory click (higher = faster)
+global RAPID_INV_SPEED := 3.0
+
 ; Click captured inventory slot 1, then slot 2, then press space
 ; Uses globally captured slots from Ctrl+NumpadDot
 ClickCapturedInventorySlots() {
@@ -105,6 +112,55 @@ CycleClickInventory1And5() {
     SetTimer(CycleInventory1And5Tick, -1)
 }
 
+; Timer callback for altar-style click between inventory slots 1 and 5
+RapidClickInventory1And5Tick() {
+    global isRapidClickingInventory1And5, rapidClickInventoryStep, RAPID_INV_SPEED
+
+    if (!isRapidClickingInventory1And5) {
+        SetTimer(RapidClickInventory1And5Tick, 0)
+        ToolTip "RapidClickInventory1And5 OFF"
+        SetTimer () => ToolTip(), -2000
+        return
+    }
+
+    if (rapidClickInventoryStep = 0) {
+        if (IsFixedMode()) {
+            coords := InventorySlots[1]
+        } else {
+            coords := MediumInventorySlots[1]
+        }
+        ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2, false, 3, RAPID_INV_SPEED)
+        rapidClickInventoryStep := 1
+    } else {
+        if (IsFixedMode()) {
+            coords := InventorySlots[5]
+        } else {
+            coords := MediumInventorySlots[5]
+        }
+        ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2, false, 3, RAPID_INV_SPEED)
+        rapidClickInventoryStep := 0
+    }
+
+    SetTimer(RapidClickInventory1And5Tick, -Random(80, 150))
+}
+
+; Toggle altar-style fast click between inventory slots 1 and 5
+RapidClickInventory1And5() {
+    global isRapidClickingInventory1And5, rapidClickInventoryStep
+
+    if (isRapidClickingInventory1And5) {
+        isRapidClickingInventory1And5 := false
+        return
+    }
+
+    isRapidClickingInventory1And5 := true
+    rapidClickInventoryStep := 0
+    ToolTip "RapidClickInventory1And5 ON"
+    SetTimer () => ToolTip(), -1500
+
+    SetTimer(RapidClickInventory1And5Tick, -1)
+}
+
 ; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================
@@ -128,5 +184,10 @@ global InventoryFunctionsRegistry := Map(
         name: "CycleClickInventory1And5",
         func: CycleClickInventory1And5,
         description: "Cycle: click slot 1, slot 5, space, wait for processing, repeat (toggle on/off)"
+    },
+    "RapidClickInventory1And5", {
+        name: "RapidClickInventory1And5",
+        func: RapidClickInventory1And5,
+        description: "Fast altar-style toggle: click slot 1 and slot 5 rapidly, no space (toggle on/off)"
     }
 )

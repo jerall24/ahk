@@ -14,7 +14,9 @@ global ProfilesFilePath := A_ScriptDir "\config\profiles.json"
 ; Default bindings available in ALL profiles (no need to add per-profile)
 global DefaultBindings := Map(
     "NumpadDiv", "ResizeToFixedMode",
-    "NumpadMult", "ResizeToMediumMode"
+    "NumpadMult", "ResizeToMediumMode",
+    "^NumpadDiv", "ResizeWindowToFixed",
+    "^NumpadMult", "ResizeWindowToMedium"
 )
 
 ; Save profiles to JSON file
@@ -24,6 +26,7 @@ SaveProfiles() {
     global capturedInventorySlot1, capturedInventorySlot2
     global capturedConstructionBankSlot
     global cookingRect1, cookingRect2
+    global fullInv1ItemBankRect
 
     ; Store current profile's slots before saving
     ProfileSlots[CurrentProfile] := Map(
@@ -35,7 +38,8 @@ SaveProfiles() {
         "inventorySlot2", capturedInventorySlot2,
         "constructionBankSlot", capturedConstructionBankSlot,
         "cookingRect1", cookingRect1,
-        "cookingRect2", cookingRect2
+        "cookingRect2", cookingRect2,
+        "fullInv1ItemBankRect", fullInv1ItemBankRect
     )
 
     ; Convert Profiles Map to JSON-compatible object
@@ -78,6 +82,7 @@ LoadProfiles() {
     global capturedInventorySlot1, capturedInventorySlot2
     global capturedConstructionBankSlot
     global cookingRect1, cookingRect2
+    global fullInv1ItemBankRect
 
     if (!FileExist(ProfilesFilePath)) {
         return false
@@ -142,6 +147,7 @@ LoadCurrentProfileSlots() {
     global capturedInventorySlot1, capturedInventorySlot2
     global capturedConstructionBankSlot
     global cookingRect1, cookingRect2
+    global fullInv1ItemBankRect
 
     if (ProfileSlots.Has(CurrentProfile)) {
         slots := ProfileSlots[CurrentProfile]
@@ -165,6 +171,12 @@ LoadCurrentProfileSlots() {
         } else {
             cookingRect2 := {x1: 0, y1: 0, x2: 0, y2: 0}
         }
+
+        if (slots.Has("fullInv1ItemBankRect") && Type(slots["fullInv1ItemBankRect"]) = "Map") {
+            fullInv1ItemBankRect := slots["fullInv1ItemBankRect"]
+        } else {
+            fullInv1ItemBankRect := {x1: 0, y1: 0, x2: 0, y2: 0}
+        }
     } else {
         ; No slots saved for this profile, reset to 0
         capturedBankSlot1 := 0
@@ -176,6 +188,7 @@ LoadCurrentProfileSlots() {
         capturedConstructionBankSlot := 0
         cookingRect1 := {x1: 0, y1: 0, x2: 0, y2: 0}
         cookingRect2 := {x1: 0, y1: 0, x2: 0, y2: 0}
+        fullInv1ItemBankRect := {x1: 0, y1: 0, x2: 0, y2: 0}
     }
 }
 

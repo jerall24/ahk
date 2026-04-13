@@ -35,8 +35,6 @@ PgDn:: {
     SetTimer () => ToolTip(), -1000  ; Remove tooltip after 1 second
 }
 
-; Disabling CTRL+Escape to open start menu
-^Esc::return
 
 !+R::Run("C:\Users\jeral\AppData\Local\RuneLite\RuneLite.exe")
 

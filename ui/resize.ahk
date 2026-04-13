@@ -79,6 +79,33 @@ ResizeToMediumMode() {
     SetUIMode("medium")
 }
 
+; Resize window to fixed mode size (812x542) without in-game UI clicks
+ResizeWindowToFixed() {
+    SetClientSize()  ; 812x542
+    SetUIMode("fixed")
+}
+
+; Resize window to medium mode size (1050x725) without in-game UI clicks
+ResizeWindowToMedium() {
+    if !WinActive("ahk_exe RuneLite.exe") {
+        WinActivate("ahk_exe RuneLite.exe")
+        Sleep(Random(200, 350))
+    }
+    WinGetPos(&winX, &winY, &currentWidth, &currentHeight, "ahk_exe RuneLite.exe")
+    if (currentWidth > 812) {
+        Send("^{F10}")  ; Close sidebar
+        Sleep(Random(200, 350))
+    }
+    SetClientSize(1050, 725)
+    SetUIMode("medium")
+}
+
+; Resize window to Doom mode size (847x629) without in-game UI clicks
+ResizeWindowToDoom() {
+    SetClientSize(847, 629)
+    SetUIMode("doom")
+}
+
 ; Resize window to larger size (1334x1087)
 ResizeToLargeMode() {
     SetClientSize(1150, 900)
@@ -114,6 +141,21 @@ global UIFunctionsRegistry := Map(
         name: "ResizeToLargeMode",
         func: ResizeToLargeMode,
         description: "Resize window to 1150x900 (large mode)"
+    },
+    "ResizeWindowToFixed", {
+        name: "ResizeWindowToFixed",
+        func: ResizeWindowToFixed,
+        description: "Resize window to 812x542 (fixed mode, no in-game UI clicks)"
+    },
+    "ResizeWindowToMedium", {
+        name: "ResizeWindowToMedium",
+        func: ResizeWindowToMedium,
+        description: "Resize window to 1050x725 (medium mode, no in-game UI clicks)"
+    },
+    "ResizeWindowToDoom", {
+        name: "ResizeWindowToDoom",
+        func: ResizeWindowToDoom,
+        description: "Resize window to 847x629 (doom mode, no in-game UI clicks)"
     },
     "TestFunction", {
         name: "TestFunction",

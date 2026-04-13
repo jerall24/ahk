@@ -23,17 +23,17 @@ LogDrop(message) {
 ; ======================================
 
 ; Generic bank slot click function
-ClickBankSlotNumber(slotNumber) {
+ClickBankSlotNumber(slotNumber, speed := 1.0) {
     if (IsFixedMode()) {
         if (slotNumber >= 1 && slotNumber <= 48) {
             coords := BankSlots[slotNumber]
-            ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2)
+            ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2, false, 3, speed)
             return true
         }
     } else {
         if (slotNumber >= 1 && slotNumber <= 88) {
             coords := MediumBankSlots[slotNumber]
-            ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2)
+            ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2, false, 3, speed)
             return true
         }
     }
@@ -135,14 +135,14 @@ ClickBankSlot88() => ClickBankSlotNumber(88)
 ; ======================================
 
 ; Generic inventory slot click function
-ClickInventorySlotNumber(slotNumber) {
+ClickInventorySlotNumber(slotNumber, speed := 1.0) {
     if (slotNumber >= 1 && slotNumber <= 28) {
         if (IsFixedMode()) {
             coords := InventorySlots[slotNumber]
         } else {
             coords := MediumInventorySlots[slotNumber]
         }
-        ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2)
+        ClickRandomPixel(coords.x1, coords.y1, coords.x2, coords.y2, false, 3, speed)
         return true
     }
     return false

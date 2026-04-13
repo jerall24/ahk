@@ -188,7 +188,10 @@ CaptureBankSlots() {
     global capturedBankSlot1, capturedBankSlot2
 
     pt1 := CapturePoint("Move mouse to first bank item, then press OK")
-    slot1 := GetBankSlotAtCoordinate(pt1.x, pt1.y)
+    x1 := pt1.x
+    y1 := pt1.y
+    ScreenToClient(&x1, &y1)
+    slot1 := GetBankSlotAtCoordinate(x1, y1)
 
     if (slot1 = 0) {
         ToolTip "First click not in a bank slot! Try again."
@@ -197,7 +200,10 @@ CaptureBankSlots() {
     }
 
     pt2 := CapturePoint("Slot " slot1 " captured.`nMove mouse to second bank item, then press OK")
-    slot2 := GetBankSlotAtCoordinate(pt2.x, pt2.y)
+    x2 := pt2.x
+    y2 := pt2.y
+    ScreenToClient(&x2, &y2)
+    slot2 := GetBankSlotAtCoordinate(x2, y2)
 
     if (slot2 = 0) {
         ToolTip "Second click not in a bank slot! Try again."
@@ -224,7 +230,10 @@ CaptureFourBankSlots() {
     global capturedBankSlot1, capturedBankSlot2, capturedBankSlot3, capturedBankSlot4
 
     pt1 := CapturePoint("Move mouse to first bank item, then press OK")
-    slot1 := GetBankSlotAtCoordinate(pt1.x, pt1.y)
+    cx1 := pt1.x
+    cy1 := pt1.y
+    ScreenToClient(&cx1, &cy1)
+    slot1 := GetBankSlotAtCoordinate(cx1, cy1)
 
     if (slot1 = 0) {
         ToolTip "First click not in a bank slot! Try again."
@@ -233,7 +242,10 @@ CaptureFourBankSlots() {
     }
 
     pt2 := CapturePoint("Slot 1: " slot1 "`nMove mouse to second bank item, then press OK")
-    slot2 := GetBankSlotAtCoordinate(pt2.x, pt2.y)
+    cx2 := pt2.x
+    cy2 := pt2.y
+    ScreenToClient(&cx2, &cy2)
+    slot2 := GetBankSlotAtCoordinate(cx2, cy2)
 
     if (slot2 = 0) {
         ToolTip "Second click not in a bank slot! Try again."
@@ -242,7 +254,10 @@ CaptureFourBankSlots() {
     }
 
     pt3 := CapturePoint("Slots 1,2: " slot1 "," slot2 "`nMove mouse to third bank item, then press OK")
-    slot3 := GetBankSlotAtCoordinate(pt3.x, pt3.y)
+    cx3 := pt3.x
+    cy3 := pt3.y
+    ScreenToClient(&cx3, &cy3)
+    slot3 := GetBankSlotAtCoordinate(cx3, cy3)
 
     if (slot3 = 0) {
         ToolTip "Third click not in a bank slot! Try again."
@@ -251,7 +266,10 @@ CaptureFourBankSlots() {
     }
 
     pt4 := CapturePoint("Slots 1-3: " slot1 "," slot2 "," slot3 "`nMove mouse to fourth bank item, then press OK")
-    slot4 := GetBankSlotAtCoordinate(pt4.x, pt4.y)
+    cx4 := pt4.x
+    cy4 := pt4.y
+    ScreenToClient(&cx4, &cy4)
+    slot4 := GetBankSlotAtCoordinate(cx4, cy4)
 
     if (slot4 = 0) {
         ToolTip "Fourth click not in a bank slot! Try again."
@@ -280,7 +298,10 @@ CaptureInventorySlots() {
     global capturedInventorySlot1, capturedInventorySlot2
 
     pt1 := CapturePoint("Move mouse to first inventory item, then press OK")
-    slot1 := GetInventorySlotAtCoordinate(pt1.x, pt1.y)
+    x1 := pt1.x
+    y1 := pt1.y
+    ScreenToClient(&x1, &y1)
+    slot1 := GetInventorySlotAtCoordinate(x1, y1)
 
     if (slot1 = 0) {
         ToolTip "First click not in an inventory slot! Try again."
@@ -289,7 +310,10 @@ CaptureInventorySlots() {
     }
 
     pt2 := CapturePoint("Slot " slot1 " captured.`nMove mouse to second inventory item, then press OK")
-    slot2 := GetInventorySlotAtCoordinate(pt2.x, pt2.y)
+    x2 := pt2.x
+    y2 := pt2.y
+    ScreenToClient(&x2, &y2)
+    slot2 := GetInventorySlotAtCoordinate(x2, y2)
 
     if (slot2 = 0) {
         ToolTip "Second click not in an inventory slot! Try again."

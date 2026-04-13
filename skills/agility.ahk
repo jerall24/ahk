@@ -170,7 +170,9 @@ RunAgilityLap() {
 
 ; Loop agility laps until stopped with Ctrl+Esc or color not found
 LoopAgilityLaps() {
+    global manualStop
     lapCount := 0
+    manualStop := false
 
     Loop {
         if (ShouldStopAction()) {
@@ -187,10 +189,10 @@ LoopAgilityLaps() {
                 return
         } else {
             ; Lap failed - either interrupted or color not found
-            if (logOutIfAfk) {
+            if (logOutIfAfk && !manualStop) {
                 Send("+{F12}")
                 Sleep(Random(800, 1200))
-                ClickRandomPixel(586, 462, 717, 482)
+                ClickRandomPixel(574, 420, 708, 443)
                 ToolTip "Logged out due to AFK detection after " lapCount " laps"
                 SetTimer () => ToolTip(), -5000
             } else {

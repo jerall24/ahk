@@ -34,6 +34,7 @@
 #Include skills\cooking.ahk
 #Include skills\agility.ahk
 #Include skills\prayer.ahk
+#Include skills\generic.ahk
 
 ; Function registry (merges all registries)
 #Include core\function_registry.ahk
@@ -60,8 +61,9 @@ areHotkeysEnabled() {
 
 ; Ctrl+Escape - Kill switch to stop current action
 ^Escape:: {
-    global stopCurrentAction
+    global stopCurrentAction, manualStop
     stopCurrentAction := true
+    manualStop := true
     ToolTip "Action cancelled"
     SetTimer () => ToolTip(), -1000
 }
@@ -85,14 +87,24 @@ areHotkeysEnabled() {
     EnterBindingMode()
 }
 
-; Ctrl+NumpadSub - Open profile manager
-^NumpadSub:: {
+; Ctrl+NumpadAdd - Open profile manager
+^NumpadAdd:: {
     ShowProfileManager()
 }
 
-; Ctrl+NumpadMult - Show current keybinds
-^NumpadMult:: {
+; Ctrl+NumpadSub - Show current keybinds
+^NumpadSub:: {
     ShowKeybinds()
+}
+
+; Ctrl+NumpadMult - Resize window to medium (no in-game UI clicks)
+^NumpadMult:: {
+    ExecuteBoundFunction("^NumpadMult")
+}
+
+; Ctrl+NumpadDiv - Resize window to fixed (no in-game UI clicks)
+^NumpadDiv:: {
+    ExecuteBoundFunction("^NumpadDiv")
 }
 
 ; ======================================
@@ -479,23 +491,6 @@ $NumpadDiv:: {
 }
 
 ; ======================================
-; MOUSE BUTTON REMAPPING
-; ======================================
-
-; Press Shift down with side mouse button in RuneLite
-; Release by pressing Shift key on keyboard
-XButton1:: {
-    if !WinActive("ahk_exe RuneLite.exe") {
-        Send("{XButton1}")  ; Send normal back button outside RuneLite
-        return
-    }
-
-    Send("{Shift down}")
-    ToolTip "Shift held (press Shift key to release)"
-    SetTimer () => ToolTip(), -1000
-}
-
-; ======================================
 ; STATIC KEYBINDS (kept from original)
 ; ======================================
 
@@ -542,8 +537,10 @@ SetClientSize(width := 812, height := 542) { ; 796 503
 
     BINDING SYSTEM:
     Ctrl+NumpadEnter - Enter binding mode (bind function to key)
-    Ctrl+NumpadSub   - Open profile manager
-    Ctrl+NumpadMult  - Show current keybinds
+    Ctrl+NumpadAdd   - Open profile manager
+    Ctrl+NumpadSub   - Show current keybinds
+    Ctrl+NumpadMult  - Resize to medium (no in-game clicks)
+    Ctrl+NumpadDiv   - Resize to fixed (no in-game clicks)
 
     DYNAMIC KEYS (Bindable):
     Numpad0-9, NumpadDot, NumpadEnter, NumpadAdd, NumpadSub, NumpadMult, NumpadDiv

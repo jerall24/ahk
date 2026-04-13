@@ -16,7 +16,7 @@ MergeRegistries() {
     global BankFunctionsRegistry, UIFunctionsRegistry, UtilityFunctionsRegistry
     global UIElementFunctionsRegistry, BankSlotFunctionsRegistry, InventorySlotFunctionsRegistry
     global DropSlotFunctionsRegistry
-    global HerbloreRegistry, ConstructionRegistry, SailingRegistry, CookingRegistry, AgilityRegistry, PrayerRegistry
+    global HerbloreRegistry, ConstructionRegistry, SailingRegistry, CookingRegistry, AgilityRegistry, PrayerRegistry, GenericRegistry
 
     ; Core function registries (always included)
     registriesToMerge := [
@@ -40,6 +40,7 @@ MergeRegistries() {
         CookingRegistry,
         AgilityRegistry,
         PrayerRegistry,
+        GenericRegistry,
         ; Add more as you create them:
         ; WoodcuttingRegistry,
         ; MiningRegistry,

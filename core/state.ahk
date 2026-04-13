@@ -11,6 +11,7 @@ global scriptEnabled := false
 
 ; Kill switch - stops current action when Ctrl+Esc is pressed
 global stopCurrentAction := false
+global manualStop := false  ; Set when user manually cancels (vs natural failure)
 
 ; Check if action should stop (also resets the flag)
 ShouldStopAction() {
