@@ -174,8 +174,9 @@ GetBankSlotAtCoordinate(x, y) {
 
 ; Helper function to determine which inventory slot a coordinate falls within
 GetInventorySlotAtCoordinate(x, y) {
+    slotMap := IsFixedMode() ? InventorySlots : MediumInventorySlots
     Loop 28 {
-        coords := InventorySlots[A_Index]
+        coords := slotMap[A_Index]
         if (x >= coords.x1 && x <= coords.x2 && y >= coords.y1 && y <= coords.y2) {
             return A_Index
         }
