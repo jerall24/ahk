@@ -80,6 +80,14 @@ ProcessFullInventory1Item() {
     Send("{Space}")
 }
 
+WorldHopRight() {
+    Send("^+{Right}")
+}
+
+WorldHopLeft() {
+    Send("^+{Left}")
+}
+
 ; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================
@@ -93,5 +101,15 @@ global GenericRegistry := Map(
         name: "ProcessFullInventory1Item",
         func: ProcessFullInventory1Item,
         description: "Bank rect click > Deposit > Withdraw slot 1 > Esc > Inv slots 1&2 > Enter"
+    },
+    "WorldHopRight", {
+        name: "WorldHopRight",
+        func: WorldHopRight,
+        description: "Hop to next world (Ctrl+Shift+Right)"
+    },
+    "WorldHopLeft", {
+        name: "WorldHopLeft",
+        func: WorldHopLeft,
+        description: "Hop to previous world (Ctrl+Shift+Left)"
     }
 )
