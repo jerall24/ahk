@@ -48,7 +48,7 @@ TraySetIcon("assets\icons8-runescape-32-inactive.ico")
 
 areHotkeysEnabled() {
     global scriptEnabled
-    if (WinActive("ahk_exe RuneLite.exe") && scriptEnabled) {
+    if (WinActive("RuneLite ahk_class SunAwtFrame") && scriptEnabled) {
         return true
     } else {
         return false
@@ -496,7 +496,7 @@ $NumpadDiv:: {
 
 ; Alt+S - Send Alt+S and Backspace in RuneLite
 $!s:: {
-    if !WinActive("ahk_exe RuneLite.exe") {
+    if !WinActive("RuneLite ahk_class SunAwtFrame") {
         Send("!s")  ; Send normal Alt+S outside RuneLite
         return
     }
@@ -508,8 +508,8 @@ $!s:: {
 
 ; Helper function to set RuneLite window size
 SetClientSize(width := 812, height := 542) { ; 796 503
-    WinGetPos(&winX, &winY, &currentWidth, &currentHeight, "ahk_exe RuneLite.exe")
-    WinMove(winX, winY, width, height, "ahk_exe RuneLite.exe")
+    WinGetPos(&winX, &winY, &currentWidth, &currentHeight, "RuneLite ahk_class SunAwtFrame")
+    WinMove(winX, winY, width, height, "RuneLite ahk_class SunAwtFrame")
     ToolTip "Window resized to: " width "x" height
     SetTimer () => ToolTip(), -2000  ; Remove tooltip after 2 seconds
 }

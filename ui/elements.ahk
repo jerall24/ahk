@@ -197,7 +197,7 @@ DropInventorySlotNumber(slotNumber) {
     }
 
     ; Convert client-relative coords to screen coords
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (hwnd) {
         clientX := 0, clientY := 0, clientW := 0, clientH := 0
         WinGetClientPos(&clientX, &clientY, &clientW, &clientH, hwnd)

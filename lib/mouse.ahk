@@ -209,7 +209,7 @@ HumanClick(targetX, targetY, button := "left", speed := 1.0, accuracy := 1.0) {
 ; NOTE: Coordinates are CLIENT-RELATIVE and will be converted to screen coordinates
 HumanClickRandomPixel(x1, y1, x2, y2, button := "left", speed := 1.0) {
     ; Get client position to convert to screen coordinates
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (hwnd) {
         clientX := 0, clientY := 0, clientW := 0, clientH := 0
         WinGetClientPos(&clientX, &clientY, &clientW, &clientH, hwnd)

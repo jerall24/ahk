@@ -15,7 +15,7 @@ CapturePoint(prompt) {
 
 ; Convert screen coords to client-relative in-place
 ScreenToClient(&x, &y) {
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (hwnd) {
         WinGetClientPos(&clientX, &clientY, , , hwnd)
         x -= clientX

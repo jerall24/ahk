@@ -24,7 +24,7 @@ ColorExistsInRect(x1, y1, x2, y2, color, colorVariation := 5) {
 ; speed parameter controls mouse movement speed (1.0 = normal, 1.5 = faster)
 ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3, speed := 1.0) {
     ; Get client position to convert to screen coordinates
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (hwnd) {
         clientX := 0, clientY := 0, clientW := 0, clientH := 0
         WinGetClientPos(&clientX, &clientY, &clientW, &clientH, hwnd)
@@ -68,7 +68,7 @@ ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3, speed := 1.0) 
     }
 
     ; Check if RuneLite is in the background before clicking
-    wasBackground := !WinActive("ahk_exe RuneLite.exe")
+    wasBackground := !WinActive("RuneLite ahk_class SunAwtFrame")
 
     HumanClick(randomX, randomY, "left", speed, 1.0)
 
@@ -151,7 +151,7 @@ ClickRandomPixelOfColor(color, marginX := 0, marginY := 0, near_character := fal
         }
 
         ; targetX/Y are client-relative — convert to screen before clicking
-        hwnd := WinExist("ahk_exe RuneLite.exe")
+        hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
         if (hwnd) {
             WinGetClientPos(&clientX, &clientY, , , hwnd)
             targetX += clientX
@@ -347,7 +347,7 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
     }
 
     ; targetX/Y are client-relative — convert to screen before clicking
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (hwnd) {
         WinGetClientPos(&clientX, &clientY, , , hwnd)
         targetX += clientX

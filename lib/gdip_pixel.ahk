@@ -67,7 +67,7 @@ GdipLogClear() {
 ; Get RuneLite window handle and FULL WINDOW position
 ; (Gdip_BitmapFromHWND captures full window including title bar)
 GetRuneLiteWindow(&winX, &winY, &winW, &winH) {
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (!hwnd) {
         return 0
     }
@@ -153,7 +153,7 @@ GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5,
     GdipLog("Target color: " Format("0x{:06X}", color) " | Search region: (" x1 "," y1 ")-(" x2 "," y2 ") | Variation: " colorVariation)
 
     ; Get RuneLite window CLIENT area position (where the game renders)
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (!hwnd) {
         HideActivityIndicator()
         GdipLog("ERROR: RuneLite window not found")
@@ -372,7 +372,7 @@ GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5,
     GdipLog("  Client at: (" clientX "," clientY ")")
 
     ; Check if RuneLite is in the background before clicking
-    wasBackground := !WinActive("ahk_exe RuneLite.exe")
+    wasBackground := !WinActive("RuneLite ahk_class SunAwtFrame")
 
     ; Perform the click
     HumanClick(targetX, targetY, "left", 1.0, 1.0)
@@ -405,7 +405,7 @@ GdipClickAnyColor(colors, x1, y1, x2, y2, colorVariation := 5, marginX := 0, mar
     ShowActivityIndicator()
 
     ; Get RuneLite window client area position
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (!hwnd) {
         HideActivityIndicator()
         ToolTip "RuneLite window not found"
@@ -538,7 +538,7 @@ GdipClickAnyColor(colors, x1, y1, x2, y2, colorVariation := 5, marginX := 0, mar
     }
 
     ; Check if RuneLite is in the background before clicking
-    wasBackground := !WinActive("ahk_exe RuneLite.exe")
+    wasBackground := !WinActive("RuneLite ahk_class SunAwtFrame")
 
     HumanClick(targetX, targetY, "left", 1.0, 1.0)
 
@@ -710,7 +710,7 @@ SetClickResultDelay(delayMs) {
 ; or startSlot - 1 if every slot in the range is empty (nothing to drop).
 ; On capture failure, returns endSlot (safe fallback: drop everything).
 FindLastOccupiedSlotInRange(startSlot, endSlot, bgColors, colorVariation := 10) {
-    hwnd := WinExist("ahk_exe RuneLite.exe")
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
     if (!hwnd) {
         return endSlot
     }

@@ -118,7 +118,7 @@ F12:: {
 
 ; Get window position (F10 hotkey)
 F10:: {
-    WinGetPos(&winX, &winY, &winWidth, &winHeight, "ahk_exe RuneLite.exe")
+    WinGetPos(&winX, &winY, &winWidth, &winHeight, "RuneLite ahk_class SunAwtFrame")
     A_Clipboard := winX ", " winY ", " winWidth ", " winHeight
     ToolTip "Window position copied: " winX ", " winY ", " winWidth ", " winHeight
     SetTimer () => ToolTip(), -3000

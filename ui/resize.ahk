@@ -41,13 +41,13 @@ ResizeToFixedMode() {
 ; Resize window to medium mode size (1050x725) from fixed mode
 ResizeToMediumMode() {
     ; Step 1: Check if RuneLite is the active window
-    if !WinActive("ahk_exe RuneLite.exe") {
-        WinActivate("ahk_exe RuneLite.exe")
+    if !WinActive("RuneLite ahk_class SunAwtFrame") {
+        WinActivate("RuneLite ahk_class SunAwtFrame")
         Sleep(Random(200, 350))
     }
 
     ; Step 2: Check if sidebar is open (width > 796) and close it
-    WinGetPos(&winX, &winY, &currentWidth, &currentHeight, "ahk_exe RuneLite.exe")
+    WinGetPos(&winX, &winY, &currentWidth, &currentHeight, "RuneLite ahk_class SunAwtFrame")
     ToolTip "Current Width: " currentWidth
     SetTimer () => ToolTip(), -2000  ; Remove tooltip after 2 seconds
     if (currentWidth > 812) {
@@ -87,11 +87,11 @@ ResizeWindowToFixed() {
 
 ; Resize window to medium mode size (1050x725) without in-game UI clicks
 ResizeWindowToMedium() {
-    if !WinActive("ahk_exe RuneLite.exe") {
-        WinActivate("ahk_exe RuneLite.exe")
+    if !WinActive("RuneLite ahk_class SunAwtFrame") {
+        WinActivate("RuneLite ahk_class SunAwtFrame")
         Sleep(Random(200, 350))
     }
-    WinGetPos(&winX, &winY, &currentWidth, &currentHeight, "ahk_exe RuneLite.exe")
+    WinGetPos(&winX, &winY, &currentWidth, &currentHeight, "RuneLite ahk_class SunAwtFrame")
     if (currentWidth > 812) {
         Send("^{F10}")  ; Close sidebar
         Sleep(Random(200, 350))
