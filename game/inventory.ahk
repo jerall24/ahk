@@ -174,8 +174,6 @@ RapidClick2SpotsTick() {
     ; Only stop at the start of a new cycle so slot1→slot2 always completes together
     if (!isRapidClick2Spots && rapidClick2SpotsStep = 0) {
         SetTimer(RapidClick2SpotsTick, 0)
-        ToolTip "RapidClick2InventorySpots OFF"
-        SetTimer () => ToolTip(), -2000
         return
     }
 
@@ -193,8 +191,6 @@ RapidClick2SpotsTick() {
             if (FindLastOccupiedSlotInRange(capturedInventorySlot2, capturedInventorySlot2, bgColors) < capturedInventorySlot2) {
                 isRapidClick2Spots := false
                 SetTimer(RapidClick2SpotsTick, 0)
-                ToolTip "RapidClick2InventorySpots stopped (slot " capturedInventorySlot2 " empty)"
-                SetTimer () => ToolTip(), -2000
                 return
             }
         }
@@ -223,9 +219,6 @@ RapidClick2InventorySpots() {
     isRapidClick2Spots := true
     rapidClick2SpotsStep := 0
     rapidClick2SpotsIterations := 0
-    ToolTip "RapidClick2InventorySpots ON (slots " capturedInventorySlot1 " & " capturedInventorySlot2 ")"
-    SetTimer () => ToolTip(), -1500
-
     SetTimer(RapidClick2SpotsTick, -1)
 }
 

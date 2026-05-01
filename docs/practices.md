@@ -55,6 +55,61 @@ GDIP functions (`GdipClickRandomPixelOfColor`, `GdipClickAnyColor`) do their own
 
 ---
 
+## Screen Access API — Use These, Don't Invent New Ones
+
+**This is the most important rule for writing skill code.**
+
+All screen capture, pixel detection, and color-based clicking goes through the library functions below. Do **not** call `PixelSearch`, `PixelGetColor`, `WinGetClientPos`, `MouseMove`, or `Click` directly in skill or game code. Do not write custom coordinate conversion logic. These problems are already solved.
+
+### Checking whether a color exists in a region
+
+```ahk
+; Returns true/false immediately
+ColorExistsInRect(x1, y1, x2, y2, color, variation := 5)   ; lib/color.ahk
+```
+
+### Waiting for a color to appear / disappear
+
+```ahk
+WaitForColorInRect(x1, y1, x2, y2, color, timeoutMs)        ; lib/wait.ahk
+WaitForColorNotInRect(x1, y1, x2, y2, color, timeoutMs)     ; lib/wait.ahk
+WaitForAnyColorInRect(x1, y1, x2, y2, colors, timeoutMs)    ; lib/wait.ahk  (colors = array)
+WaitForPixelColor(x, y, color, timeoutMs)                    ; lib/wait.ahk
+```
+
+### Clicking a pixel of a specific color
+
+```ahk
+; Near the character (fast, scoped search):
+GdipClickColorNearCharacter(color, variation := 5)           ; lib/gdip_pixel.ahk
+
+; Full game view:
+GdipClickColorInGameView(color, variation := 5)              ; lib/gdip_pixel.ahk
+
+; Arbitrary rect (client-relative):
+GdipClickRandomPixelOfColor(color, x1, y1, x2, y2)          ; lib/gdip_pixel.ahk
+ClickRandomPixelOfColor(color, x1, y1, x2, y2)              ; lib/color.ahk
+
+; Nearest matching pixel expanding from character outward:
+ClickNearestColorFromArray(colorsArray)                      ; lib/pixel.ahk
+```
+
+### Clicking a known rectangle
+
+```ahk
+ClickRandomPixel(x1, y1, x2, y2)                            ; lib/color.ahk
+HumanClickRandomPixel(x1, y1, x2, y2)                       ; lib/mouse.ahk
+```
+
+### Capturing coordinates and colors from the screen
+
+Use the in-game capture tools (bind via Ctrl+NumpadEnter):
+- `CaptureRectangleColors` — captures a rect + its dominant colors, copies result to clipboard
+- `CaptureCoordinates` — captures a rect, copies client-relative coords to clipboard
+- `CapturePixelAndColor` — captures a single point + its color
+
+---
+
 ## Function Layers
 
 ```

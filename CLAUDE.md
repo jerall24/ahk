@@ -57,10 +57,11 @@ All functions should be mode-aware using `IsFixedMode()` to handle different win
 - Document expected window mode if mode-specific
 - Return meaningful values or throw errors
 
-**Coordinates:**
-- Always document which UI mode coordinates are for
-- Use relative positioning when possible
-- Test in both Fixed and Medium modes
+**Coordinates & Screen Access:**
+- All coordinates are client-relative (relative to RuneLite client area top-left)
+- Use the library functions in `lib/` for ALL pixel detection and clicking — never call `PixelSearch`, `PixelGetColor`, `WinGetClientPos`, or `MouseMove` directly in skill/game code
+- See `docs/practices.md` → "Screen Access API" for the exact functions to use for each task
+- Use the in-game capture tools (`CaptureRectangleColors`, `CaptureCoordinates`) to get coordinates — never hardcode screen-space coords
 
 ### Debugging
 

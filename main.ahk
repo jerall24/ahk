@@ -35,6 +35,7 @@
 #Include skills\agility.ahk
 #Include skills\prayer.ahk
 #Include skills\generic.ahk
+#Include skills\runecrafting.ahk
 
 ; Function registry (merges all registries)
 #Include core\function_registry.ahk
