@@ -62,6 +62,7 @@ All functions should be mode-aware using `IsFixedMode()` to handle different win
 - Use the library functions in `lib/` for ALL pixel detection and clicking — never call `PixelSearch`, `PixelGetColor`, `WinGetClientPos`, or `MouseMove` directly in skill/game code
 - See `docs/practices.md` → "Screen Access API" for the exact functions to use for each task
 - Use the in-game capture tools (`CaptureRectangleColors`, `CaptureCoordinates`) to get coordinates — never hardcode screen-space coords
+- For action timing and idle detection, see `docs/status_icon.md` — use `WaitForActionComplete()` and `IsStatusIconIdle()`, never hardcoded sleeps
 
 ### Debugging
 

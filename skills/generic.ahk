@@ -77,6 +77,7 @@ ProcessFullInventory1Item() {
     Sleep(Random(600, 900))
 
     ; Step 6: Press Enter
+    Sleep(100)
     Send("{Space}")
 }
 

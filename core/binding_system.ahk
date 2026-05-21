@@ -14,7 +14,11 @@ GetFunctionsByCategory(category) {
     functions := []
 
     if (category = "All") {
-        return GetFunctionNames()
+        functions.Push("[Loop: select function...]")
+        for name in FunctionRegistry {
+            functions.Push(name)
+        }
+        return functions
     } else if (category = "UI Elements") {
         ; Add special selectors first
         functions.Push("[Select Bank Slot...]")
@@ -43,7 +47,7 @@ GetFunctionsByCategory(category) {
             functions.Push(name)
         }
     } else if (category = "Skills") {
-        ; Combine all skill registries
+        functions.Push("[Loop: select function...]")
         for name in HerbloreRegistry {
             functions.Push(name)
         }
@@ -54,6 +58,9 @@ GetFunctionsByCategory(category) {
             functions.Push(name)
         }
         for name in CookingRegistry {
+            functions.Push(name)
+        }
+        for name in RunecraftingRegistry {
             functions.Push(name)
         }
     } else if (category = "UI/Utility") {
@@ -227,13 +234,16 @@ ShowFunctionSelector(keyToBindCallback) {
             selectedName := currentMatches[selectedIndex]
             CleanupAndDestroy()
 
-            ; Check for special selectors that need grid picker
+            ; Check for special selectors
             if (selectedName = "[Select Bank Slot...]") {
                 ShowSlotGridPicker("bank", keyToBindCallback)
             } else if (selectedName = "[Select Inventory Slot...]") {
                 ShowSlotGridPicker("inventory", keyToBindCallback)
             } else if (selectedName = "[Select Drop Slot...]") {
                 ShowSlotGridPicker("drop", keyToBindCallback)
+            } else if (selectedName = "[Loop: select function...]") {
+                ; Open a second picker — only plain registry functions, no nested specials
+                ShowFunctionSelector((targetFunc) => keyToBindCallback("Loop:" targetFunc))
             } else {
                 keyToBindCallback(selectedName)
             }

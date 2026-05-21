@@ -399,14 +399,21 @@ GetCurrentBindings() {
 BindFunctionToKey(keyName, functionName) {
     global Profiles, CurrentProfile
 
-    if (!FunctionRegistry.Has(functionName)) {
+    if (InStr(functionName, "Loop:") = 1) {
+        targetName := SubStr(functionName, 6)
+        if (!FunctionRegistry.Has(targetName)) {
+            ToolTip "Loop target '" targetName "' not found in registry!"
+            SetTimer () => ToolTip(), -2000
+            return false
+        }
+    } else if (!FunctionRegistry.Has(functionName)) {
         ToolTip "Function '" functionName "' not found in registry!"
         SetTimer () => ToolTip(), -2000
         return false
     }
 
     Profiles[CurrentProfile][keyName] := functionName
-    SaveProfiles()  ; Auto-save after binding
+    SaveProfiles()
     return true
 }
 
@@ -432,13 +439,24 @@ ExecuteBoundFunction(keyName) {
         return false
     }
 
+    ; Handle Loop: prefix — run target function in an idle-wait loop
+    if (InStr(functionName, "Loop:") = 1) {
+        targetName := SubStr(functionName, 6)
+        if (!FunctionRegistry.Has(targetName)) {
+            ToolTip "Loop target '" targetName "' not found!"
+            SetTimer () => ToolTip(), -2000
+            return false
+        }
+        LoopFunctionOnIdle(FunctionRegistry[targetName].func)
+        return true
+    }
+
     if (!FunctionRegistry.Has(functionName)) {
         ToolTip "Function '" functionName "' not found!"
         SetTimer () => ToolTip(), -2000
         return false
     }
 
-    ; Execute the function
     funcInfo := FunctionRegistry[functionName]
     funcInfo.func.Call()
     return true
@@ -535,33 +553,32 @@ ShowKeybinds() {
     keybindsGui.SetFont("s10", "Segoe UI")
 
     ; Header
-    keybindsGui.Add("Text", "x10 y10 w600", "Profile: " CurrentProfile)
+    keybindsGui.Add("Text", "x10 y10 w670", "Profile: " CurrentProfile)
     keybindsGui.Add("Text", "x10 y35 w200 cGray", "Key")
-    keybindsGui.Add("Text", "x220 y35 w400 cGray", "Function")
+    keybindsGui.Add("Text", "x220 y35 w390 cGray", "Function")
 
     ; Get bindings for current profile
     bindings := Profiles[CurrentProfile]
 
+    yPos := 60
     if (bindings.Count = 0) {
-        keybindsGui.Add("Text", "x10 y60 w600 cRed", "No keybinds set for this profile")
+        keybindsGui.Add("Text", "x10 y60 w670 cRed", "No keybinds set for this profile")
     } else {
-        ; Create list of bindings
-        yPos := 60
         for keyName, funcName in bindings {
-            ; Format key name nicely
             displayKey := StrReplace(keyName, "Numpad", "NP")
-
-            ; Add key and function
-            keybindsGui.Add("Text", "x10 y" yPos " w200", displayKey)
-            keybindsGui.Add("Text", "x220 y" yPos " w400", funcName)
-            yPos += 25
+            keybindsGui.Add("Text", "x10 y" (yPos + 4) " w200", displayKey)
+            keybindsGui.Add("Text", "x220 y" (yPos + 4) " w390", funcName)
+            ; Copy button — capture funcName in closure
+            captured := funcName
+            keybindsGui.Add("Button", "x620 y" yPos " w60 h22", "Copy")
+                .OnEvent("Click", ((fn, *) => A_Clipboard := fn).Bind(captured))
+            yPos += 28
         }
     }
 
     ; Close button at bottom
-    keybindsGui.Add("Button", "x10 y" (yPos + 10) " w600", "Close").OnEvent("Click", (*) => keybindsGui.Destroy())
+    keybindsGui.Add("Button", "x10 y" (yPos + 10) " w670", "Close").OnEvent("Click", (*) => keybindsGui.Destroy())
 
-    ; Escape key handler
     keybindsGui.OnEvent("Escape", (*) => keybindsGui.Destroy())
 
     keybindsGui.Show()

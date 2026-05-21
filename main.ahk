@@ -18,6 +18,7 @@
 #Include lib\sound.ahk
 #Include lib\utility.ahk
 #Include lib\gdip_pixel.ahk
+#Include lib\idle_loop.ahk
 
 ; Game-specific modules
 #Include game\bank.ahk
@@ -36,6 +37,7 @@
 #Include skills\prayer.ahk
 #Include skills\generic.ahk
 #Include skills\runecrafting.ahk
+#Include skills\fishing.ahk
 
 ; Function registry (merges all registries)
 #Include core\function_registry.ahk

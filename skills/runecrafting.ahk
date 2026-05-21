@@ -182,40 +182,6 @@ MineFullInventoryDenseEssenceBlocks() {
     }
 }
 
-; Wait for an action to complete using state comparison.
-; Polls at 50ms. Sets actionHappened when icon goes non-red (green/active).
-; Only returns true once icon returns to red AND the action was observed.
-; This prevents false-triggering on the initial idle state after a click.
-; Returns false only if manually stopped.
-WaitForActionComplete() {
-    actionHappened := false
-    pollCount := 0
-    RCLogStatus("WaitForActionComplete start")
-    Loop {
-        if (ShouldStopAction()) {
-            RCLog("WaitForActionComplete: stopped by user")
-            return false
-        }
-        if (IsStatusIconIdle()) {
-            if (actionHappened) {
-                RCLog("WaitForActionComplete: done (idle after action)")
-                return true
-            } else {
-                ; Log every 2s (40 polls × 50ms) while still waiting for action
-                if (Mod(pollCount, 40) = 0)
-                    RCLogStatus("WaitForActionComplete still-idle poll=" pollCount)
-            }
-        } else {
-            if (!actionHappened) {
-                RCLogStatus("WaitForActionComplete action-detected")
-                actionHappened := true
-            }
-        }
-        pollCount++
-        Sleep(50)
-    }
-}
-
 ; Wait for RapidClick2InventorySpots to self-stop (slot 2 empty), then wait for idle.
 WaitForRapidClick2Done() {
     global isRapidClick2Spots
