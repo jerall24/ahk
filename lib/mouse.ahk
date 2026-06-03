@@ -232,6 +232,33 @@ HumanClickRandomPixel(x1, y1, x2, y2, button := "left", speed := 1.0) {
     HumanClick(randomX, randomY, button, speed, 1.0)
 }
 
+; Move mouse to a random position inside the game view (client-relative 7,7–510,334)
+; Call before ScrollWheel so zooming applies to the game view rather than the UI
+MoveMouseToGameView() {
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
+    if (!hwnd)
+        return
+    WinGetClientPos(&clientX, &clientY, , , hwnd)
+    MouseGetPos(&mouseX, &mouseY)
+    relX := mouseX - clientX
+    relY := mouseY - clientY
+    if (relX >= 7 && relX <= 510 && relY >= 7 && relY <= 334)
+        return
+    HumanMouseMove(clientX + Random(7, 510), clientY + Random(7, 334))
+}
+
+; Scroll the mouse wheel at the current cursor position
+; direction: "up" or "down"
+; notches: number of notches to scroll (default 1)
+ScrollWheel(direction := "up", notches := 1) {
+    key := (direction = "down") ? "{WheelDown}" : "{WheelUp}"
+    Loop notches {
+        Send(key)
+        Sleep(Random(5, 10))
+    }
+    Sleep(Random(100,200))
+}
+
 ; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================

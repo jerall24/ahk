@@ -64,9 +64,10 @@ areHotkeysEnabled() {
 
 ; Ctrl+Escape - Kill switch to stop current action
 ^Escape:: {
-    global stopCurrentAction, manualStop
+    global stopCurrentAction, manualStop, isRapidClick2Spots
     stopCurrentAction := true
     manualStop := true
+    isRapidClick2Spots := false
     ToolTip "Action cancelled"
     SetTimer () => ToolTip(), -1000
 }

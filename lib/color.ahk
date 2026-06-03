@@ -333,13 +333,6 @@ ClickRandomPixelOfColorCentroid(color, marginX := 0, marginY := 0, near_characte
         targetX := Round((minX + maxX) / 2) + marginX
         targetY := Round((minY + maxY) / 2) + marginY
 
-        ; Debug: Show bounding box info only when box is too small
-        debugInfo := "BBox: " minX "," minY " to " maxX "," maxY "`n"
-        debugInfo .= "Size: " width "x" height "`n"
-        debugInfo .= "Shrink: " shrinkX "," shrinkY "`n"
-        debugInfo .= "Inner: " innerMinX "," innerMinY " to " innerMaxX "," innerMaxY
-        ToolTip "Box too small, clicking center: (" targetX ", " targetY ")`n" debugInfo
-        SetTimer () => ToolTip(), -3000
     } else {
         ; Click random point inside the shrunken box
         targetX := Random(innerMinX, innerMaxX) + marginX

@@ -126,11 +126,11 @@ IsPixelSurrounded(Scan0, Stride, x, y, bitmapW, bitmapH, targetR, targetG, targe
 ; colorVariation: Tolerance for color matching (0-255 per channel)
 ; marginX, marginY: Offset to apply to final click position
 ; maxRetries: Maximum number of retries if verification fails (default 2)
-GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX := 0, marginY := 0, maxRetries := 2) {
+GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX := 0, marginY := 0, maxRetries := 2, surroundRadius := 3) {
     ; Retry loop for verification
     retryCount := 0
     Loop {
-        result := GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation, marginX, marginY)
+        result := GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation, marginX, marginY, surroundRadius)
 
         ; If successful or max retries reached, return
         if (result || retryCount >= maxRetries) {
@@ -145,7 +145,7 @@ GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation := 5, marginX 
 }
 
 ; Internal function that does the actual work
-GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5, marginX := 0, marginY := 0) {
+GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5, marginX := 0, marginY := 0, surroundRadius := 3) {
     ; Show activity indicator
     ShowActivityIndicator()
 
@@ -268,7 +268,7 @@ GdipClickRandomPixelOfColor_Internal(color, x1, y1, x2, y2, colorVariation := 5,
                 && Abs(pixelG - targetG) <= colorVariation
                 && Abs(pixelB - targetB) <= colorVariation) {
                 ; Verify pixel is solidly surrounded by target color (not on an edge)
-                if (!IsPixelSurrounded(Scan0, Stride, x, y, bitmapW, bitmapH, targetR, targetG, targetB, colorVariation, 3)) {
+                if (surroundRadius > 0 && !IsPixelSurrounded(Scan0, Stride, x, y, bitmapW, bitmapH, targetR, targetG, targetB, colorVariation, surroundRadius)) {
                     x += stepSize
                     continue
                 }
@@ -833,8 +833,8 @@ GdipClickColorNearCharacter(color, colorVariation := 5, marginX := 0, marginY :=
 }
 
 ; Search full game view
-GdipClickColorInGameView(color, colorVariation := 5, marginX := 0, marginY := 0) {
+GdipClickColorInGameView(color, colorVariation := 5, marginX := 0, marginY := 0, surroundRadius := 3) {
     ; Full game view area
     x1 := 4, y1 := 2, x2 := 514, y2 := 335
-    return GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation, marginX, marginY)
+    return GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, colorVariation, marginX, marginY, 2, surroundRadius)
 }

@@ -21,14 +21,37 @@ global RC_AGILITY_SHORTCUT_COLOR := 0xFF8700
 ; Dark altar color (run to dark altar)
 global RC_DARK_ALTAR_COLOR := 0xFF0087
 
+; Fallback click rect for dark altar when color isn't visible (too far away)
+global RC_DARK_ALTAR_FB_X1 := 125, RC_DARK_ALTAR_FB_Y1 := 140
+global RC_DARK_ALTAR_FB_X2 := 137, RC_DARK_ALTAR_FB_Y2 := 154
+
+; Soul altar color — same marker color as dark altar but always in different frames
+global RC_SOUL_ALTAR_COLOR := 0xFFB700
+
+; Color clicked mid-run toward soul altar (at ~12750ms mark along the path)
+global RC_SOUL_PATH_MID_COLOR := 0x7DFF00
+
+; Agility shortcut from soul altar back to essence mine
+global RC_SOUL_SHORTCUT_COLOR := 0xFF4D00
+
+; Minimap midpoint clicked en route to soul altar (client-relative)
+global RC_SOUL_PATH_X1 := 397, RC_SOUL_PATH_Y1 := 114
+global RC_SOUL_PATH_X2 := 408, RC_SOUL_PATH_Y2 := 120
+
+; Fallback click rect for soul altar when color isn't visible
+global RC_SOUL_ALTAR_FB_X1 := 400, RC_SOUL_ALTAR_FB_Y1 := 281
+global RC_SOUL_ALTAR_FB_X2 := 429, RC_SOUL_ALTAR_FB_Y2 := 302
+
 ; Inventory slot background colors used to detect empty slots
 global RC_INV_BG_COLORS := [0x4B423A, 0x453C33, 0x483E35, 0x494035, 0x514941]
 
-; Write a timestamped line to log/rc.log (Windows path via AHK)
+; Write a timestamped line to log/rc.log and OutputDebug (for real-time viewing in DebugView)
 RCLog(msg) {
     logPath := A_ScriptDir "\log\rc.log"
     timestamp := FormatTime(, "HH:mm:ss")
-    FileAppend("[" timestamp "] " msg "`n", logPath)
+    line := "[" timestamp "] " msg
+    FileAppend(line "`n", logPath)
+    OutputDebug(line)
 }
 
 ; Sample and log the current status icon state (RED / GREEN / UNKNOWN + raw color)
@@ -84,58 +107,48 @@ IsInventorySlot28Occupied() {
     return FindLastOccupiedSlotInRange(28, 28, RC_INV_BG_COLORS) = 28
 }
 
-; Show what colors FindLastOccupiedSlotInRange actually sees in slot 28.
-; Use this to verify RC_INV_BG_COLORS matches your RuneLite theme.
-DebugSlot28() {
-    global RC_INV_BG_COLORS
-
-    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
-    if (!hwnd) {
-        ToolTip "RuneLite not found"
-        SetTimer () => ToolTip(), -2000
-        return
-    }
-
-    clientX := 0, clientY := 0
-    WinGetClientPos(&clientX, &clientY, , , hwnd)
-
-    slotMap := IsFixedMode() ? InventorySlots : MediumInventorySlots
-    s := slotMap[28]
-
-    ; Sample center of slot 28
-    CoordMode "Pixel", "Client"
-    midX := Round((s.x1 + s.x2) / 2)
-    midY := Round((s.y1 + s.y2) / 2)
-    c1 := Format("0x{:06X}", PixelGetColor(s.x1 + 4, s.y1 + 3))
-    c2 := Format("0x{:06X}", PixelGetColor(midX, midY))
-    c3 := Format("0x{:06X}", PixelGetColor(s.x2 - 4, s.y2 - 3))
-
-    occupied := FindLastOccupiedSlotInRange(28, 28, RC_INV_BG_COLORS) = 28
-
-    msg := "Slot 28: " (occupied ? "OCCUPIED" : "empty") "`n"
-        . "Slot rect: (" s.x1 "," s.y1 ")-(" s.x2 "," s.y2 ")`n"
-        . "Colors — TL:" c1 "  C:" c2 "  BR:" c3
-    ToolTip msg
-    SetTimer () => ToolTip(), -8000
-}
-
-; Click the agility shortcut with yellow-click retry (same pattern as agility obstacles).
-; Returns false if color not found.
-ClickAgilityShortcut(maxRetries := 2) {
-    global RC_AGILITY_SHORTCUT_COLOR
+; Click a color target and retry if the result is yellow (already queued).
+; Use this when the character has arrived and the click must register as a new action.
+; Returns false if the color isn't found at all.
+ClickColorEnsureRed(color, maxRetries := 4) {
     retryCount := 0
     Loop {
-        if (!ClickRandomPixelOfColor(RC_AGILITY_SHORTCUT_COLOR))
+        if (!GdipClickColorInGameView(color, 5, 0, 0, 0))
             return false
         MouseGetPos(&clickX, &clickY)
         result := CheckClickResult(clickX, clickY)
+        RCLog("ClickColorEnsureRed: color=0x" Format("{:06X}", color) " result=" result " attempt=" retryCount + 1)
         if (result = "yellow" && retryCount < maxRetries) {
             retryCount++
-            Sleep(150)
+            Sleep(1000)
             continue
         }
         return true
     }
+}
+
+; Click the dark altar. If the color isn't visible (too far), clicks the fallback rect,
+; waits 15200ms for the character to get closer, then clicks the color.
+; Returns false if cancelled during the wait.
+ClickDarkAltar() {
+    global RC_DARK_ALTAR_COLOR
+    global RC_DARK_ALTAR_FB_X1, RC_DARK_ALTAR_FB_Y1, RC_DARK_ALTAR_FB_X2, RC_DARK_ALTAR_FB_Y2
+
+    if (!ClickRandomPixelOfColor(RC_DARK_ALTAR_COLOR)) {
+        RCLog("ClickDarkAltar: color not found — clicking fallback rect, waiting 15200ms")
+        ClickRandomPixel(RC_DARK_ALTAR_FB_X1, RC_DARK_ALTAR_FB_Y1, RC_DARK_ALTAR_FB_X2, RC_DARK_ALTAR_FB_Y2)
+        Sleep(15200)
+        if (ShouldStopAction()) {
+            RCLog("ClickDarkAltar: stopped during fallback wait")
+            return false
+        }
+        RCLog("ClickDarkAltar: clicking dark altar color after wait")
+        MoveMouseToGameView()
+        ScrollWheel("up",  10)
+        ClickColorEnsureRed(RC_DARK_ALTAR_COLOR)
+        ScrollWheel("down", 20)
+    }
+    return true
 }
 
 ; Mine dense essence blocks until inventory is full, then click the agility shortcut.
@@ -145,37 +158,43 @@ MineFullInventoryDenseEssenceBlocks() {
     global stopCurrentAction, manualStop
     stopCurrentAction := false
     manualStop := false
+    specialAttackClicked := false
+    isFirstClick := true
 
-    ToolTip "Dense essence: starting..."
-    SetTimer () => ToolTip(), -2000
     RCLog("MineFullInventory: start")
 
     Loop {
         if (ShouldStopAction()) {
             RCLog("MineFullInventory: stopped by user")
-            ToolTip "Dense essence: stopped"
-            SetTimer () => ToolTip(), -3000
             return
         }
 
         if (IsInventorySlot28Occupied()) {
-            RCLog("MineFullInventory: inventory full, clicking shortcut")
-            ClickAgilityShortcut()
-            RCLogStatus("MineFullInventory post-shortcut")
-            ToolTip "Dense essence: done, shortcut clicked"
-            SetTimer () => ToolTip(), -3000
+            RCLog("MineFullInventory: slot28 full — clicking agility shortcut")
+            MoveMouseToGameView()
+            ScrollWheel("up", 7)
+            ClickColorEnsureRed(RC_AGILITY_SHORTCUT_COLOR)
+            RCLogStatus("MineFullInventory: post-shortcut click")
+            ScrollWheel("down", 20)
             return
         } else if (IsStatusIconIdle()) {
-            RCLog("MineFullInventory: idle detected, clicking rock")
-            Sleep(2000)
+            RCLog("MineFullInventory: icon=RED idle — sleeping 2s then clicking rock")
             if (!GdipClickColorInGameView(RC_ROCK_COLOR, 5)) {
-                RCLog("MineFullInventory: yellow rock not found, stopping")
-                ToolTip "Dense essence: yellow rock not found, stopping"
-                SetTimer () => ToolTip(), -3000
+                RCLog("MineFullInventory: rock color not found — stopping")
                 return
             }
-            RCLog("MineFullInventory: rock clicked")
-            Sleep(3000)
+            if (isFirstClick) {
+                Sleep(Random(1900, 2100))
+                isFirstClick := false
+            }
+            if (!specialAttackClicked) {
+                ClickSpecialAttack()
+                specialAttackClicked := true
+            }
+            RCLog("MineFullInventory: rock clicked — mining")
+            Sleep(Random(2900, 3000))
+        } else {
+            RCLog("MineFullInventory: icon=GREEN mining in progress — waiting")
         }
 
         Sleep(Random(2500, 3500))
@@ -208,14 +227,10 @@ Process1ZeahInventory() {
     if (manualStop)
         return
 
-    ToolTip "Process1ZeahInventory: waiting for obstacle crossing..."
     if (!WaitForActionComplete())
         return
 
-    ToolTip "Process1ZeahInventory: running to dark altar..."
-    ClickRandomPixelOfColor(RC_DARK_ALTAR_COLOR)
-    ToolTip "Process1ZeahInventory: complete"
-    SetTimer () => ToolTip(), -4000
+    ClickDarkAltar()
 }
 
 ; Full Zeah RC preparation sequence. Start position: essence mine.
@@ -241,119 +256,271 @@ PrepareZeahRCInventory() {
 
     ; Step 1: Mine first inventory (ends by clicking shortcut)
     RCLog("PrepareZeahRC: step 1 - mining first inventory")
-    ToolTip "PrepareZeahRC: mining first inventory..."
     MineFullInventoryDenseEssenceBlocks()
     if (manualStop) {
         RCLog("PrepareZeahRC: stopped after step 1 (mine 1)")
         return
     }
 
-    ; Step 2: Run to shortcut (red) → do shortcut (green) → red
-    RCLog("PrepareZeahRC: step 2 - waiting for shortcut crossing")
-    ToolTip "PrepareZeahRC: waiting for shortcut crossing..."
-    if (!WaitForActionComplete()) {
-        RCLog("PrepareZeahRC: stopped during step 2 wait")
+    ; Step 2: Travel through shortcut → wait for idle on other side
+    RCLog("PrepareZeahRC: [2] shortcut clicked — 2s buffer before polling idle")
+    Sleep(2000)
+    if (ShouldStopAction()) {
+        RCLog("PrepareZeahRC: [2] stopped during 2s buffer")
         return
     }
-
-    ; Step 3: Click altar → run there (red) → imbue (green→red)
-    RCLog("PrepareZeahRC: step 3 - clicking dark altar")
-    ToolTip "PrepareZeahRC: running to dark altar..."
-    ClickRandomPixelOfColor(RC_DARK_ALTAR_COLOR)
-    RCLog("PrepareZeahRC: step 3 - waiting to arrive and imbue")
-    ToolTip "PrepareZeahRC: waiting to arrive and imbue..."
-    if (!WaitForActionComplete()) {
-        RCLog("PrepareZeahRC: stopped during step 3 wait")
+    RCLog("PrepareZeahRC: [2] waiting to cross to other side")
+    MoveMouseToGameView()
+    ScrollWheel("up", 7)
+    if (!WaitForActionComplete(() => ClickColorEnsureRed(RC_AGILITY_SHORTCUT_COLOR))) {
+        RCLog("PrepareZeahRC: [2] stopped while waiting for shortcut cross")
         return
     }
+    RCLogStatus("PrepareZeahRC: [2] shortcut crossed")
+    ScrollWheel("down", 20)
 
-    ; Step 4: Click shortcut, immediately start RapidClick2 (no wait)
-    RCLog("PrepareZeahRC: step 4 - clicking shortcut + starting RapidClick2")
-    ToolTip "PrepareZeahRC: shortcut + consecrating..."
-    ClickAgilityShortcut()
-    RCLogStatus("PrepareZeahRC step4 post-shortcut")
+    ; Step 3: Click altar → run there → imbue (green→red)
+    RCLog("PrepareZeahRC: [3] clicking dark altar")
+    if (!ClickDarkAltar()) {
+        RCLog("PrepareZeahRC: [3] stopped during dark altar click")
+        return
+    }
+    RCLog("PrepareZeahRC: [3] altar clicked — waiting to arrive")
+    if (!WaitForActionComplete(() => ClickDarkAltar())) {
+        RCLog("PrepareZeahRC: [3] stopped while waiting for altar imbue")
+        return
+    }
+    RCLogStatus("PrepareZeahRC: [3] altar imbue complete")
+
+    ; Step 4: Click shortcut back into mine, immediately start consecrating
+    RCLog("PrepareZeahRC: [4] clicking shortcut back into mine")
+    ClickColorEnsureRed(RC_AGILITY_SHORTCUT_COLOR)
+    RCLogStatus("PrepareZeahRC: [4] shortcut clicked")
+    RCLog("PrepareZeahRC: [4] starting RapidClick2 consecration")
     RapidClick2InventorySpots()
-
+    
     ; Step 5: Wait for consecration to finish and character idle
-    RCLog("PrepareZeahRC: step 5 - waiting for consecration + idle")
-    ToolTip "PrepareZeahRC: waiting for consecration..."
+    RCLog("PrepareZeahRC: [5] waiting for consecration to finish")
     if (!WaitForRapidClick2Done()) {
-        RCLog("PrepareZeahRC: stopped during step 5 wait")
+        RCLog("PrepareZeahRC: [5] stopped while waiting for consecration")
         return
     }
+    RCLogStatus("PrepareZeahRC: [5] consecration done — idle")
+    MoveMouseToGameView()
+    ScrollWheel("up",  20)
 
-    ; Step 6: Click shortcut (green) → wait for red
-    RCLog("PrepareZeahRC: step 6 - crossing shortcut back")
-    ToolTip "PrepareZeahRC: crossing shortcut..."
-    ClickAgilityShortcut()
-    RCLogStatus("PrepareZeahRC step6 post-shortcut")
-    if (!WaitForActionComplete()) {
-        RCLog("PrepareZeahRC: stopped during step 6 wait")
+    ; Step 6: Cross shortcut out of mine → wait for idle on other side
+    RCLog("PrepareZeahRC: [6] clicking shortcut out of mine")
+    ClickColorEnsureRed(RC_AGILITY_SHORTCUT_COLOR)
+    RCLogStatus("PrepareZeahRC: [6] shortcut clicked")
+    RCLog("PrepareZeahRC: [6] waiting to cross to other side")
+    if (!WaitForActionComplete(() => ClickColorEnsureRed(RC_AGILITY_SHORTCUT_COLOR))) {
+        RCLog("PrepareZeahRC: [6] stopped while waiting for shortcut cross")
         return
     }
+    RCLogStatus("PrepareZeahRC: [6] shortcut crossed")
+    Sleep(Random(50, 150))
+    ScrollWheel("down", 20)
 
     ; Step 7: Mine second inventory (ends by clicking shortcut)
-    RCLog("PrepareZeahRC: step 7 - mining second inventory")
-    ToolTip "PrepareZeahRC: mining second inventory..."
+    RCLog("PrepareZeahRC: [7] mining second inventory")
     MineFullInventoryDenseEssenceBlocks()
     if (manualStop) {
-        RCLog("PrepareZeahRC: stopped after step 7 (mine 2)")
+        RCLog("PrepareZeahRC: [7] stopped after mine 2")
         return
     }
 
-    ; Step 8: Run to shortcut (red) → do shortcut (green) → red
-    RCLog("PrepareZeahRC: step 8 - waiting for shortcut crossing")
-    ToolTip "PrepareZeahRC: waiting for shortcut crossing..."
-    if (!WaitForActionComplete()) {
-        RCLog("PrepareZeahRC: stopped during step 8 wait")
+    ; Step 8: Travel through shortcut → wait for idle on other side
+    RCLog("PrepareZeahRC: [8] shortcut clicked — 2s buffer before polling idle")
+    Sleep(2000)
+    if (ShouldStopAction()) {
+        RCLog("PrepareZeahRC: [8] stopped during 2s buffer")
         return
     }
+    MoveMouseToGameView()
+    ScrollWheel("up", 7)
+    RCLog("PrepareZeahRC: [8] waiting to cross to other side")
+    if (!WaitForActionComplete(() => ClickColorEnsureRed(RC_AGILITY_SHORTCUT_COLOR))) {
+        RCLog("PrepareZeahRC: [8] stopped while waiting for shortcut cross")
+        return
+    }
+    ScrollWheel("down", 20)
+    RCLogStatus("PrepareZeahRC: [8] shortcut crossed")
 
     ; Step 9: Click altar — end
-    RCLog("PrepareZeahRC: step 9 - clicking dark altar (end)")
-    ToolTip "PrepareZeahRC: running to dark altar..."
-    ClickRandomPixelOfColor(RC_DARK_ALTAR_COLOR)
+    RCLog("PrepareZeahRC: [9] clicking dark altar — end of prep")
+    ClickDarkAltar()
     RCLog("PrepareZeahRC: === COMPLETE ===")
-    ToolTip "PrepareZeahRCInventory: complete"
-    SetTimer () => ToolTip(), -4000
 }
 
-; Sample the status icon region and report what colors are actually there.
-; Shows: detected state, actual colors at 3 sample points, and the screen coords used.
-; Bind this to a key to verify the status icon coordinates are correct.
-DebugStatusIcon() {
-    global RC_STATUS_X1, RC_STATUS_Y1, RC_STATUS_X2, RC_STATUS_Y2
-    global RC_STATUS_RED, RC_STATUS_GREEN
+; Run from dark altar to soul altar, bind runes, and return to essence mine.
+; Start position: at dark altar (PrepareZeahRCInventory just clicked it, character still running).
+; End position: idle at essence mine entrance.
+RunToAndCraftSoulRunes() {
+    global RC_SOUL_ALTAR_COLOR, RC_SOUL_PATH_MID_COLOR, RC_SOUL_SHORTCUT_COLOR, RC_AGILITY_SHORTCUT_COLOR
+    global RC_SOUL_PATH_X1, RC_SOUL_PATH_Y1, RC_SOUL_PATH_X2, RC_SOUL_PATH_Y2
+    global RC_SOUL_ALTAR_FB_X1, RC_SOUL_ALTAR_FB_Y1, RC_SOUL_ALTAR_FB_X2, RC_SOUL_ALTAR_FB_Y2
 
-    CoordMode "Pixel", "Client"
-    midX := Round((RC_STATUS_X1 + RC_STATUS_X2) / 2)
-    midY := Round((RC_STATUS_Y1 + RC_STATUS_Y2) / 2)
-    c1 := Format("0x{:06X}", PixelGetColor(RC_STATUS_X1, RC_STATUS_Y1))
-    c2 := Format("0x{:06X}", PixelGetColor(midX, midY))
-    c3 := Format("0x{:06X}", PixelGetColor(RC_STATUS_X2, RC_STATUS_Y2))
+    RCLog("SoulRunes: === START ===")
 
-    detectedRed := false
-    for color in RC_STATUS_RED {
-        if (ColorExistsInRect(RC_STATUS_X1, RC_STATUS_Y1, RC_STATUS_X2, RC_STATUS_Y2, color)) {
-            detectedRed := true
-            break
-        }
+    ; Step 1: Wait for arrival at dark altar, then click path midpoint toward soul altar
+    RCLog("SoulRunes: [1] waiting for idle at dark altar")
+    if (!WaitForActionComplete(() => ClickDarkAltar())) {
+        RCLog("SoulRunes: [1] stopped waiting for dark altar idle")
+        return
     }
-    detectedGreen := false
-    for color in RC_STATUS_GREEN {
-        if (ColorExistsInRect(RC_STATUS_X1, RC_STATUS_Y1, RC_STATUS_X2, RC_STATUS_Y2, color)) {
-            detectedGreen := true
-            break
-        }
+    RCLogStatus("SoulRunes: [1] arrived at dark altar")
+    RCLog("SoulRunes: [1] clicking path midpoint to soul altar")
+    ClickRandomPixel(RC_SOUL_PATH_X1, RC_SOUL_PATH_Y1, RC_SOUL_PATH_X2, RC_SOUL_PATH_Y2)
+
+    ; Step 2: Wait 12750ms en route, then click soul altar to queue entry
+    RCLog("SoulRunes: [2] waiting 12750ms en route")
+    Sleep(12750)
+    if (ShouldStopAction()) {
+        RCLog("SoulRunes: [2] stopped during travel sleep")
+        return
+    }
+    RCLog("SoulRunes: [2] clicking mid-path color (0x7DFF00)")
+    ClickRandomPixelOfColor(RC_SOUL_PATH_MID_COLOR)
+
+    ; Step 3: Wait 11300ms approaching altar
+    RCLog("SoulRunes: [3] waiting 11300ms approaching soul altar")
+    Sleep(11300)
+    if (ShouldStopAction()) {
+        RCLog("SoulRunes: [3] stopped during approach sleep")
+        return
     }
 
-    state := detectedRed ? "RED (idle)" : (detectedGreen ? "GREEN (active)" : "UNKNOWN")
+    ; Step 4: Click soul altar — color or fallback rect. Re-click after 30s if not red.
+    RCLog("SoulRunes: [4] clicking soul altar (color or fallback)")
+    clickedRed := false
+    if (ClickRandomPixelOfColor(RC_SOUL_ALTAR_COLOR)) {
+        MouseGetPos(&cx, &cy)
+        result := CheckClickResult(cx, cy)
+        RCLog("SoulRunes: [4] soul altar color click result=" result)
+        clickedRed := (result = "red")
+    } else {
+        RCLog("SoulRunes: [4] soul altar color not found — using fallback rect")
+        ClickRandomPixel(RC_SOUL_ALTAR_FB_X1, RC_SOUL_ALTAR_FB_Y1, RC_SOUL_ALTAR_FB_X2, RC_SOUL_ALTAR_FB_Y2)
+        MouseGetPos(&cx, &cy)
+        result := CheckClickResult(cx, cy)
+        RCLog("SoulRunes: [4] fallback click result=" result)
+        clickedRed := (result = "red")
+    }
+    if (!clickedRed) {
+        RCLog("SoulRunes: [4] not red — waiting 30000ms to arrive then re-clicking")
+        Sleep(30000)
+        if (ShouldStopAction()) {
+            RCLog("SoulRunes: [4] stopped during 30s arrival wait")
+            return
+        }
+        RCLog("SoulRunes: [4] re-clicking soul altar after wait")
+        ClickColorEnsureRed(RC_SOUL_ALTAR_COLOR)
+    }
 
-    msg := "Status icon: " state "`n"
-        . "Client rect: (" RC_STATUS_X1 "," RC_STATUS_Y1 ")-(" RC_STATUS_X2 "," RC_STATUS_Y2 ")`n"
-        . "Colors — TL:" c1 "  C:" c2 "  BR:" c3
-    ToolTip msg
-    SetTimer () => ToolTip(), -8000
+    ; Step 5: Wait for green→red (soul altar binding complete)
+    RCLog("SoulRunes: [5] waiting for soul altar binding to complete")
+    if (!WaitForActionComplete(() => ClickColorEnsureRed(RC_SOUL_ALTAR_COLOR))) {
+        RCLog("SoulRunes: [5] stopped waiting for binding idle")
+        return
+    }
+    RCLogStatus("SoulRunes: [5] binding complete — idle")
+
+    ; Step 6: Consecrate essence
+    RCLog("SoulRunes: [6] starting RapidClick2 consecration")
+    RapidClick2InventorySpots()
+
+    ; Step 7: Wait for consecration to finish, then click soul altar to start running back
+    RCLog("SoulRunes: [7] waiting for consecration to finish")
+    if (!WaitForRapidClick2Done()) {
+        RCLog("SoulRunes: [7] stopped during consecration")
+        return
+    }
+    RCLogStatus("SoulRunes: [7] consecration done — idle")
+    RCLog("SoulRunes: [7] clicking soul altar to begin return run")
+    ClickColorEnsureRed(RC_SOUL_ALTAR_COLOR)
+
+    ; Step 8: Wait for green→red (running out of altar)
+    RCLog("SoulRunes: [8] waiting for idle after leaving soul altar")
+    if (!WaitForActionComplete(() => ClickColorEnsureRed(RC_SOUL_ALTAR_COLOR))) {
+        RCLog("SoulRunes: [8] stopped waiting for post-altar idle")
+        return
+    }
+    RCLogStatus("SoulRunes: [8] out of soul altar — idle")
+
+    ; Step 9: Click agility shortcut back to essence mine
+    RCLog("SoulRunes: [9] clicking soul shortcut toward essence mine")
+    ; ClickColorEnsureRed(RC_SOUL_SHORTCUT_COLOR)
+    GdipClickColorInGameView(RC_SOUL_SHORTCUT_COLOR, 5, 0, 0, 0)
+
+    ; Step 10: Wait 23500ms (run stalls midway)
+    RCLog("SoulRunes: [10] waiting 23500ms during run to mine")
+    Sleep(23500)
+    if (ShouldStopAction()) {
+        RCLog("SoulRunes: [10] stopped during run sleep")
+        return
+    }
+
+    ; Step 11: Re-click shortcut (run stalled)
+    RCLog("SoulRunes: [11] re-clicking soul shortcut (run stalled)")
+    MoveMouseToGameView()
+    ScrollWheel("up",  13)
+    ClickColorEnsureRed(RC_SOUL_SHORTCUT_COLOR)
+    Sleep(Random(100,200))
+    ScrollWheel("down", 20)
+
+    ; Step 12: Wait until green→red
+    RCLog("SoulRunes: [12] waiting for idle after shortcut")
+    if (!WaitForActionComplete(() => ClickColorEnsureRed(RC_SOUL_SHORTCUT_COLOR))) {
+        RCLog("SoulRunes: [12] stopped waiting for shortcut idle")
+        return
+    }
+    RCLogStatus("SoulRunes: [12] shortcut crossed — idle")
+
+    ; Step 13: Click essence mine agility shortcut
+    RCLog("SoulRunes: [13] clicking essence mine agility shortcut")
+    ClickColorEnsureRed(RC_AGILITY_SHORTCUT_COLOR)
+
+    RCLog("SoulRunes: [14] waiting for idle at essence mine entrance")
+    if (!WaitForActionComplete(() => ClickColorEnsureRed(RC_AGILITY_SHORTCUT_COLOR))) {
+        RCLog("SoulRunes: [14] stopped waiting for mine entry idle")
+        return
+    }
+    RCLogStatus("SoulRunes: [14] at essence mine — idle")
+    RCLog("SoulRunes: === COMPLETE ===")
+}
+
+; Full single-pass Zeah RC run. Start and end position: essence mine.
+; Call via LoopCompleteZeahRun to loop continuously.
+CompleteZeahRun() {
+    global manualStop
+
+    RCLog("CompleteZeahRun: === START ===")
+    PrepareZeahRCInventory()
+    if (manualStop) {
+        RCLog("CompleteZeahRun: stopped during prep phase")
+        return
+    }
+    RunToAndCraftSoulRunes()
+    if (manualStop) {
+        RCLog("CompleteZeahRun: stopped during soul runes phase")
+        return
+    }
+    RCLog("CompleteZeahRun: === COMPLETE ===")
+}
+
+; Loop CompleteZeahRun continuously. Restarts immediately after each run ends.
+; Stop with Ctrl+Escape. Bind this key instead of CompleteZeahRun for a continuous loop.
+LoopCompleteZeahRun() {
+    global stopCurrentAction, manualStop
+    stopCurrentAction := false
+    manualStop := false
+
+    Loop {
+        CompleteZeahRun()
+        if (manualStop)
+            return
+    }
 }
 
 ; ======================================
@@ -375,14 +542,19 @@ global RunecraftingRegistry := Map(
         func: PrepareZeahRCInventory,
         description: "Full Zeah RC prep: mine x2, consecrate at altar, end at dark altar"
     },
-    "DebugStatusIcon", {
-        name: "DebugStatusIcon",
-        func: DebugStatusIcon,
-        description: "Show status icon state (red/green/unknown) + actual pixel colors for debugging"
+    "RunToAndCraftSoulRunes", {
+        name: "RunToAndCraftSoulRunes",
+        func: RunToAndCraftSoulRunes,
+        description: "Run from dark altar to soul altar, bind runes, return to essence mine"
     },
-    "DebugSlot28", {
-        name: "DebugSlot28",
-        func: DebugSlot28,
-        description: "Show slot 28 occupied state + actual pixel colors to verify RC_INV_BG_COLORS"
+    "CompleteZeahRun", {
+        name: "CompleteZeahRun",
+        func: CompleteZeahRun,
+        description: "Full single-pass Zeah RC run (mine → prep → soul altar → mine). Use LoopCompleteZeahRun to loop."
+    },
+    "LoopCompleteZeahRun", {
+        name: "LoopCompleteZeahRun",
+        func: LoopCompleteZeahRun,
+        description: "Loop CompleteZeahRun continuously until Ctrl+Escape. Bind this for a full RC loop."
     }
 )

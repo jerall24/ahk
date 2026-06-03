@@ -7,15 +7,22 @@
 ; Wait for an action to complete using status icon state comparison.
 ; Polls at 50ms. Requires icon to go non-red then back to red.
 ; Prevents false-triggering on initial idle state before action starts.
+; retryFn: optional zero-arg function called if idle 25s before action starts (missed click).
 ; Returns false only if manually stopped.
-WaitForActionComplete() {
+WaitForActionComplete(retryFn := "") {
     actionHappened := false
+    idleStart := A_TickCount
     Loop {
         if (ShouldStopAction())
             return false
         if (IsStatusIconIdle()) {
             if (actionHappened)
                 return true
+            if (retryFn != "" && (A_TickCount - idleStart) >= 25000) {
+                OutputDebug("[WaitForActionComplete] idle 25s with no action — retrying")
+                retryFn()
+                idleStart := A_TickCount
+            }
         } else {
             actionHappened := true
         }
