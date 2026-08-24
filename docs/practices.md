@@ -2,6 +2,38 @@
 
 > **These practices are non-negotiable defaults.** If a situation seems to call for deviating from them, stop and ask for explicit permission before proceeding. Do not silently work around them.
 
+## Quick Reference
+
+**Clicking a color marker in game view:**
+```ahk
+GdipClickColorInGameView(0x0000FF, 5, 0, 0, 3)
+```
+
+**Clicking a color within specific coordinates:**
+```ahk
+GdipClickRandomPixelOfColor(0xFF0000, 306, 115, 311, 129, 5, 0, 0, 2, 3)
+```
+
+**Clicking a fixed region (no color search):**
+```ahk
+ClickRandomPixel(306, 115, 311, 129)
+```
+
+**Waiting for action to complete:**
+```ahk
+ClickSomething()
+if (!WaitForActionComplete())
+    return  ; user cancelled
+```
+
+**Checking if idle immediately:**
+```ahk
+if (IsStatusIconIdle())
+    ClickNextThing()
+```
+
+---
+
 ## Coordinate System
 
 **The contract: all function inputs use client-relative coordinates.**
@@ -79,27 +111,48 @@ WaitForPixelColor(x, y, color, timeoutMs)                    ; lib/wait.ahk
 
 ### Clicking a pixel of a specific color
 
+**RULE: Always use Gdip functions for color-based clicking. They avoid edge-clicking and use surroundRadius to ensure solid color regions.**
+
 ```ahk
-; Near the character (fast, scoped search):
-GdipClickColorNearCharacter(color, variation := 5)           ; lib/gdip_pixel.ahk
+; Full game view (most common - use this as default):
+GdipClickColorInGameView(color, variation := 5, marginX := 0, marginY := 0, surroundRadius := 3)
+  → lib/gdip_pixel.ahk
+  → Searches entire game view (4, 2, 514, 335)
+  → Avoids clicking edges via surroundRadius check
+  → Example: GdipClickColorInGameView(0x0000FF, 5, 0, 0, 3)
 
-; Full game view:
-GdipClickColorInGameView(color, variation := 5)              ; lib/gdip_pixel.ahk
-
-; Arbitrary rect (client-relative):
-GdipClickRandomPixelOfColor(color, x1, y1, x2, y2)          ; lib/gdip_pixel.ahk
-ClickRandomPixelOfColor(color, x1, y1, x2, y2)              ; lib/color.ahk
+; Specific region (when you have exact coordinates):
+GdipClickRandomPixelOfColor(color, x1, y1, x2, y2, variation := 5, marginX := 0, marginY := 0, maxRetries := 2, surroundRadius := 3)
+  → lib/gdip_pixel.ahk
+  → Searches within client-relative rect (x1, y1, x2, y2)
+  → Avoids edges, verifies color matches
+  → Example: GdipClickRandomPixelOfColor(0xFF0000, 306, 115, 311, 129, 5, 0, 0, 2, 3)
 
 ; Nearest matching pixel expanding from character outward:
-ClickNearestColorFromArray(colorsArray)                      ; lib/pixel.ahk
+ClickNearestColorFromArray(colorsArray)
+  → lib/pixel.ahk
+  → Searches in expanding rings from character position
+  → Use for mining/woodcutting when you want closest resource
 ```
 
-### Clicking a known rectangle
+**DO NOT USE:** `ClickRandomPixelOfColor` (legacy, clicks edges, no surround check)
+
+### Clicking a known rectangle (no color search)
+
+**Use when you have exact coordinates and don't need color verification:**
 
 ```ahk
-ClickRandomPixel(x1, y1, x2, y2)                            ; lib/color.ahk
-HumanClickRandomPixel(x1, y1, x2, y2)                       ; lib/mouse.ahk
+ClickRandomPixel(x1, y1, x2, y2, nearMouse := false, radius := 3, speed := 1.0)
+  → lib/color.ahk
+  → Clicks random pixel in client-relative rect
+  → Use for UI elements, inventory slots, fixed regions
+  → Example: ClickRandomPixel(306, 115, 311, 129)
 ```
+
+**When to use which:**
+- **Need to click a color marker?** → `GdipClickColorInGameView` or `GdipClickRandomPixelOfColor`
+- **Have exact rect coordinates, no color search?** → `ClickRandomPixel`
+- **Clicking inventory/bank slots?** → `ClickInventorySlot(n)` / `ClickBankSlotNumber(n)`
 
 ### Capturing coordinates and colors from the screen
 
@@ -134,6 +187,67 @@ All slot/UI coordinates are defined client-relative in:
 Use `ClickUIElement("element_name")` for named UI elements.
 Use `ClickInventorySlotNumber(n)` / `ClickBankSlotNumber(n)` for slots.
 Do not hardcode slot coordinates in skill files — reference the slot maps.
+
+---
+
+## Action Timing and Idle Detection
+
+**RULE: Never use hardcoded `Sleep()` to wait for actions to complete. Always use status icon detection.**
+
+The status icon is a RuneLite overlay at the bottom-right of the game view that shows character state:
+- **RED** = idle (action complete)
+- **GREEN** = active (action in progress)
+
+### Primary timing function
+
+```ahk
+WaitForActionComplete(retryFn := "")
+  → lib/idle_loop.ahk
+  → Polls status icon at 50ms intervals
+  → Waits for icon to go GREEN (action started) then RED (action finished)
+  → Returns false only if manually stopped (Ctrl+Escape)
+  → Example:
+      ClickRandomPixelOfColor(ROCK_COLOR)
+      if (!WaitForActionComplete())
+          return  ; user cancelled
+```
+
+### Immediate status check
+
+```ahk
+IsStatusIconIdle()
+  → core/state.ahk (global)
+  → Returns true/false immediately
+  → Use for conditional branching in poll loops
+  → Example:
+      if (IsStatusIconIdle())
+          ClickNextRock()
+```
+
+### When to use hardcoded Sleep()
+
+**Only use `Sleep()` for:**
+1. **UI delays** - waiting for dialogs to appear (e.g., 1500ms after clicking furnace)
+2. **Input spacing** - brief delays between key presses (e.g., 100-250ms after clicking inventory)
+3. **Retry delays** - waiting before retrying a failed click (e.g., 1000ms)
+
+**Never use `Sleep()` for:**
+- Waiting for character to finish walking
+- Waiting for smithing/crafting/cooking to complete
+- Waiting for combat actions to finish
+- Any action that shows character animation
+
+### Status icon configuration
+
+Coordinates and colors are defined globally in `core/state.ahk`:
+```ahk
+global STATUS_ICON_X1 := 499, STATUS_ICON_Y1 := 321
+global STATUS_ICON_X2 := 507, STATUS_ICON_Y2 := 330
+global STATUS_ICON_RED   := [0xE02D2D, 0xE32828, 0xDE2F2F, 0xE12B2B, 0xE22929, 0xDC3232]
+global STATUS_ICON_GREEN := [0x32C850, 0x32C74F]
+```
+
+See `docs/status_icon.md` for detailed documentation.
 
 ---
 

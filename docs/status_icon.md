@@ -8,7 +8,7 @@ The status icon is a small in-game indicator (RuneLite overlay) that reflects wh
 Client-relative region: (499, 321) → (507, 330)
 ```
 
-Captured via `CaptureCoordinates`. Do not hardcode these — if they ever drift, recapture and update the constants in `runecrafting.ahk`.
+Captured via `CaptureCoordinates`. Do not hardcode these — if they ever drift, recapture and update the constants in `core/state.ahk` (STATUS_ICON_X1/Y1/X2/Y2).
 
 ## States
 
@@ -20,20 +20,22 @@ Captured via `CaptureCoordinates`. Do not hardcode these — if they ever drift,
 
 The icon transitions: **RED → GREEN** when an action starts, **GREEN → RED** when it completes. Automation waits for RED after triggering an action to confirm it finished.
 
-## Color Constants (defined in `skills/runecrafting.ahk`)
+## Color Constants (defined in `core/state.ahk`)
 
 ```ahk
-global RC_STATUS_X1 := 499, RC_STATUS_Y1 := 321
-global RC_STATUS_X2 := 507, RC_STATUS_Y2 := 330
-global RC_STATUS_RED   := [0xE02D2D, 0xE32828, 0xDE2F2F, 0xE12B2B, 0xE22929]
-global RC_STATUS_GREEN := [0x32C850, 0x32C74F]
+global STATUS_ICON_X1 := 499, STATUS_ICON_Y1 := 321
+global STATUS_ICON_X2 := 507, STATUS_ICON_Y2 := 330
+global STATUS_ICON_RED   := [0xE02D2D, 0xE32828, 0xDE2F2F, 0xE12B2B, 0xE22929, 0xDC3232]
+global STATUS_ICON_GREEN := [0x32C850, 0x32C74F]
 ```
 
 Multiple red shades exist because anti-aliasing and lighting cause slight variance. Each is checked via `ColorExistsInRect` with variation=5.
 
+**Note:** Runecrafting maintains backward-compatible aliases (RC_STATUS_*) that reference these global constants.
+
 ## Core API
 
-**`IsStatusIconIdle()`** — `skills/runecrafting.ahk`
+**`IsStatusIconIdle()`** — `core/state.ahk` (global)
 Returns `true` if any red shade is found in the icon region. Call this when you need an immediate snapshot.
 
 **`WaitForActionComplete()`** — `lib/idle_loop.ahk`
@@ -76,7 +78,7 @@ Loop {
 
 ## Adding Status Icon Support to a New Skill
 
-1. The color constants and `IsStatusIconIdle()` live in `runecrafting.ahk` — they're global and available everywhere.
+1. The color constants and `IsStatusIconIdle()` are defined globally in `core/state.ahk` — available everywhere.
 2. Call `WaitForActionComplete()` between sequential steps.
 3. Use `IsStatusIconIdle()` only for conditional branching within a poll loop — not as a step-completion gate (use `WaitForActionComplete()` for that).
 

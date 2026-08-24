@@ -27,6 +27,7 @@ SaveProfiles() {
     global capturedConstructionBankSlot
     global cookingRect1, cookingRect2
     global fullInv1ItemBankRect
+    global cannonballFurnaceRect
 
     ; Store current profile's slots before saving
     ProfileSlots[CurrentProfile] := Map(
@@ -39,7 +40,8 @@ SaveProfiles() {
         "constructionBankSlot", capturedConstructionBankSlot,
         "cookingRect1", cookingRect1,
         "cookingRect2", cookingRect2,
-        "fullInv1ItemBankRect", fullInv1ItemBankRect
+        "fullInv1ItemBankRect", fullInv1ItemBankRect,
+        "cannonballFurnaceRect", cannonballFurnaceRect
     )
 
     ; Convert Profiles Map to JSON-compatible object
@@ -83,6 +85,7 @@ LoadProfiles() {
     global capturedConstructionBankSlot
     global cookingRect1, cookingRect2
     global fullInv1ItemBankRect
+    global cannonballFurnaceRect
 
     if (!FileExist(ProfilesFilePath)) {
         return false
@@ -148,6 +151,7 @@ LoadCurrentProfileSlots() {
     global capturedConstructionBankSlot
     global cookingRect1, cookingRect2
     global fullInv1ItemBankRect
+    global cannonballFurnaceRect
 
     if (ProfileSlots.Has(CurrentProfile)) {
         slots := ProfileSlots[CurrentProfile]
@@ -177,6 +181,12 @@ LoadCurrentProfileSlots() {
         } else {
             fullInv1ItemBankRect := {x1: 0, y1: 0, x2: 0, y2: 0}
         }
+
+        if (slots.Has("cannonballFurnaceRect") && Type(slots["cannonballFurnaceRect"]) = "Map") {
+            cannonballFurnaceRect := slots["cannonballFurnaceRect"]
+        } else {
+            cannonballFurnaceRect := {x1: 0, y1: 0, x2: 0, y2: 0}
+        }
     } else {
         ; No slots saved for this profile, reset to 0
         capturedBankSlot1 := 0
@@ -189,6 +199,7 @@ LoadCurrentProfileSlots() {
         cookingRect1 := {x1: 0, y1: 0, x2: 0, y2: 0}
         cookingRect2 := {x1: 0, y1: 0, x2: 0, y2: 0}
         fullInv1ItemBankRect := {x1: 0, y1: 0, x2: 0, y2: 0}
+        cannonballFurnaceRect := {x1: 0, y1: 0, x2: 0, y2: 0}
     }
 }
 

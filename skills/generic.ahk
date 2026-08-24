@@ -82,10 +82,12 @@ ProcessFullInventory1Item() {
 }
 
 WorldHopRight() {
+    Send("{Space}")
     Send("^+{Right}")
 }
 
 WorldHopLeft() {
+    Send("{Space}")
     Send("^+{Left}")
 }
 

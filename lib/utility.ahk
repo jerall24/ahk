@@ -25,6 +25,11 @@ CaptureRectangleColorsWrapper() {
     CaptureRectangleColors()
 }
 
+; Capture colors in a clicked inventory slot
+CaptureInventorySlotColorsWrapper() {
+    CaptureInventorySlotColors()
+}
+
 ; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================
@@ -48,5 +53,10 @@ global UtilityFunctionsRegistry := Map(
         name: "CaptureRectangleColors",
         func: CaptureRectangleColorsWrapper,
         description: "Right-click twice to capture rectangle with top 5 most prominent colors"
+    },
+    "CaptureInventorySlotColors", {
+        name: "CaptureInventorySlotColors",
+        func: CaptureInventorySlotColorsWrapper,
+        description: "Click an inventory slot to capture its top 5 colors to clipboard"
     }
 )

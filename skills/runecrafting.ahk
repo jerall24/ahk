@@ -4,13 +4,12 @@
 ; RUNECRAFTING FUNCTIONS
 ; ======================================
 
-; Status icon region (client-relative) — bottom-right of game screen
-global RC_STATUS_X1 := 499, RC_STATUS_Y1 := 321
-global RC_STATUS_X2 := 507, RC_STATUS_Y2 := 330
-
-; Status icon colors: red = idle, green = active
-global RC_STATUS_RED   := [0xE02D2D, 0xE32828, 0xDE2F2F, 0xE12B2B, 0xE22929]
-global RC_STATUS_GREEN := [0x32C850, 0x32C74F]
+; Status icon region and colors are now global in core/state.ahk
+; References kept here for backward compatibility in logging functions
+global RC_STATUS_X1 := STATUS_ICON_X1, RC_STATUS_Y1 := STATUS_ICON_Y1
+global RC_STATUS_X2 := STATUS_ICON_X2, RC_STATUS_Y2 := STATUS_ICON_Y2
+global RC_STATUS_RED   := STATUS_ICON_RED
+global RC_STATUS_GREEN := STATUS_ICON_GREEN
 
 ; Dense essence rock click target color
 global RC_ROCK_COLOR := 0xF1FF00
@@ -86,16 +85,7 @@ RCLogStatus(context := "") {
     RCLog(prefix "icon=" state " raw=" rawColor)
 }
 
-; Returns true if the status icon is red (character idle)
-IsStatusIconIdle() {
-    global RC_STATUS_X1, RC_STATUS_Y1, RC_STATUS_X2, RC_STATUS_Y2, RC_STATUS_RED
-
-    for color in RC_STATUS_RED {
-        if (ColorExistsInRect(RC_STATUS_X1, RC_STATUS_Y1, RC_STATUS_X2, RC_STATUS_Y2, color))
-            return true
-    }
-    return false
-}
+; IsStatusIconIdle() is now defined globally in core/state.ahk
 
 ; Returns true if inventory slot 28 contains an item (inventory is full).
 ; Requires two consecutive positive reads to prevent false positives from bad captures.
@@ -104,7 +94,118 @@ IsInventorySlot28Occupied() {
     if (FindLastOccupiedSlotInRange(28, 28, RC_INV_BG_COLORS) != 28)
         return false
     Sleep(100)
-    return FindLastOccupiedSlotInRange(28, 28, RC_INV_BG_COLORS) = 28
+    result := FindLastOccupiedSlotInRange(28, 28, RC_INV_BG_COLORS) = 28
+    if (result)
+        DebugSlot28Colors()
+    return result
+}
+
+; Debug: sample slot 28 using the same 4×3 grid as FindLastOccupiedSlotInRange
+; and log every pixel color that doesn't match RC_INV_BG_COLORS.
+DebugSlot28Colors() {
+    global RC_INV_BG_COLORS
+    colorVariation := 10
+
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
+    if (!hwnd) {
+        RCLog("DebugSlot28: RuneLite not found")
+        return
+    }
+
+    clientX := 0, clientY := 0
+    WinGetClientPos(&clientX, &clientY, , , hwnd)
+
+    slotMap := IsFixedMode() ? InventorySlots : MediumInventorySlots
+    s := slotMap[28]
+
+    bgRGB := []
+    for c in RC_INV_BG_COLORS {
+        bgRGB.Push({r: (c >> 16) & 0xFF, g: (c >> 8) & 0xFF, b: c & 0xFF})
+    }
+
+    screenX1 := clientX + s.x1
+    screenY1 := clientY + s.y1
+    w := s.x2 - s.x1
+    h := s.y2 - s.y1
+
+    pBitmap := Gdip_BitmapFromScreen(screenX1 "|" screenY1 "|" w "|" h)
+    if (pBitmap = -1 || pBitmap = 0) {
+        RCLog("DebugSlot28: bitmap capture failed")
+        return
+    }
+
+    bitmapW := Gdip_GetImageWidth(pBitmap)
+    bitmapH := Gdip_GetImageHeight(pBitmap)
+
+    Stride := "", Scan0 := "", BitmapData := ""
+    if (Gdip_LockBits(pBitmap, 0, 0, bitmapW, bitmapH, &Stride, &Scan0, &BitmapData) != 0) {
+        Gdip_DisposeImage(pBitmap)
+        RCLog("DebugSlot28: LockBits failed")
+        return
+    }
+
+    innerX1 := s.x1 + 4
+    innerY1 := s.y1 + 3
+    innerX2 := s.x2 - 4
+    innerY2 := s.y2 - 3
+    if (innerX1 >= innerX2 || innerY1 >= innerY2) {
+        innerX1 := s.x1, innerY1 := s.y1, innerX2 := s.x2, innerY2 := s.y2
+    }
+
+    xStep := (innerX2 - innerX1) / 3.0
+    yStep := (innerY2 - innerY1) / 2.0
+
+    nonMatchColors := Map()
+    matchCount := 0
+    totalPoints := 0
+
+    yIdx := 0
+    while (yIdx <= 2) {
+        xIdx := 0
+        while (xIdx <= 3) {
+            px := Max(0, Min(bitmapW - 1, Round(innerX1 + xIdx * xStep) - s.x1))
+            py := Max(0, Min(bitmapH - 1, Round(innerY1 + yIdx * yStep) - s.y1))
+
+            argb := Gdip_GetLockBitPixel(Scan0, px, py, Stride)
+            pR := (argb >> 16) & 0xFF
+            pG := (argb >> 8) & 0xFF
+            pB := argb & 0xFF
+
+            matchesBg := false
+            for bg in bgRGB {
+                if (Abs(pR - bg.r) <= colorVariation
+                    && Abs(pG - bg.g) <= colorVariation
+                    && Abs(pB - bg.b) <= colorVariation) {
+                    matchesBg := true
+                    break
+                }
+            }
+
+            totalPoints++
+            if (matchesBg) {
+                matchCount++
+            } else {
+                hexColor := Format("0x{:02X}{:02X}{:02X}", pR, pG, pB)
+                nonMatchColors[hexColor] := (nonMatchColors.Has(hexColor) ? nonMatchColors[hexColor] : 0) + 1
+            }
+            xIdx++
+        }
+        yIdx++
+    }
+
+    Gdip_UnlockBits(pBitmap, &BitmapData)
+    Gdip_DisposeImage(pBitmap)
+
+    nonMatchList := ""
+    for color, count in nonMatchColors {
+        if (nonMatchList != "")
+            nonMatchList .= ", "
+        nonMatchList .= color "×" count
+    }
+    if (nonMatchList = "")
+        nonMatchList := "(none)"
+
+    RCLog("DebugSlot28: " matchCount "/" totalPoints " bg matches | non-match: " nonMatchList)
 }
 
 ; Click a color target and retry if the result is yellow (already queued).

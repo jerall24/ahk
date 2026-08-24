@@ -38,6 +38,7 @@
 #Include skills\generic.ahk
 #Include skills\runecrafting.ahk
 #Include skills\fishing.ahk
+#Include skills\smithing.ahk
 
 ; Function registry (merges all registries)
 #Include core\function_registry.ahk
@@ -62,14 +63,13 @@ areHotkeysEnabled() {
 ; GLOBAL KEYBINDS (Non-rebindable)
 ; ======================================
 
-; Ctrl+Escape - Kill switch to stop current action
+; Ctrl+Escape - Kill switch to stop current action (RuneLite only)
 ^Escape:: {
-    global stopCurrentAction, manualStop, isRapidClick2Spots
-    stopCurrentAction := true
-    manualStop := true
-    isRapidClick2Spots := false
-    ToolTip "Action cancelled"
-    SetTimer () => ToolTip(), -1000
+    if !WinActive("RuneLite ahk_class SunAwtFrame") {
+        Send("^{Escape}")
+        return
+    }
+    CancelAction()
 }
 
 ; Ctrl+Numpad0 - Capture two bank slots (GLOBAL - not rebindable)

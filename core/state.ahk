@@ -13,6 +13,16 @@ global scriptEnabled := false
 global stopCurrentAction := false
 global manualStop := false  ; Set when user manually cancels (vs natural failure)
 
+; Cancel the current action (sets flags and shows tooltip)
+CancelAction() {
+    global stopCurrentAction, manualStop, isRapidClick2Spots
+    stopCurrentAction := true
+    manualStop := true
+    isRapidClick2Spots := false
+    ToolTip "Action cancelled"
+    SetTimer () => ToolTip(), -1000
+}
+
 ; Check if action should stop (also resets the flag)
 ShouldStopAction() {
     global stopCurrentAction
@@ -122,4 +132,32 @@ F10:: {
     A_Clipboard := winX ", " winY ", " winWidth ", " winHeight
     ToolTip "Window position copied: " winX ", " winY ", " winWidth ", " winHeight
     SetTimer () => ToolTip(), -3000
+}
+
+; ======================================
+; STATUS ICON DETECTION (GLOBAL)
+; ======================================
+
+; Status icon region (client-relative) — bottom-right of game screen
+; This is a RuneLite overlay that shows character activity state
+global STATUS_ICON_X1 := 499
+global STATUS_ICON_Y1 := 321
+global STATUS_ICON_X2 := 507
+global STATUS_ICON_Y2 := 330
+
+; Status icon colors: red = idle, green = active
+; Multiple red shades due to anti-aliasing and lighting variations
+global STATUS_ICON_RED   := [0xE02D2D, 0xE32828, 0xDE2F2F, 0xE12B2B, 0xE22929, 0xDC3232]
+global STATUS_ICON_GREEN := [0x32C850, 0x32C74F]
+
+; Returns true if the status icon is red (character idle)
+IsStatusIconIdle() {
+    global STATUS_ICON_X1, STATUS_ICON_Y1, STATUS_ICON_X2, STATUS_ICON_Y2
+    global STATUS_ICON_RED
+
+    for color in STATUS_ICON_RED {
+        if (ColorExistsInRect(STATUS_ICON_X1, STATUS_ICON_Y1, STATUS_ICON_X2, STATUS_ICON_Y2, color))
+            return true
+    }
+    return false
 }

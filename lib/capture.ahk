@@ -359,6 +359,94 @@ CaptureClickTime() {
     SetTimer () => ToolTip(), -1000  ; Remove tooltip after 1 second
 }
 
+; Capture the prominent colors in a clicked inventory slot's rectangle
+CaptureInventorySlotColors(maxColors := 5, sampleStep := 2) {
+    pt := CapturePoint("Move mouse to an inventory slot, then press OK")
+    x := pt.x
+    y := pt.y
+    ScreenToClient(&x, &y)
+    slotNum := GetInventorySlotAtCoordinate(x, y)
+
+    if (slotNum = 0) {
+        ToolTip "Click was not in an inventory slot! Try again."
+        SetTimer () => ToolTip(), -2000
+        return
+    }
+
+    slotMap := IsFixedMode() ? InventorySlots : MediumInventorySlots
+    coords := slotMap[slotNum]
+
+    ; Convert client-relative slot coords to screen coords for PixelGetColor
+    hwnd := WinExist("RuneLite ahk_class SunAwtFrame")
+    if (!hwnd) {
+        ToolTip "RuneLite window not found!"
+        SetTimer () => ToolTip(), -2000
+        return
+    }
+    WinGetClientPos(&clientX, &clientY, , , hwnd)
+    screenX1 := clientX + coords.x1
+    screenY1 := clientY + coords.y1
+    screenX2 := clientX + coords.x2
+    screenY2 := clientY + coords.y2
+
+    ToolTip "Analyzing colors in inventory slot " slotNum "..."
+
+    CoordMode "Pixel", "Screen"
+    colorCounts := Map()
+
+    sx := screenX1
+    while (sx <= screenX2) {
+        sy := screenY1
+        while (sy <= screenY2) {
+            try {
+                color := PixelGetColor(sx, sy)
+                if (colorCounts.Has(color))
+                    colorCounts[color] := colorCounts[color] + 1
+                else
+                    colorCounts[color] := 1
+            }
+            sy += sampleStep
+        }
+        sx += sampleStep
+    }
+
+    colorArray := []
+    for color, count in colorCounts {
+        colorArray.Push({color: color, count: count})
+    }
+
+    Loop colorArray.Length {
+        i := A_Index
+        Loop colorArray.Length - i {
+            j := A_Index
+            if (colorArray[j].count < colorArray[j + 1].count) {
+                temp := colorArray[j]
+                colorArray[j] := colorArray[j + 1]
+                colorArray[j + 1] := temp
+            }
+        }
+    }
+
+    topColors := []
+    Loop Min(maxColors, colorArray.Length) {
+        topColors.Push(colorArray[A_Index].color)
+    }
+
+    colorList := "["
+    Loop topColors.Length {
+        if (A_Index > 1)
+            colorList .= ", "
+        colorList .= Format("0x{:06X}", topColors[A_Index])
+    }
+    colorList .= "]"
+
+    outputString := coords.x1 ", " coords.y1 ", " coords.x2 ", " coords.y2 ", " colorList
+    ToolTip "Slot " slotNum " (client-relative) with " topColors.Length " colors:`n" outputString
+    Sleep(100)
+    A_Clipboard := outputString
+    SetTimer () => ToolTip(), -3000
+}
+
 ; Testing Hotkey for CaptureCoordinates
 F11:: {
     CaptureCoordinates()
