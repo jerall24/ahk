@@ -19,6 +19,7 @@
 #Include lib\utility.ahk
 #Include lib\gdip_pixel.ahk
 #Include lib\idle_loop.ahk
+#Include lib\@camera.ahk
 
 ; Game-specific modules
 #Include game\bank.ahk

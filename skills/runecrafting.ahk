@@ -625,6 +625,207 @@ LoopCompleteZeahRun() {
 }
 
 ; ======================================
+; ZMI RUNECRAFTING
+; ======================================
+
+; ZMI altar marker color (reused throughout the script)
+global ZMI_GREEN_COLOR := 0x7DFF00
+
+; Set up camera angle for ZMI runecrafting
+SetUpCameraAngle() {
+    MouseMoveCameraAngle("up", 50)
+}
+
+; RunZMI - ZMI runecrafting loop
+; Start position: Outside ZMI altar with essence in bank
+; End position: Loops continuously
+RunZMI() {
+    global stopCurrentAction, manualStop
+    stopCurrentAction := false
+    manualStop := false
+    lapCount := 0
+
+    RCLog("RunZMI: === START ===")
+
+    Loop {
+        if (ShouldStopAction()) {
+            RCLog("RunZMI: stopped by user")
+            return
+        }
+
+        RCLog("RunZMI: Run " lapCount " starting")
+
+        ; Step 1: Click ZMI altar to start running toward it
+        RCLog("RunZMI: [1] clicking ZMI altar to start run")
+        if (!GdipClickColorInGameView(ZMI_GREEN_COLOR, 5, 0, 0, 3)) {
+            RCLog("RunZMI: [1] altar color not found")
+            return
+        }
+
+        ; Step 2: Wait while running to altar
+        RCLog("RunZMI: [2] waiting " Random(29400, 29600) "ms while running to altar")
+        ; Sleep(Random(29400, 29600)) ; old before move sleep below to beginning of loop
+        Sleep(Random(29100, 29300))
+        if (ShouldStopAction()) {
+            RCLog("RunZMI: [2] stopped during run to altar")
+            return
+        }
+
+        ; Step 3: Craft runes by clicking inventory slots with prayer checks
+        RCLog("RunZMI: [3] crafting runes - clicking inventory slots")
+        ; counter := 0
+
+        Loop 3 {
+            ; Click inventory slot 1
+            RCLog("RunZMI: [3." A_Index "] clicking inventory slot 1")
+            Sleep(Random(300, 350))
+            ClickInventorySlot(1)
+            
+            if (ShouldStopAction()) {
+                RCLog("RunZMI: [3] stopped during crafting")
+                return
+            }
+            
+            if (!GdipClickColorInGameView(ZMI_GREEN_COLOR, 5, 0, 0, 3)) {
+                RCLog("RunZMI: [1] altar color not found")
+                return
+            }
+        }
+        
+        ; Every 3 runs, restore prayer
+        if (Mod(lapCount, 4) = 0 && lapCount != 0) {
+            RCLog("RunZMI: [3] lapCount=3, restoring run")
+
+            ; Switch to equipment tab (F4)
+            Send("{F4}")
+            Sleep(Random(100, 150))
+        
+            ; Click prayer restore
+            RCLog("RunZMI: [3] teleport to nardah")
+            ClickRandomPixel(629, 253, 654, 279)
+            
+            ; Wait for prayer restore to complete
+            if (!WaitForActionComplete()) {
+                RCLog("RunZMI: [3] stopped waiting for prayer restore")
+                return
+            }
+
+            ; Click altar again
+            RCLog("RunZMI: [3] nardah altar")
+            if (!GdipClickColorInGameView(ZMI_GREEN_COLOR, 5, 0, 0, 3)) {
+                RCLog("RunZMI: [3] altar color not found after prayer")
+            }
+            
+            Sleep(Random(600, 900))
+        }
+
+        
+        lapCount := lapCount + 1
+
+        ; Step 4: Switch back to spellbook tab
+        RCLog("RunZMI: [4] switching to spellbook tab (F1)")
+        Send("{F1}")
+        Sleep(Random(500, 650))
+
+        ; Step 5: Teleport back to outside ZMI
+        RCLog("RunZMI: [5] clicking teleport")
+        ClickRandomPixel(553, 270, 571, 289)
+
+        Send("{Escape}")
+
+        ; Wait for teleport to complete
+        if (!WaitForActionComplete()) {
+            RCLog("RunZMI: [5] stopped waiting for teleport")
+            return
+        }
+
+        ; Step 6: Click ladder to go back inside
+        RCLog("RunZMI: [6] clicking ladder to go inside")
+        if (!GdipClickColorInGameView(ZMI_GREEN_COLOR, 5, 0, 0, 3)) {
+            RCLog("RunZMI: [6] ladder color not found")
+            return
+        }
+
+        ; Wait for ladder climb to complete
+        if (!WaitForActionComplete()) {
+            RCLog("RunZMI: [6] stopped waiting for ladder climb")
+            return
+        }
+
+        ; Step 7: Click banker
+        RCLog("RunZMI: [7] clicking banker")
+        ClickRandomPixel(281, 125, 287, 144)
+
+        ; Wait for bank to open (using sleep as it's a UI delay)
+        Sleep(Random(1200, 1500))
+
+        if (ShouldStopAction()) {
+            RCLog("RunZMI: [7] stopped before banking")
+            return
+        }
+
+        ; Step 8: Bank operations
+        RCLog("RunZMI: [8] performing bank operations")
+
+        ; Deposit inventory
+        RCLog("RunZMI: [8.1] depositing inventory")
+        ClickBankDepositInventory()
+        Sleep(Random(100, 150))
+
+        ; Withdraw essence: click bank slot 8 -> inv slot 1 (3 times)
+        Loop 2 {
+            RCLog("RunZMI: [8." (A_Index + 1) "] withdrawing essence batch " A_Index)
+            ClickBankSlotNumber(8)
+            Sleep(Random(100, 150))
+            ClickInventorySlot(1)
+            Sleep(Random(100, 150))
+
+            if (ShouldStopAction()) {
+                RCLog("RunZMI: [8] stopped during withdrawal")
+                return
+            }
+        }
+
+        ClickBankSlotNumber(8)
+        Sleep(Random(100, 150))
+
+        ; Close bank
+        RCLog("RunZMI: [8.5] closing bank")
+        Send("{Escape}")
+        Sleep(Random(200, 300))
+        Send("{Escape}")
+
+        RCLog("RunZMI: === LOOP COMPLETE, RESTARTING ===")
+    }
+
+
+    ;Timing to ZMI and crafting: 
+    ; Timing Capture Results:
+    ; Clicks: 7
+    ; ================================
+    ; Click 1: (98, 146) 0x6C5723
+    ; Click 2: (604, 296) 0x4B423A
+    ; Click 3: (252, 239) 0x463816
+    ; Click 4: (603, 295) 0x494035
+    ; Click 5: (239, 235) 0x655A36
+    ; Click 6: (585, 293) 0xC4BBBB
+    ; Click 7: (246, 232) 0x665B36
+    ; ================================
+    ; Intervals:
+    ;   1 -> 2: 29359ms
+    ;   2 -> 3: 453ms
+    ;   3 -> 4: 922ms
+    ;   4 -> 5: 406ms
+    ;   5 -> 6: 578ms
+    ;   6 -> 7: 469ms
+    ; ================================
+    ; Min: 406ms | Max: 29359ms | Avg: 5365ms
+
+
+    
+}
+
+; ======================================
 ; FUNCTION REGISTRY FOR THIS FILE
 ; ======================================
 global RunecraftingRegistry := Map(
@@ -657,5 +858,15 @@ global RunecraftingRegistry := Map(
         name: "LoopCompleteZeahRun",
         func: LoopCompleteZeahRun,
         description: "Loop CompleteZeahRun continuously until Ctrl+Escape. Bind this for a full RC loop."
+    },
+    "RunZMI", {
+        name: "RunZMI",
+        func: RunZMI,
+        description: "ZMI runecrafting loop"
+    },
+    "SetUpCameraAngle", {
+        name: "SetUpCameraAngle",
+        func: SetUpCameraAngle,
+        description: "Prepare camera angle for ZMI runecrafting"
     }
 )
