@@ -134,7 +134,6 @@ LoopThieveArdyKnight() {
     global manualStop
     manualStop := false
 
-    periodicIntervalMs := Random(30000, 40000) ; for the shadow veil spell
     slot1IntervalMs := 1.5 * 60 * 1000 ; bringing it down to 1.5 minutes since sometimes it wouldn't work and we'd be stuck not pping
 
     ToolTip "ThieveArdyKnight: starting..."
@@ -157,17 +156,6 @@ LoopThieveArdyKnight() {
             SetTimer () => ToolTip(), -3000
             return
         }
-
-        ; if (A_TickCount - lastPeriodicClick >= periodicIntervalMs) {
-        ;     ClickArdyKnightPeriodicRegion()
-        ;     lastPeriodicClick := A_TickCount
-        ;     periodicIntervalMs := Random(30000, 40000)
-        ;     if (ShouldStopAction()) {
-        ;         ToolTip "ThieveArdyKnight: stopped (Ctrl+Esc)"
-        ;         SetTimer () => ToolTip(), -3000
-        ;         return
-        ;     }
-        ; }
 
         if (A_TickCount - lastSlot1Click >= slot1IntervalMs) {
             ClickArdyKnightInventorySlot1()
