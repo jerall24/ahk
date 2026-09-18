@@ -33,6 +33,7 @@ HumanMouseMove(targetX, targetY, speed := 1.0, accuracy := 1.0) {
 
     ; If already at target, don't move
     if (startX = targetX && startY = targetY) {
+        HideActivityIndicator()
         isMovingMouse := false
         return
     }

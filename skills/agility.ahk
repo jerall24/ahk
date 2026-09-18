@@ -12,19 +12,6 @@ global AGILITY_COLOR_ORANGE := 0xFF8700
 ; AFK logout safety net
 global logOutIfAfk := false
 
-; Interruptible sleep - checks kill switch every 100ms
-; Returns false if interrupted, true if completed
-InterruptibleSleep(duration) {
-    elapsed := 0
-    while (elapsed < duration) {
-        if (ShouldStopAction())
-            return false
-        Sleep(100)
-        elapsed += 100
-    }
-    return true
-}
-
 ; Map click area (south on minimap) - CLIENT-RELATIVE coordinates
 ; Captured at screen (647, 137, 654, 144) with client at ~(0, 31)
 global agilityMapClickX1 := 647

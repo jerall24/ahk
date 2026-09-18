@@ -610,15 +610,19 @@ CheckClickResult(clickX, clickY, captureDelay := -1) {
             g := (argb >> 8) & 0xFF
             b := argb & 0xFF
 
-            ; Red X detection: high R, low G, low B
-            ; Based on samples: EF0702, f90100, ea0509, f20109, ea0404
-            if (r > 200 && g < 30 && b < 30) {
-                redCount++
-            }
-            ; Yellow X detection: high R, high G, low B
+            ; Yellow X detection first: high R, high G (close to R), low B.
+            ; Checked before red so dim/anti-aliased yellow-X edge pixels (which are
+            ; still R>>B but with G tracking R) are never miscounted as red.
             ; Based on samples: fafc00, ffff0f, fbfc14, fffe11, fafb05
-            else if (r > 230 && g > 230 && b < 40) {
+            if (r > 230 && g > 230 && b < 40) {
                 yellowCount++
+            }
+            ; Red X detection: R clearly dominant over both G and B, and G stays low
+            ; relative to R (this is what separates it from yellow, where G tracks R).
+            ; Covers both the bright red samples (EF0702, f90100, ea0509, f20109, ea0404)
+            ; and darker/muted red samples seen on pickpocket success (90130C, 93140D).
+            else if (r > 80 && r > (g * 2) && r > (b * 2) && g < 60 && b < 40) {
+                redCount++
             }
 
             x += 1

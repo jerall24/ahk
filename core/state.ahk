@@ -33,6 +33,19 @@ ShouldStopAction() {
     return false
 }
 
+; Interruptible sleep - checks kill switch every 100ms instead of blocking the
+; full duration. Returns false if interrupted (cancelled), true if completed.
+InterruptibleSleep(duration) {
+    elapsed := 0
+    while (elapsed < duration) {
+        if (ShouldStopAction())
+            return false
+        Sleep(100)
+        elapsed += 100
+    }
+    return true
+}
+
 ; State file path and UI mode
 global StateFilePath := A_ScriptDir "\config\state.json"
 global CurrentUIMode := "fixed"  ; Default to fixed mode

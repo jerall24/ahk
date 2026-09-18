@@ -40,6 +40,7 @@
 #Include skills\runecrafting.ahk
 #Include skills\fishing.ahk
 #Include skills\smithing.ahk
+#Include skills\thieving.ahk
 
 ; Function registry (merges all registries)
 #Include core\function_registry.ahk
